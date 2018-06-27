@@ -10,7 +10,7 @@ extern crate stdweb;
 
 pub mod router;
 mod routing;
-mod components;
+pub mod components;
 pub mod yew_router;
 pub use yew_router::{YewRouter, Routable, DefaultPage, Props};
 pub use router::Router;

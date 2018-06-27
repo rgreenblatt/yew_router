@@ -5,8 +5,8 @@ use router::{Router, Request};
 
 #[derive(Default, Clone, Debug, PartialEq)]
 pub struct Props {
-    route: Route<()>,
-    text: String
+    pub route: Route<()>,
+    pub text: String
 }
 
 pub enum Msg {
