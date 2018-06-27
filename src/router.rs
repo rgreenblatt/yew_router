@@ -95,7 +95,7 @@ impl <T> Transferable for Request <T>
     where for <'de> T: Serialize + Deserialize<'de>
 {}
 
-/// The Router worker holds on to the RouteService singleton and mediates access to it.
+/// The Router agent holds on to the RouteService singleton and mediates access to it.
 pub struct Router<T>
     where for <'de> T: JsSerialize + Clone + Debug + TryFrom<Value> + Default + Serialize + Deserialize<'de> + 'static
 {

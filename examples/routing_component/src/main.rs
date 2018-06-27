@@ -59,7 +59,7 @@ impl Renderable<Model> for Model {
         // or providing different components for users who aren't logged in.
         let props: yew_router::Props = yew_router::Props {
             routes: routes![BModel],
-            routing_failed_page: Some(DefaultPage(routing_failed_page))
+            page_not_found: Some(DefaultPage(routing_failed_page))
         };
 
         let a_route = router::Route {
