@@ -43,30 +43,22 @@ impl Component for AModel {
 
 impl Renderable<AModel> for AModel {
     fn view(&self) -> Html<Self> {
-        let a_c_route = Route {
-            path_segments: vec!["a".into(), "c".into()],
-            query: None,
-            fragment: None,
-            state: (),
-        };
-
-        let a_d_route = Route {
-            path_segments: vec!["a".into(), "d".into()],
-            query: None,
-            fragment: None,
-            state: (),
-        };
 
         html! {
             <div>
                 { "I am the A component"}
                 <div>
-                    <RouterButton: text=String::from("Go to a/c"), route=a_c_route, />
-                    <RouterButton: text=String::from("Go to a/d (Component does not exist)"), route=a_d_route, />
+                    <RouterButton:
+                        text=String::from("Go to a/c"),
+                        route=Route::parse("/a/c"),
+                    />
+                    <RouterButton:
+                        text=String::from("Go to a/d (Component does not exist)"),
+                        route=Route::parse("/a/d"),
+                    />
                 </div>
                 <div>
                     <YewRouter: routes=routes![CModel], />
-
                 </div>
             </div>
         }

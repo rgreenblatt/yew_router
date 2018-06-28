@@ -22,6 +22,11 @@ use stdweb::Value;
 use serde::Serialize;
 use serde::Deserialize;
 
+
+/// Convenience alias for YewRouterBase.
+/// If you don't store any state with the router, you should use this.
+/// If you do need to store a state object with your routes, it is suggested that you define another
+/// alias like `pub type MyRouter = YewRouterBase<MyState>` and use that around your project instead.
 pub type YewRouter = YewRouterBase<()>;
 pub type Props = PropsBase<()>;
 
