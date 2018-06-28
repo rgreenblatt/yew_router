@@ -14,15 +14,17 @@ use serde::Deserialize;
 
 use std::fmt::Debug;
 
+pub type Route = RouteBase<()>;
+
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize) ]
-pub struct Route<T> {
+pub struct RouteBase<T> {
     pub path_segments: Vec<String>,
     pub query: Option<String>,
     pub fragment: Option<String>,
     pub state: T
 }
 
-impl<T> Route<T>
+impl<T> RouteBase<T>
     where T: JsSerialize + Clone + TryFrom<Value> + Default +'static
 {
     pub fn to_route_string(&self) -> String {
@@ -60,7 +62,7 @@ impl<T> Route<T>
         };
 
 
-        Route {
+        RouteBase {
             path_segments,
             query,
             fragment,
@@ -77,16 +79,16 @@ pub enum Msg<T>
 
 
 
-impl <T> Transferable for Route<T>
+impl <T> Transferable for RouteBase<T>
     where for <'de> T: Serialize + Deserialize<'de>
 {}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Request<T> {
     /// Changes the route using a RouteInfo struct and alerts connected components to the route change.
-    ChangeRoute(Route<T>),
+    ChangeRoute(RouteBase<T>),
     /// Changes the route using a RouteInfo struct, but does not alert connected components to the route change.
-    ChangeRouteNoBroadcast(Route<T>),
+    ChangeRouteNoBroadcast(RouteBase<T>),
     /// Gets the current route.
     GetCurrentRoute
 }
@@ -113,7 +115,7 @@ impl<T> Agent for Router<T>
     type Reach = Context;
     type Message = Msg<T>;
     type Input = Request<T>;
-    type Output = Route<T>;
+    type Output = RouteBase<T>;
 
     fn create(link: AgentLink<Self>) -> Self {
         let callback = link.send_back(|route_changed: (String, T)| Msg::BrowserNavigationRouteChanged(route_changed));
@@ -131,7 +133,7 @@ impl<T> Agent for Router<T>
         match msg {
             Msg::BrowserNavigationRouteChanged((_route_string, state)) => {
                 info!("Browser navigated");
-                let mut route = Route::current_route(&self.route_service);
+                let mut route = RouteBase::current_route(&self.route_service);
                 route.state = state;
                 for sub in self.subscribers.iter() {
                     self.link.response(*sub, route.clone());
@@ -152,7 +154,7 @@ impl<T> Agent for Router<T>
                 // set the route
                 self.route_service.set_route(&route_string, route.state);
                 // get the new route. This will contain a default state object
-                let route = Route::current_route(&self.route_service);
+                let route = RouteBase::current_route(&self.route_service);
                 // broadcast it to all listening components
                 for sub in self.subscribers.iter() {
                     self.link.response(*sub, route.clone());
@@ -163,7 +165,7 @@ impl<T> Agent for Router<T>
                 self.route_service.set_route(&route_string, route.state);
             }
             Request::GetCurrentRoute => {
-                let route = Route::current_route(&self.route_service);
+                let route = RouteBase::current_route(&self.route_service);
                 self.link.response(who, route.clone());
             }
         }
