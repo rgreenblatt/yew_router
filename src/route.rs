@@ -158,6 +158,7 @@ impl <T> Transferable for RouteBase<T>
 {}
 
 
+/// A simple wrapper around format! that makes it easier to create `Route` structs.
 #[macro_export]
 macro_rules! route {
     ($($tts:tt)*) => {
