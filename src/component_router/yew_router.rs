@@ -161,25 +161,29 @@ impl <T> Component for YewRouterBase<T>
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::SetRoute(route) => {
-                self.route = route;
+                if self.route != route {
+                    self.route = route;
 
-                if self.should_routing_error() {
-                    match self.role {
-                        // If the router isn't configured to display a 404 page,
-                        // send a message to a router that is configured to display a 404 page.
-                        RouterRole::SimpleRouter(ref sender) => sender.send(RoutingFailedMsg),
-                        // If the router is configured to display a 404 page,
-                        // just set the flag to display the 404 page.
-                        RouterRole::PageNotFoundRouter{ref mut error_occurred, ..} => {
-                            *error_occurred = true;
+                    if self.should_routing_error() {
+                        match self.role {
+                            // If the router isn't configured to display a 404 page,
+                            // send a message to a router that is configured to display a 404 page.
+                            RouterRole::SimpleRouter(ref sender) => sender.send(RoutingFailedMsg),
+                            // If the router is configured to display a 404 page,
+                            // just set the flag to display the 404 page.
+                            RouterRole::PageNotFoundRouter { ref mut error_occurred, .. } => {
+                                *error_occurred = true;
+                            }
+                        }
+                    } else {
+                        if let RouterRole::PageNotFoundRouter { ref mut error_occurred, .. } = self.role {
+                            *error_occurred = false
                         }
                     }
+                    true
                 } else {
-                    if let RouterRole::PageNotFoundRouter {ref mut error_occurred, ..} = self.role {
-                        *error_occurred = false
-                    }
+                    false
                 }
-                true
             }
             Msg::ReceiveRoutingFailure => {
                 if let RouterRole::PageNotFoundRouter {ref mut error_occurred, ..} = self.role {
@@ -210,12 +214,15 @@ impl <T> Component for YewRouterBase<T>
                     let callback = self.link.send_back(|_| Msg::NoOp);
                     self.role = RouterRole::SimpleRouter(Sender::new(callback))
                 }
-
             }
         }
 
         self.routes = props.routes;
         true
+    }
+
+    fn destroy(&mut self) {
+        trace!("Destroying Yew router");
     }
 }
 
@@ -252,6 +259,7 @@ impl <T> YewRouterBase<T>
         }
 
         if let RouterRole::PageNotFoundRouter{ref default_page, ..} = self.role {
+            // TODO consider putting this in a V
             (default_page.0)(&self.route)
         } else {
             VNode::VList(VList::new()) // empty - no matched route

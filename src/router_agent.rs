@@ -91,7 +91,7 @@ impl<T> Agent for RouterAgentBase<T>
     fn update(&mut self, msg: Self::Message) {
         match msg {
             Msg::BrowserNavigationRouteChanged((_route_string, state)) => {
-                info!("Browser navigated");
+                trace!("Browser navigated");
                 let mut route = RouteBase::current_route(&self.route_service);
                 route.state = state;
                 for sub in self.subscribers.iter() {
@@ -108,6 +108,7 @@ impl<T> Agent for RouterAgentBase<T>
     fn handle(&mut self, msg: Self::Input, who: HandlerId) {
         match msg {
             RouterRequest::ReplaceRoute(route) => {
+                trace!("Replacing route and broadcasting to {} subscribers", self.subscribers.len());
                 let route_string: String = route.to_route_string();
                 self.route_service.replace_route(&route_string, route.state);
                 let route = RouteBase::current_route(&self.route_service);
@@ -116,10 +117,12 @@ impl<T> Agent for RouterAgentBase<T>
                 }
             }
             RouterRequest::ReplaceRouteNoBroadcast(route) => {
+                trace!("Replacing route and not broadcasting");
                 let route_string: String = route.to_route_string();
                 self.route_service.replace_route(&route_string, route.state);
             }
             RouterRequest::ChangeRoute(route) => {
+                trace!("Changing route and broadcasting route to {} subscribers", self.subscribers.len());
                 let route_string: String = route.to_route_string();
                 // set the route
                 self.route_service.set_route(&route_string, route.state);
@@ -131,10 +134,12 @@ impl<T> Agent for RouterAgentBase<T>
                 }
             }
             RouterRequest::ChangeRouteNoBroadcast(route) => {
+                trace!("Changing route and not broadcasting");
                 let route_string: String = route.to_route_string();
                 self.route_service.set_route(&route_string, route.state);
             }
             RouterRequest::GetCurrentRoute => {
+                trace!("Getting route");
                 let route = RouteBase::current_route(&self.route_service);
                 self.link.response(who, route.clone());
             }
@@ -204,6 +209,9 @@ impl<T> Agent for RouterSenderAgentBase<T>
     }
 
 }
+
+pub type RouterSender = RouterSenderBase<()>;
+
 /// A simplified interface to the router agent
 pub struct RouterSenderBase<T>(Box<Bridge<RouterSenderAgentBase<T>>>)
     where for<'de> T: RouterState<'de>;
