@@ -146,6 +146,7 @@ impl<T> Agent for RouterAgentBase<T>
         }
     }
     fn disconnected(&mut self, id: HandlerId) {
+        trace!("Removing subscriber.");
         self.subscribers.remove(&id);
     }
 }
