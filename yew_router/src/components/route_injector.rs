@@ -7,34 +7,34 @@ use crate::route_info::RouteInfo;
 use std::fmt::{Debug, Formatter, Error as FmtError};
 
 /// A trait allowing user-defined components to have their props rewritten by a parent ActiveWrapper when the route changes.
-pub trait Activatable: Component + Renderable<Self> {
-    /// Changes the props.
-    fn set_active(props: Self::Properties, route_string: &str) -> Self::Properties;
+pub trait RouteInjectable<T: for<'de> YewRouterState<'de>>: Component + Renderable<Self> {
+    /// Changes the props based on a route.
+    fn inject_route(props: &mut Self::Properties, route_info: &RouteInfo<T>);
 }
 
-/// A component that wraps child components and can tell them what the route is.
+/// A component that wraps child components and can tell them what the route is via props.
 #[derive(Debug)]
-pub struct ActiveWrapper<T, C>
+pub struct RouteInjector<T, C>
 where
     T: for<'de> YewRouterState<'de>,
-    C: Activatable
+    C: RouteInjectable<T>
 {
     router_bridge: RouteAgentBridge<T>,
-    route: Option<String>,
+    route_info: Option<RouteInfo<T>>,
     props: Props<T, C>
 }
 
 
-/// Properties for ActiveWrapper.
+/// Properties for RouteInjector.
 #[derive(Properties)]
-pub struct Props<T: for<'de> YewRouterState<'de>, C: Activatable> {
-    children: ChildrenWithProps<C, ActiveWrapper<T, C>>
+pub struct Props<T: for<'de> YewRouterState<'de>, C: RouteInjectable<T>> {
+    children: ChildrenWithProps<C, RouteInjector<T, C>>
 }
 
 impl <T, C> Debug for Props<T,C>
 where
     T: for<'de> YewRouterState<'de>,
-    C: Activatable
+    C: RouteInjectable<T>
 {
     fn fmt(&self, f: &mut Formatter) -> Result<(), FmtError> {
         f.debug_struct("Props")
@@ -43,26 +43,26 @@ where
     }
 }
 
-/// Message type for ActiveWrapper
+/// Message type for RouteInjector.
 #[derive(Debug)]
 pub enum Msg<T: for<'de> YewRouterState<'de>> {
     /// Message indicating that the route has changed
     RouteUpdated(RouteInfo<T>)
 }
 
-impl <T, C> Component for ActiveWrapper<T, C>
+impl <T, C> Component for RouteInjector<T, C>
 where
     T: for<'de> YewRouterState<'de>,
-    C: Activatable
+    C: RouteInjectable<T>
 {
     type Message = Msg<T>;
     type Properties = Props<T, C>;
 
     fn create(props: Self::Properties, mut link: ComponentLink<Self>) -> Self {
         let callback = link.send_back(|route_info| Msg::RouteUpdated(route_info));
-        ActiveWrapper {
+        RouteInjector {
             router_bridge: RouteAgentBridge::new(callback),
-            route: None,
+            route_info: None,
             props
         }
     }
@@ -74,7 +74,7 @@ where
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::RouteUpdated(route_info) => self.route = Some(route_info.route)
+            Msg::RouteUpdated(route_info) => self.route_info = Some(route_info)
         }
         true
     }
@@ -85,16 +85,16 @@ where
     }
 }
 
-impl <T, C> Renderable<ActiveWrapper<T, C>> for ActiveWrapper<T, C>
+impl <T, C> Renderable<RouteInjector<T, C>> for RouteInjector<T, C>
     where
         T: for<'de> YewRouterState<'de>,
-        C: Activatable
+        C: RouteInjectable<T>
 {
     fn view(&self) -> Html<Self> {
         self.props.children.iter()
             .map(|mut child| {
-                if let Some(route_string) = &self.route  {
-                    child.props = C::set_active(child.props, &route_string)
+                if let Some(route_info) = &self.route_info  {
+                    C::inject_route(&mut child.props, &route_info)
                 }
                 child
             } )

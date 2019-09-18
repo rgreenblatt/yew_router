@@ -2,13 +2,21 @@
 //!
 pub mod router_button;
 pub mod router_link;
-pub mod active_wrapper;
+pub mod route_injector;
+
+
 
 pub use self::router_button::RouterButton;
 pub use self::router_link::RouterLink;
 
-use yew::Properties;
+/// Alias to 'RouteInjector<(), C>'
+pub type RouteInjector<C> = self::route_injector::RouteInjector<(), C>;
+/// Trait alias to 'RouteInjectable<()>'
+pub trait RouteInjectable: self::route_injector::RouteInjectable<()> {}
 
+
+
+use yew::Properties;
 /// Properties for Routing Components
 #[derive(Properties, Default, Clone, Debug, PartialEq)]
 pub struct Props {
@@ -32,3 +40,4 @@ pub enum Msg {
     /// Tell the router to navigate the application to the Component's pre-defined route.
     Clicked,
 }
+
