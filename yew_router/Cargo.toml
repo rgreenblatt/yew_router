@@ -6,14 +6,15 @@ edition = "2018"
 
 
 [features]
-default = ["router", "components"]
+default = ["router", "components", "matchers"]
 
-router = ["router_agent", "matchers"]
-components = ["router_agent", "matchers"]
+router = ["router_agent", "yew_router_route_parser"]
+components = ["router_agent" ]
 
 router_agent = []
-matchers = ["nom", "regex_matcher", "yew_router_route_parser", "yew_router_derive"]
+matchers = [ "regex_matcher", "route_matcher"]
 regex_matcher = ["regex"]
+route_matcher = ["yew_router_route_parser", "yew_router_derive", "nom"]
 
 
 [dependencies]
