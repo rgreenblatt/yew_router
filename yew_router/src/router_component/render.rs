@@ -1,12 +1,12 @@
 //! Wrapper around RenderFn that allows clones.
-use crate::router_component::YewRouterState;
+use crate::matcher::{FromMatches, Matches, RenderFn};
 use crate::router::Router;
+use crate::router_component::YewRouterState;
 use std::fmt::{Debug, Error as FmtError, Formatter};
 use std::rc::Rc;
 use yew::virtual_dom::vcomp::ScopeHolder;
 use yew::virtual_dom::{VComp, VNode};
 use yew::{Component, Html, Renderable};
-use crate::matcher::{FromMatches, Matches, RenderFn};
 
 /// Creates a component using supplied props.
 fn create_component<COMP: Component + Renderable<COMP>, CONTEXT: Component>(
