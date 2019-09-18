@@ -20,7 +20,6 @@ pub mod route_agent;
 /// Alias to [RouteAgent<()>](struct.RouteAgent.html).
 pub type RouteAgent = route_agent::RouteAgent<()>;
 
-#[cfg(feature = "router_agent")]
 pub mod route_info;
 
 #[cfg(feature = "router_agent")]
@@ -30,18 +29,17 @@ pub type RouteInfo = route_info::RouteInfo<()>;
 #[cfg(feature = "components")]
 pub mod components;
 
-#[cfg(feature = "yew_router")]
+#[cfg(feature = "router")]
 mod router_component;
-#[cfg(feature = "yew_router")]
+#[cfg(feature = "router")]
 pub use router_component::{
     render, render::component, render::render, route, router, Render, Route, Router, YewRouterState,
 };
 
-#[cfg(feature = "yew_router")]
-pub use matcher::route_matcher as path_matcher;
 
-#[cfg(feature = "yew_router")]
+
+#[cfg(any(feature = "matchers", feature= "router" ) )]
 pub mod matcher;
 
-#[cfg(feature = "yew_router")]
+#[cfg(feature = "matchers")]
 pub use yew_router_derive::{route, FromMatches};
