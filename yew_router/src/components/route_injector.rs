@@ -11,7 +11,20 @@ use yew::{
 /// A trait allowing user-defined components to have their props rewritten by a parent `RouteInjector` when the route changes.
 pub trait RouteInjectable<T: for<'de> YewRouterState<'de>>: Component + Renderable<Self> {
     /// Changes the props based on a route.
-    fn inject_route(props: &mut Self::Properties, route_info: &RouteInfo<T>);
+    ///
+    ///
+    /// # Example
+    /// ```
+    /// use yew_router::components::RouteInjectable;
+    /// use yew_router::RouteInfo;
+    ///
+    /// impl RouteInjectable for ListElement {
+    ///     fn inject_route(mut props: &mut Self::Properties, route_info: &RouteInfo) {
+    ///          props.is_active = props.matcher.match_route_string(&route_info.route).is_some();
+    ///     }
+    /// }
+    /// ```
+    fn inject_route(&mut self, route_info: &RouteInfo<T>);
 }
 
 /// A component that wraps child components and can tell them what the route is via props.
@@ -21,8 +34,7 @@ pub trait RouteInjectable<T: for<'de> YewRouterState<'de>>: Component + Renderab
 /// use yew_router::matcher::{Matcher, MatcherProvider};
 /// # use yew::{Component, ComponentLink, Renderable, Html, Properties, html, Classes, Children};
 /// use yew_router::components::{RouteInjectable, RouteInjector};
-/// # use yew_router::RouteInfo;
-/// # use yew_router::route;
+/// # use yew_router::{RouteInfo, route};
 /// pub struct ListElement {
 ///     props: ListElementProps
 /// }
@@ -87,7 +99,8 @@ pub trait RouteInjectable<T: for<'de> YewRouterState<'de>>: Component + Renderab
 pub struct RouteInjector<T, C>
 where
     T: for<'de> YewRouterState<'de>,
-    C: RouteInjectable<T>,
+    C: Component,
+    <C as Component>::Properties: RouteInjectable<T>,
 {
     router_bridge: RouteAgentBridge<T>,
     route_info: Option<RouteInfo<T>>,
@@ -96,14 +109,18 @@ where
 
 /// Properties for `RouteInjector`.
 #[derive(Properties)]
-pub struct Props<T: for<'de> YewRouterState<'de>, C: RouteInjectable<T>> {
+pub struct Props<T: for<'de> YewRouterState<'de>, C: Component>
+where
+    <C as Component>::Properties: RouteInjectable<T>
+{
     children: ChildrenWithProps<C, RouteInjector<T, C>>,
 }
 
 impl<T, C> Debug for Props<T, C>
 where
     T: for<'de> YewRouterState<'de>,
-    C: RouteInjectable<T>,
+    C: Component,
+    <C as Component>::Properties: RouteInjectable<T>,
 {
     fn fmt(&self, f: &mut Formatter) -> Result<(), FmtError> {
         f.debug_struct("Props")
@@ -115,7 +132,7 @@ where
     }
 }
 
-/// Message type for RouteInjector.
+/// Message type for `RouteInjector`.
 #[derive(Debug)]
 pub enum Msg<T: for<'de> YewRouterState<'de>> {
     /// Message indicating that the route has changed
@@ -125,7 +142,8 @@ pub enum Msg<T: for<'de> YewRouterState<'de>> {
 impl<T, C> Component for RouteInjector<T, C>
 where
     T: for<'de> YewRouterState<'de>,
-    C: RouteInjectable<T>,
+    C: Component,
+    <C as Component>::Properties: RouteInjectable<T>,
 {
     type Message = Msg<T>;
     type Properties = Props<T, C>;
@@ -160,7 +178,8 @@ where
 impl<T, C> Renderable<RouteInjector<T, C>> for RouteInjector<T, C>
 where
     T: for<'de> YewRouterState<'de>,
-    C: RouteInjectable<T>,
+    C: Component,
+    <C as Component>::Properties: RouteInjectable<T>,
 {
     fn view(&self) -> Html<Self> {
         self.props
@@ -168,7 +187,8 @@ where
             .iter()
             .map(|mut child| {
                 if let Some(route_info) = &self.route_info {
-                    C::inject_route(&mut child.props, &route_info)
+                    // Allow the children to change their props based on the route.
+                    child.props.inject_route(&route_info)
                 }
                 child
             })
