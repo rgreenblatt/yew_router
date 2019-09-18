@@ -2,6 +2,7 @@
 //!
 pub mod router_button;
 pub mod router_link;
+pub mod active_wrapper;
 
 pub use self::router_button::RouterButton;
 pub use self::router_link::RouterLink;
