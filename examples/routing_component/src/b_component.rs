@@ -6,7 +6,7 @@ use yew::Properties;
 use yew_router::matcher::FromMatches;
 use yew_router::matcher::FromMatchesError;
 use yew_router::route;
-use yew_router::route_agent::RouteRequest;
+use yew_router::agent::RouteRequest;
 use yew_router::{RouteAgent, RouteInfo};
 
 pub struct BModel {

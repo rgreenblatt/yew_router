@@ -51,10 +51,10 @@
 pub mod route_service;
 
 #[cfg(feature = "router_agent")]
-pub mod route_agent;
+pub mod agent;
 #[cfg(feature = "router_agent")]
 /// Alias to [RouteAgent<()>](struct.RouteAgent.html).
-pub type RouteAgent = route_agent::RouteAgent<()>;
+pub type RouteAgent = agent::RouteAgent<()>;
 
 pub mod route_info;
 /// Alias to [RouteInfo<()>](struct.RouteInfo.html).
