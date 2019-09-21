@@ -2,8 +2,8 @@ extern crate proc_macro;
 use proc_macro::TokenStream;
 use proc_macro_hack::proc_macro_hack;
 
-mod from_matches;
-use from_matches::from_captures_impl;
+mod from_captures;
+use from_captures::from_captures_impl;
 
 mod route;
 use route::route_impl;

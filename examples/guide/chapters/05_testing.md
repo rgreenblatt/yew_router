@@ -1,9 +1,9 @@
 # Testing
 
-To make sure that your router works reliably, you will want to test your `FromMatches` implementations, as well as the output of your `route!` macros.
+To make sure that your router works reliably, you will want to test your `FromCaptures` implementations, as well as the output of your `route!` macros.
 
 
-## FromMatches
+## FromCaptures
 Testing implementors of is simple enough.
 
 Just provide a `&Matches` (an alias of `HashMap<'str, String>`) to your prop's `from_matches()` method and test the expected results.

@@ -22,7 +22,7 @@ pub use token_optimizer::{
     next_delimiters, optimize_tokens, parse_str_and_optimize_tokens, MatcherToken,
 };
 
-/// An error type used when implementing `FromMatches`.
+/// An error type used when implementing `FromCaptures`.
 #[derive(Debug)]
 pub enum FromCapturesError {
     /// Missing field
@@ -51,8 +51,8 @@ impl Display for FromCapturesError {
 impl Error for FromCapturesError {
     //    fn source(&self) -> Option<&(dyn Error + 'static)> {
     //        match self  {
-    //            FromMatchesError::MissingField {..} => None,
-    //            FromMatchesError::Error(e) => Some(&e )
+    //            FromCapturesError::MissingField {..} => None,
+    //            FromCapturesError::Error(e) => Some(&e )
     //        }
     //    }
 }
@@ -60,8 +60,8 @@ impl Error for FromCapturesError {
 /// Used for constructing `Properties` from URL matches.
 ///
 /// # Note
-/// FromMatches, as derived, is pretty dumb and unreliable.
-/// It is only suggested to derive FromMatches if the types in your struct are reliably convertible from `&str`.
+/// FromCaptures, as derived, is pretty dumb and unreliable.
+/// It is only suggested to derive FromCaptures if the types in your struct are reliably convertible from `&str`.
 /// In practice, this means that `String`, and the numeric types are safe bets.
 ///
 /// The derive relies on [FromStr](https://doc.rust-lang.org/std/str/trait.FromStr.html) for converting types.

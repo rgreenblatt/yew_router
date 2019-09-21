@@ -16,19 +16,19 @@ pub fn from_captures_impl(input: TokenStream) -> TokenStream {
                     fields_named.named.iter().cloned().collect::<Vec<_>>()
                 }
                 Fields::Unnamed(_) => {
-                    panic!("Deriving FromMatches not supported for Tuple Structs.")
+                    panic!("Deriving FromCaptures not supported for Tuple Structs.")
                 }
                 Fields::Unit => {
-                    panic!("Deriving FromMatches not supported for Unit Structs, but it should be in the near future. Open an issue .")
+                    panic!("Deriving FromCaptures not supported for Unit Structs, but it should be in the near future. Open an issue .")
                 }
             }
 
         }
         Data::Enum(_de) => {
-            panic!("Deriving FromMatches not supported for Enums.")
+            panic!("Deriving FromCaptures not supported for Enums.")
         }
         Data::Union(_du) => {
-            panic!("Deriving FromMatches not supported for Unions.")
+            panic!("Deriving FromCaptures not supported for Unions.")
         }
     };
 
@@ -45,7 +45,7 @@ pub fn from_captures_impl(input: TokenStream) -> TokenStream {
 
     let assignments = quote! {
         #(
-        let #idents = matches
+        let #idents = captures
             .get(#keys)
             .ok_or_else(|| {
                 __FromCapturesError::MissingField {
@@ -77,9 +77,9 @@ pub fn from_captures_impl(input: TokenStream) -> TokenStream {
                     Ok(x)
                 }
 
-                fn verify(matches: &__HashSet<String>) {
+                fn verify(captures: &__HashSet<String>) {
                     #(
-                        if !matches.contains(&#keys.to_string()) {
+                        if !captures.contains(&#keys.to_string()) {
                             panic!("The struct expected the matches to contain a field named '{}'", #keys.to_string())
                         }
                     )*

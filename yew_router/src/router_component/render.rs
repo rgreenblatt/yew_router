@@ -17,7 +17,7 @@ fn create_component<COMP: Component + Renderable<COMP>, CONTEXT: Component>(
 }
 
 /// Creates a `Render` that creates the specified component if its
-/// props can be created from the provided matches using `FromMatches`.
+/// props can be created from the provided matches using `FromCaptures`.
 ///
 /// # Note
 /// Allows specification of the router type.
@@ -34,7 +34,7 @@ where
 }
 
 /// Creates a render that creates the specified component if its
-/// props can be created from the provided matches using `FromMatches`.
+/// props can be created from the provided matches using `FromCaptures`.
 pub fn component<T>() -> Render<()>
 where
     T: Component + Renderable<T>,
