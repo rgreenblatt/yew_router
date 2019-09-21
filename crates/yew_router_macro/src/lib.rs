@@ -3,14 +3,14 @@ use proc_macro::TokenStream;
 use proc_macro_hack::proc_macro_hack;
 
 mod from_matches;
-use from_matches::from_matches_impl;
+use from_matches::from_captures_impl;
 
 mod route;
 use route::route_impl;
 
-#[proc_macro_derive(FromMatches)]
-pub fn from_matches(tokens: TokenStream) -> TokenStream{
-    from_matches_impl(tokens)
+#[proc_macro_derive(FromCaptures)]
+pub fn from_captures(tokens: TokenStream) -> TokenStream{
+    from_captures_impl(tokens)
 }
 
 #[proc_macro_hack]

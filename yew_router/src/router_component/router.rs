@@ -28,7 +28,7 @@ use crate::matcher::RenderFn;
 ///
 /// pub struct AComponent {}
 ///
-/// #[derive(Properties, FromMatches)]
+/// #[derive(Properties, FromCaptures)]
 /// pub struct AComponentProps {
 ///     value: String
 /// }

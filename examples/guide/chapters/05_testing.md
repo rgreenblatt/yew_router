@@ -13,9 +13,9 @@ Just provide a `&Matches` (an alias of `HashMap<'str, String>`) to your prop's `
 
 #[test]
 fn creates_props() {
-    let mut matches: Matches = HashMap::new();
-    matches.insert("key", "value");
-    assert!(Props::from_matches(matches).is_some())
+    let mut captures: Captures = HashMap::new();
+    captures.insert("key", "value");
+    assert!(Props::from_matches(captures).is_some())
 }
 ```
 

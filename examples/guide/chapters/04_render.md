@@ -43,7 +43,7 @@ If you have a simple props made up only of types that implement `FromStr`, then 
 ```rust
 pub struct MyComponent;
 
-#[derive(FromMatches, Properties)]
+#[derive(FromCaptures, Properties)]
 pub struct MyComponentProps;
 
 impl Component for MyComponent {

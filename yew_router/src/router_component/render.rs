@@ -6,7 +6,7 @@ use std::rc::Rc;
 use yew::virtual_dom::vcomp::ScopeHolder;
 use yew::virtual_dom::{VComp, VNode};
 use yew::{Component, Html, Renderable};
-use crate::matcher::{FromMatches, Matches, RenderFn};
+use crate::matcher::{FromCaptures, Captures, RenderFn};
 
 /// Creates a component using supplied props.
 fn create_component<COMP: Component + Renderable<COMP>, CONTEXT: Component>(
@@ -24,11 +24,11 @@ fn create_component<COMP: Component + Renderable<COMP>, CONTEXT: Component>(
 pub fn component_s<T, U>() -> Render<U>
 where
     T: Component + Renderable<T>,
-    <T as Component>::Properties: FromMatches,
+    <T as Component>::Properties: FromCaptures,
     U: for<'de> YewRouterState<'de>,
 {
-    Render::new(|matches: &Matches| {
-        let props = T::Properties::from_matches(matches).ok()?;
+    Render::new(|captures: &Captures| {
+        let props = T::Properties::from_captures(captures).ok()?;
         Some(create_component::<T, Router<U>>(props))
     })
 }
@@ -38,7 +38,7 @@ where
 pub fn component<T>() -> Render<()>
 where
     T: Component + Renderable<T>,
-    <T as Component>::Properties: FromMatches,
+    <T as Component>::Properties: FromCaptures,
 {
     component_s::<T, ()>()
 }
