@@ -1,23 +1,32 @@
 //! Logic for matching and capturing route strings.
-use std::collections::HashMap;
-use std::fmt::Debug;
 use yew::{Component, Html};
 
-pub use yew_router_route_parser::{FromMatches, FromMatchesError, CaptureVariant, MatcherToken};
+pub use yew_router_route_parser::{Captures, FromCaptures, FromCapturesError, CaptureVariant, MatcherToken};
 
 #[cfg(feature = "regex_matcher")]
 mod regex_matcher;
 #[cfg(feature = "regex_matcher")]
 use regex::Regex;
 
-
 #[cfg(feature = "route_matcher")]
 pub mod route_matcher;
 #[cfg(feature = "route_matcher")]
-pub use self::route_matcher::{RouteMatcher};
+pub use self::route_matcher::RouteMatcher;
 
-/// An enum that contains variants that can match a route string.
-#[derive(Debug)]
+mod custom;
+pub use custom::CustomMatcher;
+
+
+/// Trait that allows user-defined matchers.
+pub trait MatcherProvider {
+    /// Given itself and a route string, determine if the route matches by returning an Option
+    /// possibly containing any sections captured by the matcher.
+    fn match_route_string<'a, 'b: 'a>(&'b self, route_string: &'a str) -> Option<Captures<'a>>;
+}
+
+
+/// An enum that contains variants that can match a route string
+#[derive(Clone, Debug)]
 pub enum Matcher {
 
     #[cfg(feature = "route_matcher")]
@@ -27,20 +36,24 @@ pub enum Matcher {
     /// A matcher that uses a regex to match and capture values.
     RegexMatcher(Regex),
     /// A user-defined matcher.
-    CustomMatcher(Box<dyn MatcherProvider>),
+    CustomMatcher(CustomMatcher)
 }
 
-/// Trait that allows user-defined matchers.
-pub trait MatcherProvider: Debug {
-    /// Given itself and a route string, determine if the route matches by returning an Option
-    /// possibly containing any sections captured by the matcher.
-    fn match_route_string<'a, 'b: 'a>(&'b self, route_string: &'a str) -> Option<Matches<'a>>;
+impl PartialEq for Matcher {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Matcher::RouteMatcher(this), Matcher::RouteMatcher(other)) => this == other,
+            (Matcher::RegexMatcher(this), Matcher::RegexMatcher(other)) => this.as_str() == other.as_str(),
+            (Matcher::CustomMatcher(this), Matcher::CustomMatcher(other)) => this == other,
+            _ => false
+        }
+    }
 }
 
 impl MatcherProvider for Matcher {
     /// Given itself and a route string, determine if the route matches by returning an Option
     /// possibly containing any sections captured by the matcher.
-    fn match_route_string<'a, 'b: 'a>(&'b self, route_string: &'a str) -> Option<Matches<'a>> {
+    fn match_route_string<'a, 'b: 'a>(&'b self, route_string: &'a str) -> Option<Captures<'a>> {
         match self {
             #[cfg(feature = "route_matcher")]
             Matcher::RouteMatcher(matcher) => {
@@ -53,22 +66,14 @@ impl MatcherProvider for Matcher {
     }
 }
 
-/// Matches contain keys corresponding to named capture sections,
-/// and values containing the content captured by those sections.
-pub type Matches<'a> = HashMap<&'a str, String>;
-
 /// Render function.
-pub trait RenderFn<CTX: Component>: Fn(&Matches) -> Option<Html<CTX>> {}
+pub trait RenderFn<CTX: Component>: Fn(&Captures) -> Option<Html<CTX>> {}
 
 impl<CTX, T> RenderFn<CTX> for T
-where
-    T: Fn(&Matches) -> Option<Html<CTX>>,
-    CTX: Component,
+    where
+        T: Fn(&Captures) -> Option<Html<CTX>>,
+        CTX: Component,
 {
 }
 
-impl From<Box<dyn MatcherProvider>> for Matcher {
-    fn from(value: Box<dyn MatcherProvider>) -> Self {
-        Matcher::CustomMatcher(value)
-    }
-}
+

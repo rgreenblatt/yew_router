@@ -1,16 +1,17 @@
 //! Module for matching route strings based on tokens generated from the yew_router_route_parser crate.
 
-pub use yew_router_route_parser::{CaptureVariant, FromMatches, FromMatchesError, MatcherToken};
+pub use yew_router_route_parser::{CaptureVariant, FromCaptures, FromCapturesError, MatcherToken};
 
 mod match_paths;
 mod util;
 
-use super::Matcher;
-use super::Matches;
 use nom::combinator::all_consuming;
 use nom::IResult;
 use std::collections::HashSet;
 use yew_router_route_parser::{optimize_tokens, parser};
+use super::Captures;
+use super::Matcher;
+
 
 /// Attempts to match routes, transform the route to Component props and render that Component.
 ///
@@ -60,7 +61,7 @@ impl RouteMatcher {
     // TODO see if more error handling can be done here.
 
     /// Match a route string.
-    pub fn match_route<'a, 'b: 'a>(&'b self, i: &'a str) -> IResult<&'a str, Matches<'a>> {
+    pub fn match_route<'a, 'b: 'a>(&'b self, i: &'a str) -> IResult<&'a str, Captures<'a>> {
         if self.settings.complete {
             all_consuming(match_paths::match_path(&self.tokens, &self.settings))(i)
         } else {

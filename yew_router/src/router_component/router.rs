@@ -1,11 +1,9 @@
 //! Router Component.
 
-use crate::matcher::MatcherProvider;
-use crate::matcher::RenderFn;
-use crate::route_agent::RouteAgentBridge;
-use crate::route_agent::RouteRequest;
-use crate::route_info::RouteInfo;
 use crate::router_component::route::Route;
+use crate::agent::{bridge::RouteAgentBridge, RouteRequest};
+use crate::route_info::RouteInfo;
+use crate::matcher::RenderFn;
 use crate::YewRouterState;
 use log::{trace, warn};
 use std::fmt::{Debug, Error as FmtError, Formatter};
@@ -25,11 +23,12 @@ use yew::{
 /// # Example
 /// ```
 /// use yew::prelude::*;
-/// use yew_router::{Router, Route, route, FromMatches, render::component};
+/// use yew_router::{Router, Route, route, render::component};
+/// use yew_router::FromCaptures;
 ///
 /// pub struct AComponent {}
 ///
-/// #[derive(Properties, FromMatches)]
+/// #[derive(Properties, FromCaptures)]
 /// pub struct AComponentProps {
 ///     value: String
 /// }

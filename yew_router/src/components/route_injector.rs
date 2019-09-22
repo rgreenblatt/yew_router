@@ -1,6 +1,6 @@
 //! A component that keeps track of the current route string and can modify its wrapped children via props
 //! to indicate the route.
-use crate::route_agent::{RouteAgentBridge, RouteRequest};
+use crate::agent::{bridge::RouteAgentBridge, RouteRequest};
 use crate::route_info::RouteInfo;
 use crate::router_component::YewRouterState;
 use std::fmt::{Debug, Error as FmtError, Formatter};
