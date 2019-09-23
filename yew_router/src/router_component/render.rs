@@ -35,18 +35,18 @@ where
 
 /// Creates a render that creates the specified component if its
 /// props can be created from the provided matches using `FromCaptures`.
-pub fn component<T>() -> Render<()>
-where
-    T: Component + Renderable<T>,
-    <T as Component>::Properties: FromCaptures,
-{
-    component_s::<T, ()>()
-}
+//pub fn component<T>() -> Render<()>
+//where
+//    T: Component + Renderable<T>,
+//    <T as Component>::Properties: FromCaptures,
+//{
+//    component_s::<T, ()>()
+//}
 
 /// Shorthand for [Render::new()](structs.Render.html#new).
-pub fn render(render: impl RenderFn<Router<()>> + 'static) -> Render<()> {
-    Render::new(render)
-}
+//pub fn render(render: impl RenderFn<Router<()>> + 'static) -> Render<()> {
+//    Render::new(render)
+//}
 
 /// Shorthand for [Render::new()](structs.Render.html#new).
 ///

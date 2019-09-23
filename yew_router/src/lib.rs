@@ -50,17 +50,13 @@
 #![allow(deprecated)] // TODO remove me once dispatchers lands
 use proc_macro_hack::proc_macro_hack;
 
+mod alias;
 pub mod route_service;
 
 #[cfg(feature = "router_agent")]
 pub mod agent;
-#[cfg(feature = "router_agent")]
-/// Alias to [RouteAgent<()>](struct.RouteAgent.html).
-pub type RouteAgent = agent::RouteAgent<()>;
 
 pub mod route_info;
-/// Alias to [RouteInfo<()>](struct.RouteInfo.html).
-pub type RouteInfo = route_info::RouteInfo<()>;
 
 #[cfg(feature = "components")]
 pub mod components;
@@ -69,13 +65,19 @@ pub mod components;
 mod router_component;
 #[cfg(feature = "router")]
 pub use router_component::{
-    render, render::component, route, router, Render, Route, Router, YewRouterState,
+    render, route, router, YewRouterState,
 };
 
 
 
+// Use this alias to define a module containing type aliases.
+router_aliases!(());
+pub use router_aliases::*;
+
 #[cfg(any(feature = "matchers", feature= "router" ) )]
 pub mod matcher;
+#[cfg(any(feature = "matchers", feature= "router" ) )]
+pub use matcher::{MatcherProvider, Matcher, Captures, FromCaptures, FromCapturesError};
 
 
 #[cfg(feature = "matchers")]
