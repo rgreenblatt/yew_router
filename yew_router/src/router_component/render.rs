@@ -8,6 +8,7 @@ use yew::virtual_dom::vcomp::ScopeHolder;
 use yew::virtual_dom::{VComp, VNode};
 use yew::{Component, Html, Renderable};
 
+/// Creates a component using supplied props and scope.
 pub(crate) fn create_component_with_scope<
     COMP: Component + Renderable<COMP>,
     CONTEXT: Component,
