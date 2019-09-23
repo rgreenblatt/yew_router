@@ -1,5 +1,6 @@
-/// Generates a set of aliases to common structures within yew_router as well as functions
-/// for rendering routes.
+/// Generates a module named `router_state` containing aliases to common structures within yew_router
+/// that deal with operating with RouteInfo and its state values as well as functions for
+/// rendering routes.
 ///
 /// Because they should be the same across a given application,
 /// its a handy way to make sure that every type that could be needed is generated.
@@ -19,7 +20,8 @@ macro_rules! define_router_state {
         define_router_state!($StateT, stringify!($StateT));
     };
     ($StateT:ty, $StateName:expr) => {
-        mod router_aliases {
+        #[doc = "A set of aliases to commonly used structures and functions used for routing."]
+        mod router_state {
 
             #[doc = "Alias to [RouteInfo<"]
             #[doc = $StateName]
@@ -73,6 +75,8 @@ macro_rules! define_router_state {
             #[doc = "Creates components using a Html block in terms of a `Router<"]
             #[doc = $StateName]
             #[doc = ">`."]
+            #[doc = "\n"]
+            #[doc = "Use a turbofish (`::<YourComponent>`) to indicate what component should be rendered."]
             pub fn component<T>() -> $crate::render::Render<$StateT>
             where
                 T: yew::Component + yew::Renderable<T>,
