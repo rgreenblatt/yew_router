@@ -12,6 +12,7 @@
 /// ```
 ///# #[macro_use] extern crate yew_router;
 /// define_router_state!(Option<String>);
+/// use router_state::Route; // alias to Route<Option<String>>
 ///# fn main() {}
 /// ```
 #[macro_export]
