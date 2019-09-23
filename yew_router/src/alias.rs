@@ -24,6 +24,9 @@ macro_rules! define_router_state {
         #[doc = "A set of aliases to commonly used structures and functions used for routing."]
         mod router_state {
 
+            #[doc = "The state that can be stored by the router service."]
+            pub type State = $StateT;
+
             #[doc = "Alias to [RouteInfo<"]
             #[doc = $StateName]
             #[doc = ">](route_info/struct.RouteInfo.html)."]
@@ -63,6 +66,13 @@ macro_rules! define_router_state {
             #[doc = $StateName]
             #[doc = ">](router_component/render/struct.Render.html)."]
             pub type Render = $crate::render::Render<$StateT>;
+
+            #[cfg(feature="components")]
+            #[doc = "Alias to [RouteInjector<"]
+            #[doc = $StateName]
+            #[doc = ">](components/route_injector/struct.RouteInjector.html)."]
+            pub type RouteInjector<C> = $crate::components::route_injector::RouteInjector<$StateT, C>;
+
 
             #[cfg(feature="router")]
             #[doc = "Renders the provided closure in terms of a `Router<"]

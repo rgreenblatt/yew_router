@@ -9,8 +9,6 @@ use yew::Properties;
 pub use self::router_button::RouterButton;
 pub use self::router_link::RouterLink;
 
-/// Alias to [RouteInjector<(), C>](route_injector/struct.RouteInjector.html).
-pub type RouteInjector<C> = self::route_injector::RouteInjector<(), C>;
 
 /// Properties for `RouterButton` and `RouterLink`.
 #[derive(Properties, Default, Clone, Debug, PartialEq)]

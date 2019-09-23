@@ -10,18 +10,34 @@ use yew::{
 };
 
 /// A trait allowing user-defined components to have their props rewritten by a parent `RouteInjector` when the route changes.
-pub trait RouteInjectable<T: for<'de> YewRouterState<'de>>: Component + Renderable<Self> {
+pub trait RouteInjectable<T: for<'de> YewRouterState<'de>>: Properties {
     /// Changes the props based on a route.
     ///
     ///
     /// # Example
     /// ```
-    /// use yew_router::components::RouteInjectable;
-    /// use yew_router::RouteInfo;
+    /// use yew_router::components::route_injector::RouteInjectable;
+    /// use yew_router::State;
+    ///# use yew_router::{RouteInfo, Matcher};
+    ///# use yew::{Children, Component, ComponentLink, Properties};
     ///
-    /// impl RouteInjectable for ListElement {
-    ///     fn inject_route(mut props: &mut Self::Properties, route_info: &RouteInfo) {
-    ///          props.is_active = props.matcher.match_route_string(&route_info.route).is_some();
+    ///# struct ListElement;
+    ///# impl Component for ListElement {
+    ///# type Message = ();type Properties = ();
+    ///# fn create(props: Self::Properties,link: ComponentLink<Self>) -> Self {unimplemented!()}
+    ///# fn update(&mut self,msg: Self::Message) -> bool {unimplemented!()}
+    ///# }
+    ///
+    /// ##[derive(Properties)]
+    /// struct ListElementProps {
+    ///     is_active: bool,
+    ///     children: Children<ListElement>,
+    ///     ##[props(required)]
+    ///     matcher: Matcher
+    /// }
+    /// impl RouteInjectable<State> for ListElementProps {
+    ///     fn inject_route(&mut self, route_info: &RouteInfo) {
+    ///          self.is_active = self.matcher.match_route_string(&route_info.route).is_some();
     ///     }
     /// }
     /// ```
@@ -34,7 +50,8 @@ pub trait RouteInjectable<T: for<'de> YewRouterState<'de>>: Component + Renderab
 /// ```
 /// use yew_router::matcher::{Matcher, MatcherProvider};
 /// # use yew::{Component, ComponentLink, Renderable, Html, Properties, html, Classes, Children};
-/// use yew_router::components::{RouteInjectable, RouteInjector};
+/// use yew_router::{RouteInjector, State};
+/// use yew_router::components::route_injector::RouteInjectable;
 /// # use yew_router::{RouteInfo, route};
 /// pub struct ListElement {
 ///     props: ListElementProps
@@ -71,9 +88,9 @@ pub trait RouteInjectable<T: for<'de> YewRouterState<'de>>: Component + Renderab
 ///         }
 ///     }
 /// }
-/// impl RouteInjectable for ListElement {
-///     fn inject_route(mut props: &mut Self::Properties, route_info: &RouteInfo) {
-///          props.is_active = props.matcher.match_route_string(&route_info.route).is_some();
+/// impl RouteInjectable<State> for ListElementProps {
+///     fn inject_route(&mut self, route_info: &RouteInfo) {
+///          self.is_active = self.matcher.match_route_string(&route_info.route).is_some();
 ///     }
 /// }
 ///# pub struct Comp;
@@ -191,7 +208,8 @@ where
                     // Allow the children to change their props based on the route.
                     child.props.inject_route(&route_info)
                 }
-                crate::router_component::render::create_component::<C, Self>(child.props)
+                // TODO, is this necessary to render children from an iter over children?
+                crate::router_component::render::create_component_with_scope::<C, Self>(child.props, child.scope)
             })
             .collect::<VNode<Self>>()
     }

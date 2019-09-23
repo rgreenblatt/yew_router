@@ -8,12 +8,19 @@ use yew::virtual_dom::vcomp::ScopeHolder;
 use yew::virtual_dom::{VComp, VNode};
 use yew::{Component, Html, Renderable};
 
+pub (crate) fn create_component_with_scope<COMP: Component + Renderable<COMP>, CONTEXT: Component>(
+    props: COMP::Properties,
+    scope_holder: ScopeHolder<CONTEXT>
+) -> Html<CONTEXT> {
+    VNode::VComp(VComp::new::<COMP>(props, scope_holder))
+}
+
 /// Creates a component using supplied props.
 pub(crate) fn create_component<COMP: Component + Renderable<COMP>, CONTEXT: Component>(
     props: COMP::Properties,
 ) -> Html<CONTEXT> {
-    let vcomp_scope: ScopeHolder<_> = Default::default();
-    VNode::VComp(VComp::new::<COMP>(props, vcomp_scope))
+    let vcomp_scope: ScopeHolder<CONTEXT> = Default::default();
+    create_component_with_scope::<COMP, CONTEXT>(props, vcomp_scope)
 }
 
 /// Creates a `Render` that creates the specified component if its
