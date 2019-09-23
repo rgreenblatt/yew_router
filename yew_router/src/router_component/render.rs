@@ -9,7 +9,7 @@ use yew::{Component, Html, Renderable};
 use crate::matcher::{FromCaptures, Captures, RenderFn};
 
 /// Creates a component using supplied props.
-fn create_component<COMP: Component + Renderable<COMP>, CONTEXT: Component>(
+pub (crate) fn create_component<COMP: Component + Renderable<COMP>, CONTEXT: Component>(
     props: COMP::Properties,
 ) -> Html<CONTEXT> {
     let vcomp_scope: ScopeHolder<_> = Default::default();

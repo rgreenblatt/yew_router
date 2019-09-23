@@ -7,6 +7,7 @@ use std::fmt::{Debug, Error as FmtError, Formatter};
 use yew::{
     ChildrenWithProps, Component, ComponentLink, Html, Properties, Renderable, ShouldRender,
 };
+use yew::virtual_dom::{VNode, VChild};
 
 /// A trait allowing user-defined components to have their props rewritten by a parent `RouteInjector` when the route changes.
 pub trait RouteInjectable<T: for<'de> YewRouterState<'de>>: Component + Renderable<Self> {
@@ -99,7 +100,7 @@ pub trait RouteInjectable<T: for<'de> YewRouterState<'de>>: Component + Renderab
 pub struct RouteInjector<T, C>
 where
     T: for<'de> YewRouterState<'de>,
-    C: Component,
+    C: Component + Renderable<C>,
     <C as Component>::Properties: RouteInjectable<T>,
 {
     router_bridge: RouteAgentBridge<T>,
@@ -109,7 +110,7 @@ where
 
 /// Properties for `RouteInjector`.
 #[derive(Properties)]
-pub struct Props<T: for<'de> YewRouterState<'de>, C: Component>
+pub struct Props<T: for<'de> YewRouterState<'de>, C: Component + Renderable<C>>
 where
     <C as Component>::Properties: RouteInjectable<T>
 {
@@ -119,7 +120,7 @@ where
 impl<T, C> Debug for Props<T, C>
 where
     T: for<'de> YewRouterState<'de>,
-    C: Component,
+    C: Component + Renderable<C>,
     <C as Component>::Properties: RouteInjectable<T>,
 {
     fn fmt(&self, f: &mut Formatter) -> Result<(), FmtError> {
@@ -142,7 +143,7 @@ pub enum Msg<T: for<'de> YewRouterState<'de>> {
 impl<T, C> Component for RouteInjector<T, C>
 where
     T: for<'de> YewRouterState<'de>,
-    C: Component,
+    C: Component + Renderable<C>,
     <C as Component>::Properties: RouteInjectable<T>,
 {
     type Message = Msg<T>;
@@ -178,7 +179,7 @@ where
 impl<T, C> Renderable<RouteInjector<T, C>> for RouteInjector<T, C>
 where
     T: for<'de> YewRouterState<'de>,
-    C: Component,
+    C: Component + Renderable<C>,
     <C as Component>::Properties: RouteInjectable<T>,
 {
     fn view(&self) -> Html<Self> {
@@ -190,8 +191,8 @@ where
                     // Allow the children to change their props based on the route.
                     child.props.inject_route(&route_info)
                 }
-                child
+                crate::router_component::render::create_component::<C, Self>(child.props)
             })
-            .collect()
+            .collect::<VNode<Self>>()
     }
 }
