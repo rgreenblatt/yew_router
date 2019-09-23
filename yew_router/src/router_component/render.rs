@@ -8,9 +8,12 @@ use yew::virtual_dom::vcomp::ScopeHolder;
 use yew::virtual_dom::{VComp, VNode};
 use yew::{Component, Html, Renderable};
 
-pub (crate) fn create_component_with_scope<COMP: Component + Renderable<COMP>, CONTEXT: Component>(
+pub(crate) fn create_component_with_scope<
+    COMP: Component + Renderable<COMP>,
+    CONTEXT: Component,
+>(
     props: COMP::Properties,
-    scope_holder: ScopeHolder<CONTEXT>
+    scope_holder: ScopeHolder<CONTEXT>,
 ) -> Html<CONTEXT> {
     VNode::VComp(VComp::new::<COMP>(props, scope_holder))
 }

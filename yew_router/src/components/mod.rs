@@ -9,7 +9,6 @@ use yew::Properties;
 pub use self::router_button::RouterButton;
 pub use self::router_link::RouterLink;
 
-
 /// Properties for `RouterButton` and `RouterLink`.
 #[derive(Properties, Default, Clone, Debug, PartialEq)]
 pub struct Props {
