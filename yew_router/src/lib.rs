@@ -71,8 +71,10 @@ pub use router_component::{
 
 
 // Use this alias to define a module containing type aliases.
-router_aliases!(());
+define_router_state!(());
 pub use router_aliases::*;
+
+pub use alias::*;
 
 #[cfg(any(feature = "matchers", feature= "router" ) )]
 pub mod matcher;

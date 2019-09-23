@@ -1,15 +1,25 @@
-/// Generates a set of aliases to common structures within yew_router.
+/// Generates a set of aliases to common structures within yew_router as well as functions
+/// for rendering routes.
 ///
 /// Because they should be the same across a given application,
 /// its a handy way to make sure that every type that could be needed is generated.
+///
+/// This macro is used to generate aliases and functions for the state type of `()` within yew_router.
+/// Instead of doing these yourself, use this macro if you need to store state in the browser.
+///
+/// # Example
+/// ```
+///# #[macro_use] extern crate yew_router;
+/// define_router_state!(Option<String>);
+///# fn main() {}
+/// ```
 #[macro_export]
-macro_rules! router_aliases {
+macro_rules! define_router_state {
     ($StateT:ty) => {
-        router_aliases!($StateT, stringify!($StateT));
+        define_router_state!($StateT, stringify!($StateT));
     };
     ($StateT:ty, $StateName:expr) => {
         mod router_aliases {
-            use $crate::matcher::RenderFn;
 
             #[doc = "Alias to [RouteInfo<"]
             #[doc = $StateName]
@@ -37,38 +47,38 @@ macro_rules! router_aliases {
             #[doc = "Alias to [Router<"]
             #[doc = $StateName]
             #[doc = ">](router_component/router/struct.Router.html)."]
-            pub type Router = $crate::router_component::router::Router<$StateT>;
+            pub type Router = $crate::router::Router<$StateT>;
 
             #[cfg(feature="router")]
             #[doc = "Alias to [Route<"]
             #[doc = $StateName]
             #[doc = ">](router_component/route/struct.Route.html)."]
-            pub type Route = $crate::router_component::route::Route<$StateT>;
+            pub type Route = $crate::route::Route<$StateT>;
 
             #[cfg(feature="router")]
             #[doc = "Alias to [Render<"]
             #[doc = $StateName]
             #[doc = ">](router_component/render/struct.Render.html)."]
-            pub type Render = $crate::router_component::render::Render<$StateT>;
+            pub type Render = $crate::render::Render<$StateT>;
 
             #[cfg(feature="router")]
             #[doc = "Renders the provided closure in terms of a `Router<"]
             #[doc = $StateName]
-            #[doc = ">`"]
-            pub fn render(render: impl RenderFn<Router> + 'static) -> $crate::router_component::render::Render<$StateT> {
-                $crate::router_component::render::render_s(render)
+            #[doc = ">`."]
+            pub fn render(render: impl $crate::matcher::RenderFn<Router> + 'static) -> $crate::render::Render<$StateT> {
+                $crate::render::render(render)
             }
 
             #[cfg(feature="router")]
-            #[doc = "Creates a components using a Html block in terms of a `Router<"]
+            #[doc = "Creates components using a Html block in terms of a `Router<"]
             #[doc = $StateName]
-            #[doc = ">`"]
-            pub fn component<T>() -> $crate::router_component::render::Render<$StateT>
+            #[doc = ">`."]
+            pub fn component<T>() -> $crate::render::Render<$StateT>
             where
                 T: yew::Component + yew::Renderable<T>,
-                <T as yew::Component>::Properties: crate::matcher::FromCaptures,
+                <T as yew::Component>::Properties: $crate::matcher::FromCaptures,
             {
-                $crate::router_component::render::component_s::<T, $StateT>()
+                $crate::render::component::<T, $StateT>()
             }
         }
     }
