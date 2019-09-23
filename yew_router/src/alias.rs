@@ -88,4 +88,3 @@ macro_rules! define_router_state {
         }
     }
 }
-

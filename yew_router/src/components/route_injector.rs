@@ -4,10 +4,10 @@ use crate::agent::{bridge::RouteAgentBridge, RouteRequest};
 use crate::route_info::RouteInfo;
 use crate::router_component::YewRouterState;
 use std::fmt::{Debug, Error as FmtError, Formatter};
+use yew::virtual_dom::VNode;
 use yew::{
     ChildrenWithProps, Component, ComponentLink, Html, Properties, Renderable, ShouldRender,
 };
-use yew::virtual_dom::{VNode};
 
 /// A trait allowing user-defined components to have their props rewritten by a parent `RouteInjector` when the route changes.
 pub trait RouteInjectable<T: for<'de> YewRouterState<'de>>: Component + Renderable<Self> {
@@ -112,7 +112,7 @@ where
 #[derive(Properties)]
 pub struct Props<T: for<'de> YewRouterState<'de>, C: Component + Renderable<C>>
 where
-    <C as Component>::Properties: RouteInjectable<T>
+    <C as Component>::Properties: RouteInjectable<T>,
 {
     children: ChildrenWithProps<C, RouteInjector<T, C>>,
 }

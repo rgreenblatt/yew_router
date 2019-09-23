@@ -1,4 +1,5 @@
 //! Wrapper around RenderFn that allows clones.
+use crate::matcher::{Captures, FromCaptures, RenderFn};
 use crate::router::Router;
 use crate::router_component::YewRouterState;
 use std::fmt::{Debug, Error as FmtError, Formatter};
@@ -6,10 +7,9 @@ use std::rc::Rc;
 use yew::virtual_dom::vcomp::ScopeHolder;
 use yew::virtual_dom::{VComp, VNode};
 use yew::{Component, Html, Renderable};
-use crate::matcher::{FromCaptures, Captures, RenderFn};
 
 /// Creates a component using supplied props.
-pub (crate) fn create_component<COMP: Component + Renderable<COMP>, CONTEXT: Component>(
+pub(crate) fn create_component<COMP: Component + Renderable<COMP>, CONTEXT: Component>(
     props: COMP::Properties,
 ) -> Html<CONTEXT> {
     let vcomp_scope: ScopeHolder<_> = Default::default();

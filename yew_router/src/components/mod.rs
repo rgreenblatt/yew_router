@@ -4,7 +4,7 @@ pub mod route_injector;
 pub mod router_button;
 pub mod router_link;
 
-use yew::{Properties};
+use yew::Properties;
 
 pub use self::router_button::RouterButton;
 pub use self::router_link::RouterLink;

@@ -1,9 +1,9 @@
 //! Router Component.
 
-use crate::router_component::route::Route;
 use crate::agent::{bridge::RouteAgentBridge, RouteRequest};
-use crate::route_info::RouteInfo;
 use crate::matcher::RenderFn;
+use crate::route_info::RouteInfo;
+use crate::router_component::route::Route;
 use crate::YewRouterState;
 use log::{trace, warn};
 use std::fmt::{Debug, Error as FmtError, Formatter};
