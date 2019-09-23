@@ -7,7 +7,7 @@ use std::fmt::{Debug, Error as FmtError, Formatter};
 use yew::{
     ChildrenWithProps, Component, ComponentLink, Html, Properties, Renderable, ShouldRender,
 };
-use yew::virtual_dom::{VNode, VChild};
+use yew::virtual_dom::{VNode};
 
 /// A trait allowing user-defined components to have their props rewritten by a parent `RouteInjector` when the route changes.
 pub trait RouteInjectable<T: for<'de> YewRouterState<'de>>: Component + Renderable<Self> {

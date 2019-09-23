@@ -1,7 +1,10 @@
 //! Logic for matching and capturing route strings.
 use yew::{Component, Html};
 
-pub use yew_router_route_parser::{Captures, FromCaptures, FromCapturesError, CaptureVariant, MatcherToken};
+pub use yew_router_route_parser::{Captures, FromCapturesError, CaptureVariant, MatcherToken, FromCapturedKeyValue};
+
+
+pub use yew_router_route_parser::FromCaptures;
 
 #[cfg(feature = "regex_matcher")]
 mod regex_matcher;
@@ -50,10 +53,10 @@ impl PartialEq for Matcher {
     }
 }
 
-impl MatcherProvider for Matcher {
+impl Matcher {
     /// Given itself and a route string, determine if the route matches by returning an Option
     /// possibly containing any sections captured by the matcher.
-    fn match_route_string<'a, 'b: 'a>(&'b self, route_string: &'a str) -> Option<Captures<'a>> {
+    pub fn match_route_string<'a, 'b: 'a>(&'b self, route_string: &'a str) -> Option<Captures<'a>> {
         match self {
             #[cfg(feature = "route_matcher")]
             Matcher::RouteMatcher(matcher) => {

@@ -4,26 +4,13 @@ pub mod route_injector;
 pub mod router_button;
 pub mod router_link;
 
-use crate::RouteInfo;
-use yew::{Component, Properties, Renderable};
+use yew::{Properties};
 
 pub use self::router_button::RouterButton;
 pub use self::router_link::RouterLink;
 
 /// Alias to [RouteInjector<(), C>](route_injector/struct.RouteInjector.html).
 pub type RouteInjector<C> = self::route_injector::RouteInjector<(), C>;
-
-/// "Trait alias" to [RouteInjector<(), C>](route_injector/trait.RouteInjectable.html)
-//pub trait RouteInjectable: Component + Renderable<Self> {
-//    /// Changes the props based on a route.
-//    fn inject_route(props: &mut Self::Properties, route_info: &RouteInfo);
-//}
-//
-//impl<T: RouteInjectable> self::route_injector::RouteInjectable<()> for T {
-//    fn inject_route(props: &mut Self::Properties, route_info: &RouteInfo) {
-//        <Self as RouteInjectable>::inject_route(props, route_info)
-//    }
-//}
 
 /// Properties for `RouterButton` and `RouterLink`.
 #[derive(Properties, Default, Clone, Debug, PartialEq)]
