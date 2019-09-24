@@ -72,7 +72,6 @@ pub mod components;
 #[cfg(feature = "router")]
 pub mod router;
 
-
 /// Contains aliases and functions for working with this library using a state of type  `()`.
 #[cfg(feature = "unit_alias")]
 pub mod unit_state {
@@ -82,20 +81,23 @@ pub mod unit_state {
 
 /// Prelude crate that can be imported when working with the yew_router
 pub mod prelude {
+    #[cfg(any(feature = "matchers", feature = "router"))]
+    pub use super::matcher::{
+        Captures, CustomMatcher, FromCaptures, FromCapturesError, Matcher, MatcherProvider,
+        RouteMatcher,
+    };
     #[cfg(feature = "unit_alias")]
     pub use super::unit_state::*;
-    #[cfg(any(feature = "matchers", feature = "router"))]
-    pub use super::matcher::{Captures, FromCaptures, FromCapturesError, Matcher, MatcherProvider, RouteMatcher, CustomMatcher};
-    #[cfg(feature = "matchers")]
-    pub use yew_router_macro::FromCaptures;
     #[cfg(feature = "matchers")]
     pub use crate::route;
+    #[cfg(feature = "matchers")]
+    pub use yew_router_macro::FromCaptures;
     // State restrictions
-    #[cfg(feature = "router")]
-    pub use crate::router::RouterState;
     #[cfg(feature = "agent")]
     pub use crate::agent::AgentState;
     pub use crate::route_info::RouteState;
+    #[cfg(feature = "router")]
+    pub use crate::router::RouterState;
 }
 
 pub use alias::*;
@@ -104,16 +106,15 @@ pub use alias::*;
 pub mod matcher;
 
 #[cfg(feature = "matchers")]
-pub use yew_router_macro::FromCaptures;
+pub use matcher::{Captures, FromCaptures, MatcherProvider};
 #[cfg(feature = "matchers")]
-pub use matcher::{FromCaptures, MatcherProvider, Captures};
+pub use yew_router_macro::FromCaptures;
 
-
-#[cfg(feature = "router")]
-pub use crate::router::RouterState;
 #[cfg(feature = "agent")]
 pub use crate::agent::AgentState;
 pub use crate::route_info::RouteState;
+#[cfg(feature = "router")]
+pub use crate::router::RouterState;
 
 /// The route macro produces a Matcher which can be used to determine if a route string should cause
 /// a section of html or component should render.

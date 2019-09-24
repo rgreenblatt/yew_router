@@ -132,7 +132,7 @@ fn validate_path_parser_tokens(tokens: &[RouteParserToken]) -> bool {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{CaptureVariant, Capture};
+    use crate::{Capture, CaptureVariant};
     use nom::combinator::all_consuming;
     use nom::error::ErrorKind;
     use nom::error::ErrorKind::Alt;

@@ -81,7 +81,7 @@ pub struct Capture {
     /// The type of capture
     pub capture_variant: CaptureVariant,
     /// Restrict matching to only strings that appear in this list if present.
-    pub allowed_captures: Option<Vec<String>>
+    pub allowed_captures: Option<Vec<String>>,
 }
 
 /// Either a Capture, or an Exact match
@@ -97,7 +97,7 @@ impl From<CaptureVariant> for Capture {
     fn from(capture_variant: CaptureVariant) -> Capture {
         Capture {
             capture_variant,
-            allowed_captures: None
+            allowed_captures: None,
         }
     }
 }
@@ -188,7 +188,9 @@ mod tests {
                 RouteParserToken::Separator,
                 RouteParserToken::Exact("lorem".to_string()),
                 RouteParserToken::Separator,
-                RouteParserToken::Capture(Capture::from(CaptureVariant::Named("ipsum".to_string()))),
+                RouteParserToken::Capture(Capture::from(CaptureVariant::Named(
+                    "ipsum".to_string()
+                ))),
             ]
         )
     }
@@ -202,7 +204,9 @@ mod tests {
                 RouteParserToken::Separator,
                 RouteParserToken::Exact("lorem".to_string()),
                 RouteParserToken::Separator,
-                RouteParserToken::Capture(Capture::from(CaptureVariant::Named("ipsum".to_string()))),
+                RouteParserToken::Capture(Capture::from(CaptureVariant::Named(
+                    "ipsum".to_string()
+                ))),
                 RouteParserToken::Exact("dolor".to_string()),
                 RouteParserToken::Capture(Capture::from(CaptureVariant::Unnamed))
             ]

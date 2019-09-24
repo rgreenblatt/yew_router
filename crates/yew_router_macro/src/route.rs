@@ -2,11 +2,11 @@ use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
 use std::collections::HashSet;
 use std::hash::Hash;
-use syn::export::{TokenStream2};
+use syn::export::TokenStream2;
 use syn::parse::{Parse, ParseBuffer};
 use syn::parse_macro_input;
 use syn::Error;
-use yew_router_route_parser::{CaptureVariant, MatcherToken, Capture};
+use yew_router_route_parser::{Capture, CaptureVariant, MatcherToken};
 
 struct S {
     /// The routing string
@@ -163,14 +163,14 @@ enum ShadowCaptureVariant {
 
 struct ShadowCapture {
     capture_variant: ShadowCaptureVariant,
-    allowed_captures: Option<Vec<String>>
+    allowed_captures: Option<Vec<String>>,
 }
 
 impl ToTokens for ShadowCapture {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         let ShadowCapture {
             capture_variant,
-            allowed_captures
+            allowed_captures,
         } = self;
         let t = match allowed_captures {
             Some(allowed_captures) => {
@@ -193,7 +193,6 @@ impl ToTokens for ShadowCapture {
         tokens.extend(t)
     }
 }
-
 
 impl ToTokens for ShadowCaptureVariant {
     fn to_tokens(&self, ts: &mut TokenStream2) {
@@ -254,7 +253,7 @@ impl From<Capture> for ShadowCapture {
     fn from(c: Capture) -> Self {
         ShadowCapture {
             capture_variant: c.capture_variant.into(),
-            allowed_captures: c.allowed_captures
+            allowed_captures: c.allowed_captures,
         }
     }
 }
