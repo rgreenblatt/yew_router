@@ -52,17 +52,17 @@ fn match_path_impl<'a, 'b: 'a>(
             }
             MatcherToken::Capture(capture) => {
                     match &capture.capture_variant {
-                        CaptureVariant::Unnamed => capture_unnamed(i, &mut iter, &capture.exact_possibilities)?,
-                        CaptureVariant::ManyUnnamed => capture_many_unnamed(i, &mut iter, &capture.exact_possibilities)?,
+                        CaptureVariant::Unnamed => capture_unnamed(i, &mut iter, &capture.allowed_captures)?,
+                        CaptureVariant::ManyUnnamed => capture_many_unnamed(i, &mut iter, &capture.allowed_captures)?,
                         CaptureVariant::NumberedUnnamed { sections } => {
-                            capture_numbered_named(i, &mut iter, None, *sections,  &capture.exact_possibilities)?
+                            capture_numbered_named(i, &mut iter, None, *sections,  &capture.allowed_captures)?
                         }
-                        CaptureVariant::Named(name) => capture_named(i, &mut iter, &name, &mut captures, &capture.exact_possibilities)?,
+                        CaptureVariant::Named(name) => capture_named(i, &mut iter, &name, &mut captures, &capture.allowed_captures)?,
                         CaptureVariant::ManyNamed(name) => {
-                            capture_many_named(i, &mut iter, &name, &mut captures, &capture.exact_possibilities)?
+                            capture_many_named(i, &mut iter, &name, &mut captures, &capture.allowed_captures)?
                         }
                         CaptureVariant::NumberedNamed { sections, name } => {
-                            capture_numbered_named(i, &mut iter, Some((&name, &mut captures)), *sections,  &capture.exact_possibilities)?
+                            capture_numbered_named(i, &mut iter, Some((&name, &mut captures)), *sections,  &capture.allowed_captures)?
                         }
                     }
             },
@@ -73,7 +73,7 @@ fn match_path_impl<'a, 'b: 'a>(
     Ok((i, captures))
 }
 
-// TODO see if _all_ of these outer if/else blocks could be removed.
+// TODO This section of code is kind of a mess. It needs a pretty through rework.
 
 /// Captures a section and doesn't add it to the matches.
 ///
@@ -82,7 +82,7 @@ fn match_path_impl<'a, 'b: 'a>(
 pub fn capture_unnamed<'a>(
     i: &'a str,
     iter: &mut Peekable<Iter<MatcherToken>>,
-    allowed_matches: &Option<Vec<String>>
+    allowed_captures: &Option<Vec<String>>
 ) -> Result<&'a str, nom::Err<(&'a str, ErrorKind)>> {
     log::trace!("Matching Unnamed");
     let ii = if let Some(_peaked_next_token) = iter.peek() {
@@ -91,12 +91,12 @@ pub fn capture_unnamed<'a>(
             consume_until(alt((tag("/"), tag("?"), tag("#")))),
             consume_until(delimiter),
         ));
-        check_if_allowed_match_if_necessary(matcher, allowed_matches)(i)?.0
+        optionally_check_if_parsed_is_allowed_capture(matcher, allowed_captures)(i)?.0
     } else if i.is_empty() {
         i // Match even if nothing is left
     } else {
         let valid_capture_characters = map(valid_capture_characters, String::from);
-        check_if_allowed_match_if_necessary(valid_capture_characters, allowed_matches)(i)?.0
+        optionally_check_if_parsed_is_allowed_capture(valid_capture_characters, allowed_captures)(i)?.0
     };
     Ok(ii)
 }
@@ -105,17 +105,17 @@ pub fn capture_unnamed<'a>(
 fn capture_many_unnamed<'a>(
     i: &'a str,
     iter: &mut Peekable<Iter<MatcherToken>>,
-    allowed_matches: &Option<Vec<String>>
+    allowed_captures: &Option<Vec<String>>
 ) -> Result<&'a str, nom::Err<(&'a str, ErrorKind)>> {
     trace!("Matching ManyUnnamed");
     let ii = if let Some(_peaked_next_token) = iter.peek() {
         let delimiter = yew_router_route_parser::next_delimiters(iter.clone());
-        check_if_allowed_match_if_necessary(consume_until(delimiter), allowed_matches)(i)?.0
+        optionally_check_if_parsed_is_allowed_capture(consume_until(delimiter), allowed_captures)(i)?.0
     } else if i.is_empty() {
         i // Match even if nothing is left
     } else {
         let valid_many_capture_characters = map(valid_many_capture_characters, String::from);
-        check_if_allowed_match_if_necessary(valid_many_capture_characters, allowed_matches)(i)?.0
+        optionally_check_if_parsed_is_allowed_capture(valid_many_capture_characters, allowed_captures)(i)?.0
     };
     Ok(ii)
 }
@@ -125,16 +125,16 @@ fn capture_named<'a, 'b>(
     iter: &mut Peekable<Iter<MatcherToken>>,
     capture_key: &'b str,
     matches: &mut Captures<'b>,
-    allowed_matches: &Option<Vec<String>>
+    allowed_captures: &Option<Vec<String>>
 ) -> Result<&'a str, nom::Err<(&'a str, ErrorKind)>> {
     log::trace!("Matching Named ({})", capture_key);
     if let Some(_peaked_next_token) = iter.peek() {
         let delimiter = yew_router_route_parser::next_delimiters(iter.clone());
-        let (ii, captured) = check_if_allowed_match_if_necessary(consume_until(delimiter), allowed_matches)(i)?;
+        let (ii, captured) = optionally_check_if_parsed_is_allowed_capture(consume_until(delimiter), allowed_captures)(i)?;
         matches.insert(capture_key, captured);
         Ok(ii)
     } else {
-        let (ii, captured) = check_if_allowed_match_if_necessary(map(valid_capture_characters, String::from), allowed_matches)(i)?;
+        let (ii, captured) = optionally_check_if_parsed_is_allowed_capture(map(valid_capture_characters, String::from), allowed_captures)(i)?;
         matches.insert(capture_key, captured.to_string());
         Ok(ii)
     }
@@ -145,19 +145,19 @@ fn capture_many_named<'a, 'b>(
     iter: &mut Peekable<Iter<MatcherToken>>,
     capture_key: &'b str,
     matches: &mut Captures<'b>,
-    allowed_matches: &Option<Vec<String>>
+    allowed_captures: &Option<Vec<String>>
 ) -> Result<&'a str, nom::Err<(&'a str, ErrorKind)>> {
     log::trace!("Matching NumberedUnnamed ({})", capture_key);
     if let Some(_peaked_next_token) = iter.peek() {
         let delimiter = yew_router_route_parser::next_delimiters(iter.clone());
-        let (ii, captured) = check_if_allowed_match_if_necessary(consume_until(delimiter), allowed_matches)(i)?;
+        let (ii, captured) = optionally_check_if_parsed_is_allowed_capture(consume_until(delimiter), allowed_captures)(i)?;
         matches.insert(&capture_key, captured);
         Ok(ii)
     } else if i.is_empty() {
         matches.insert(&capture_key, "".to_string()); // TODO Is this a thing I want?
         Ok(i) // Match even if nothing is left
     } else {
-        let (ii, c) = check_if_allowed_match_if_necessary(map(valid_many_capture_characters, String::from), allowed_matches)(i)?;
+        let (ii, c) = optionally_check_if_parsed_is_allowed_capture(map(valid_many_capture_characters, String::from), allowed_captures)(i)?;
         matches.insert(&capture_key, c.to_string());
         Ok(ii)
     }
@@ -166,9 +166,9 @@ fn capture_many_named<'a, 'b>(
 fn capture_numbered_named<'a, 'b>(
     mut i: &'a str,
     iter: &mut Peekable<Iter<MatcherToken>>,
-    name_and_matches: Option<(&'b str, &mut Captures<'b>)>,
+    name_and_captures: Option<(&'b str, &mut Captures<'b>)>,
     mut sections: usize,
-    allowed_matches: &Option<Vec<String>>
+    allowed_captures: &Option<Vec<String>>
 ) -> Result<&'a str, nom::Err<(&'a str, ErrorKind)>> {
     log::trace!("Matching NumberedNamed ({})", sections);
     let mut captured = "".to_string();
@@ -205,18 +205,19 @@ fn capture_numbered_named<'a, 'b>(
             println!("{}", i);
         }
     }
-    if let Some(allowed_matches) = allowed_matches {
-        if allowed_matches.iter().any(|x| x == &captured) {
-            if let Some((name, matches)) = name_and_matches {
-                matches.insert(&name, captured);
+
+    if let Some(allowed_captures) = allowed_captures {
+        if allowed_captures.iter().any(|x| x == &captured) {
+            if let Some((name, captures)) = name_and_captures {
+                captures.insert(&name, captured);
             }
             Ok(i)
         } else {
             Err(nom::Err::Error((i, ErrorKind::Verify)))
         }
     } else {
-        if let Some((name, matches)) = name_and_matches {
-            matches.insert(&name, captured);
+        if let Some((name, captures)) = name_and_captures {
+            captures.insert(&name, captured);
         }
         Ok(i)
     }
@@ -239,11 +240,11 @@ fn valid_many_capture_characters(i: &str) -> IResult<&str, &str> {
 /// It will fail if the captured value was not in the provided list.
 ///
 /// If none, it will allow the capture as intended.
-fn check_if_allowed_match_if_necessary<'a, F: 'a>(f: F, allowed_matches: &Option<Vec<String>>) -> impl Fn(&'a str) -> IResult<&'a str, String, (&'a str, ErrorKind)> //Result<&'a str, nom::Err<(&'a str, ErrorKind)>>
+fn optionally_check_if_parsed_is_allowed_capture<'a, F: 'a>(f: F, allowed_captures: &Option<Vec<String>>) -> impl Fn(&'a str) -> IResult<&'a str, String, (&'a str, ErrorKind)> //Result<&'a str, nom::Err<(&'a str, ErrorKind)>>
 where
     F: Fn(&'a str) -> IResult<&'a str, String, (&'a str, ErrorKind)>,
 {
-    let am = allowed_matches.clone(); // I hate how this has to clone in order to work.
+    let am = allowed_captures.clone(); // I hate how this has to clone in order to work.
     map(
         verify(
             f,

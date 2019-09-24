@@ -81,7 +81,7 @@ pub struct Capture {
     /// The type of capture
     pub capture_variant: CaptureVariant,
     /// Restrict matching to only strings that appear in this list if present.
-    pub exact_possibilities: Option<Vec<String>>
+    pub allowed_captures: Option<Vec<String>>
 }
 
 /// Either a Capture, or an Exact match
@@ -97,7 +97,7 @@ impl From<CaptureVariant> for Capture {
     fn from(capture_variant: CaptureVariant) -> Capture {
         Capture {
             capture_variant,
-            exact_possibilities: None
+            allowed_captures: None
         }
     }
 }

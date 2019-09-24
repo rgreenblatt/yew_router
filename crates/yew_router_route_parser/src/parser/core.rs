@@ -100,7 +100,7 @@ pub fn capture(i: &str) -> IResult<&str, RouteParserToken, VerboseError<&str>> {
         |(cv, allowed_matches):(CaptureVariant, Option<Vec<String>>) | {
             Capture {
                 capture_variant: cv,
-                exact_possibilities: allowed_matches
+                allowed_captures: allowed_matches
             }
         }
     );

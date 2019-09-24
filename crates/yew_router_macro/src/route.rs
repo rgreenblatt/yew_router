@@ -163,21 +163,21 @@ enum ShadowCaptureVariant {
 
 struct ShadowCapture {
     capture_variant: ShadowCaptureVariant,
-    exact_possibilities: Option<Vec<String>>
+    allowed_captures: Option<Vec<String>>
 }
 
 impl ToTokens for ShadowCapture {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         let ShadowCapture {
             capture_variant,
-            exact_possibilities
+            allowed_captures
         } = self;
-        let t = match exact_possibilities {
-            Some(exact_possibilities) => {
+        let t = match allowed_captures {
+            Some(allowed_captures) => {
                 quote! {
                     ::yew_router::matcher::Capture {
                         capture_variant: #capture_variant,
-                        exact_possibilities: vec![#(#exact_possibilities),*]
+                        allowed_captures: vec![#(#allowed_captures),*]
                     }
                 }
             }
@@ -185,7 +185,7 @@ impl ToTokens for ShadowCapture {
                 quote! {
                     ::yew_router::matcher::Capture {
                         capture_variant: #capture_variant,
-                        exact_possibilities: None
+                        allowed_captures: None
                     }
                 }
             }
@@ -254,7 +254,7 @@ impl From<Capture> for ShadowCapture {
     fn from(c: Capture) -> Self {
         ShadowCapture {
             capture_variant: c.capture_variant.into(),
-            exact_possibilities: c.exact_possibilities
+            allowed_captures: c.allowed_captures
         }
     }
 }
