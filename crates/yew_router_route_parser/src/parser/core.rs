@@ -7,11 +7,12 @@ use nom::bytes::complete::{is_not, tag, take};
 use nom::character::complete::char;
 use nom::character::complete::digit1;
 use nom::character::is_digit;
-use nom::combinator::{map, peek};
+use nom::combinator::{map, peek, opt};
 use nom::error::ParseError;
 use nom::error::{context, ErrorKind, VerboseError};
-use nom::sequence::{delimited, preceded, separated_pair};
+use nom::sequence::{delimited, preceded, separated_pair, pair};
 use nom::IResult;
+use nom::multi::separated_list;
 
 /// Captures a string up to the point where a character not possible to be present in Rust's identifier is encountered.
 /// It prevents the first character from being a digit.
@@ -54,32 +55,59 @@ pub fn match_exact(i: &str) -> IResult<&str, RouteParserToken, VerboseError<&str
 /// * {name}
 /// * {*:name}
 /// * {5:name}
+/// With optional specification of exact matches.
+///
+///
+/// * {(yes|no)}
+/// * {*(yes|no)}
+/// * {5(yes|no)}
+/// * {name(yes|no)}
+/// * {*:name(yes|no)}
+/// * {5:name(yes|no)}
 pub fn capture(i: &str) -> IResult<&str, RouteParserToken, VerboseError<&str>> {
+    /// Capture the variant.
     let capture_variants = alt((
-        map(peek(char('}')), |_| Capture::from(CaptureVariant::Unnamed)),
+        map(peek(char('}')), |_| CaptureVariant::Unnamed),
         map(preceded(tag("*:"), valid_ident_characters), |s| {
-            Capture::from(CaptureVariant::ManyNamed(s.to_string()))
+            CaptureVariant::ManyNamed(s.to_string())
         }),
-        map(char('*'), |_| Capture::from(CaptureVariant::ManyUnnamed)),
+        map(char('*'), |_| CaptureVariant::ManyUnnamed),
         map(valid_ident_characters, |s| {
-            Capture::from(CaptureVariant::Named(s.to_string()))
+            CaptureVariant::Named(s.to_string())
         }),
         map(
             separated_pair(digit1, char(':'), valid_ident_characters),
-            |(n, s)| Capture::from(CaptureVariant::NumberedNamed {
+            |(n, s)| CaptureVariant::NumberedNamed {
                 sections: n.parse().expect("Should parse digits"),
                 name: s.to_string(),
-            }),
+            },
         ),
-        map(digit1, |num: &str| Capture::from(CaptureVariant::NumberedUnnamed {
+        map(digit1, |num: &str| CaptureVariant::NumberedUnnamed {
             sections: num.parse().expect("should parse digits"),
-        })),
+        }),
     ));
+
+    let allowed_matches = map(
+        separated_list(char('|'), valid_exact_match_characters),
+        |x: Vec<&str>| x.into_iter().map(String::from).collect::<Vec<_>>()
+    );
+    let allowed_matches = delimited(char('('), allowed_matches, char(')'));
+
+    // Allow capturing the variant, and optionally a list of strings in the form of (string|string|string|...)
+    let capture_inner = map(
+        pair(capture_variants, opt(allowed_matches)),
+        |(cv, allowed_matches):(CaptureVariant, Option<Vec<String>>) | {
+            Capture {
+                capture_variant: cv,
+                exact_possibilities: allowed_matches
+            }
+        }
+    );
 
     context(
         "capture",
         map(
-            delimited(char('{'), capture_variants, char('}')),
+            delimited(char('{'), capture_inner, char('}')),
             RouteParserToken::Capture,
         ),
     )(i)
