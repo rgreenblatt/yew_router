@@ -50,7 +50,7 @@ fn match_path_impl<'a, 'b: 'a>(
                     _ => i, // Do nothing if this fails
                 }
             }
-            MatcherToken::Capture(variant) => match variant {
+            MatcherToken::Capture(capture) => match &capture.capture_variant {
                 CaptureVariant::Unnamed => capture_unnamed(i, &mut iter)?,
                 CaptureVariant::ManyUnnamed => capture_many_unnamed(i, &mut iter)?,
                 CaptureVariant::NumberedUnnamed { sections } => {
@@ -251,6 +251,7 @@ mod integration_test {
     use super::*;
 
     use yew_router_route_parser;
+    use yew_router_route_parser::Capture;
     //    use nom::combinator::all_consuming;
 
     #[test]
@@ -384,14 +385,14 @@ mod integration_test {
 
     #[test]
     fn match_fragment_optional() {
-        let x = yew_router_route_parser::parse_str_and_optimize_tokens("(#test)", true)
+        let x = yew_router_route_parser::parse_str_and_optimize_tokens("[#test]", true)
             .expect("Should parse");
         match_path_impl(&x, MatcherSettings::default(), "#test").expect("should match");
         match_path_impl(&x, MatcherSettings::default(), "").expect("should match");
     }
     #[test]
     fn match_fragment_pound_optional() {
-        let x = yew_router_route_parser::parse_str_and_optimize_tokens("#(test)", true)
+        let x = yew_router_route_parser::parse_str_and_optimize_tokens("#[test]", true)
             .expect("Should parse");
         match_path_impl(&x, MatcherSettings::default(), "#test").expect("should match");
         match_path_impl(&x, MatcherSettings::default(), "#").expect("should match");
@@ -399,7 +400,7 @@ mod integration_test {
 
     #[test]
     fn match_fragment_optional_with_inner_optional_item() {
-        let x = yew_router_route_parser::parse_str_and_optimize_tokens("(#(test))", true)
+        let x = yew_router_route_parser::parse_str_and_optimize_tokens("[#[test]]", true)
             .expect("Should parse");
         match_path_impl(&x, MatcherSettings::default(), "#test").expect("should match");
         match_path_impl(&x, MatcherSettings::default(), "").expect("should match");
@@ -416,7 +417,7 @@ mod integration_test {
 
     #[test]
     fn optional_path_first() {
-        let x = yew_router_route_parser::parse_str_and_optimize_tokens("(/thing)", true)
+        let x = yew_router_route_parser::parse_str_and_optimize_tokens("[/thing]", true)
             .expect("Should parse");
         match_path_impl(&x, MatcherSettings::default(), "").expect("should match");
         match_path_impl(&x, MatcherSettings::default(), "/thing").expect("should match");
@@ -424,7 +425,7 @@ mod integration_test {
 
     #[test]
     fn optional_path_after_item() {
-        let x = yew_router_route_parser::parse_str_and_optimize_tokens("/first(/second)", true)
+        let x = yew_router_route_parser::parse_str_and_optimize_tokens("/first[/second]", true)
             .expect("Should parse");
         assert_eq!(
             x,
@@ -440,13 +441,13 @@ mod integration_test {
 
     #[test]
     fn optional_path_any() {
-        let x = yew_router_route_parser::parse_str_and_optimize_tokens("/first(/{})", true)
+        let x = yew_router_route_parser::parse_str_and_optimize_tokens("/first[/{}]", true)
             .expect("Should parse");
         let expected = vec![
             MatcherToken::Exact("/first".to_string()),
             MatcherToken::Optional(vec![
                 MatcherToken::Exact("/".to_string()),
-                MatcherToken::Capture(CaptureVariant::Unnamed),
+                MatcherToken::Capture(Capture::from(CaptureVariant::Unnamed)),
             ]),
             MatcherToken::Optional(vec![MatcherToken::Exact("/".to_string())]),
         ];
@@ -457,11 +458,11 @@ mod integration_test {
 
     #[test]
     fn optional_path_capture_all() {
-        let x = yew_router_route_parser::parse_str_and_optimize_tokens("/{*}(/stuff)", true)
+        let x = yew_router_route_parser::parse_str_and_optimize_tokens("/{*}[/stuff]", true)
             .expect("Should parse");
         let expected = vec![
             MatcherToken::Exact("/".to_string()),
-            MatcherToken::Capture(CaptureVariant::ManyUnnamed),
+            MatcherToken::Capture(Capture::from(CaptureVariant::ManyUnnamed)),
             MatcherToken::Optional(vec![MatcherToken::Exact("/stuff".to_string())]),
             MatcherToken::Optional(vec![MatcherToken::Exact("/".to_string())]),
         ];

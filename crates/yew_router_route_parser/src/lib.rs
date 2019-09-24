@@ -14,7 +14,7 @@
 pub mod parser;
 mod token_optimizer;
 
-pub use parser::CaptureVariant;
+pub use parser::{CaptureVariant, Capture};
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::fmt::{Display, Formatter};

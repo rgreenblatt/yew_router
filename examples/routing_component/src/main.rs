@@ -5,8 +5,6 @@ mod c_component;
 
 use yew::prelude::*;
 
-//use yew_router::route;
-//use yew_router::{Route, Router};
 use yew_router::prelude::*;
 use yew_router::components::RouterButton;
 use yew_router::components::RouterLink;
@@ -15,9 +13,6 @@ use crate::a_component::AModel;
 use crate::b_component::BModel;
 use crate::c_component::CModel;
 
-//use yew_router::component;
-//use yew_router::matcher::Captures;
-//use yew_router::render;
 
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;

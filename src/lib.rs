@@ -153,7 +153,7 @@ pub use crate::route_info::RouteState;
 ///   * Optional matchers do not adequately separate Any matchers, because they may not match at all, leaving no exact section to separate the Any matchers.
 ///
 /// ### Optional Matching
-/// Optional matchers are denoted by `()` characters. They must contain at least one character.
+/// Optional matchers are denoted by `[]` characters. They must contain at least one character.
 /// They either match their contents, or not at all.
 /// Optional matchers cannot opt out of parts of queries, although they can opt out of entire queries.
 ///
@@ -207,12 +207,12 @@ pub use crate::route_info::RouteState;
 /// #### Match Optional
 /// ```
 ///# use yew_router::route;
-/// let matcher = route!("/lorem(/ipsum)");
+/// let matcher = route!("/lorem[/ipsum]");
 /// assert!(matcher.match_route_string("/lorem/ipsum").is_some());
 /// assert!(matcher.match_route_string("/lorem").is_some());
 ///
 ///
-/// let matcher = route!("/lorem(/ipsum{any})");
+/// let matcher = route!("/lorem[/ipsum{any}]");
 /// let captures = matcher.match_route_string("/lorem/ipsumdolorsit").unwrap();
 /// assert_eq!(captures["any"], "dolorsit".to_string());
 /// ```

@@ -2,11 +2,11 @@ use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
 use std::collections::HashSet;
 use std::hash::Hash;
-use syn::export::TokenStream2;
+use syn::export::{TokenStream2};
 use syn::parse::{Parse, ParseBuffer};
 use syn::parse_macro_input;
 use syn::Error;
-use yew_router_route_parser::{CaptureVariant, MatcherToken};
+use yew_router_route_parser::{CaptureVariant, MatcherToken, Capture};
 
 struct S {
     /// The routing string
@@ -148,7 +148,7 @@ impl ToTokens for ShadowMatcherToken {
 /// It should match it exactly so that this macro can expand to the original.
 enum ShadowMatcherToken {
     Exact(String),
-    Capture(ShadowCaptureVariant),
+    Capture(ShadowCapture),
     Optional(Vec<ShadowMatcherToken>),
 }
 
@@ -160,6 +160,40 @@ enum ShadowCaptureVariant {
     ManyNamed(String), // {*:name} - captures over many sections and adds it to the map with a given name.
     NumberedNamed { sections: usize, name: String }, // {2:name} - captures a fixed number of sections with a given name.
 }
+
+struct ShadowCapture {
+    capture_variant: ShadowCaptureVariant,
+    exact_possibilities: Option<Vec<String>>
+}
+
+impl ToTokens for ShadowCapture {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        let ShadowCapture {
+            capture_variant,
+            exact_possibilities
+        } = self;
+        let t = match exact_possibilities {
+            Some(exact_possibilities) => {
+                quote! {
+                    ::yew_router::matcher::Capture {
+                        capture_variant: #capture_variant,
+                        exact_possibilities: vec![#(#exact_possibilities),*]
+                    }
+                }
+            }
+            None => {
+                quote! {
+                    ::yew_router::matcher::Capture {
+                        capture_variant: #capture_variant,
+                        exact_possibilities: None
+                    }
+                }
+            }
+        };
+        tokens.extend(t)
+    }
+}
+
 
 impl ToTokens for ShadowCaptureVariant {
     fn to_tokens(&self, ts: &mut TokenStream2) {
@@ -193,7 +227,7 @@ impl From<MatcherToken> for ShadowMatcherToken {
         use ShadowMatcherToken as SOT;
         match ot {
             MT::Exact(s) => SOT::Exact(s),
-            MT::Capture(variant) => SOT::Capture(variant.into()),
+            MT::Capture(capture) => SOT::Capture(capture.into()),
             MT::Optional(optional) => SOT::Optional(optional.into_iter().map(SOT::from).collect()),
         }
     }
@@ -212,6 +246,15 @@ impl From<CaptureVariant> for ShadowCaptureVariant {
             CaptureVariant::NumberedNamed { sections, name } => {
                 SCV::NumberedNamed { sections, name }
             }
+        }
+    }
+}
+
+impl From<Capture> for ShadowCapture {
+    fn from(c: Capture) -> Self {
+        ShadowCapture {
+            capture_variant: c.capture_variant.into(),
+            exact_possibilities: c.exact_possibilities
         }
     }
 }
