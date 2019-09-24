@@ -65,9 +65,10 @@ pub fn match_exact(i: &str) -> IResult<&str, RouteParserToken, VerboseError<&str
 /// * {*:name(yes|no)}
 /// * {5:name(yes|no)}
 pub fn capture(i: &str) -> IResult<&str, RouteParserToken, VerboseError<&str>> {
-    /// Capture the variant.
+    // Capture the variant.
     let capture_variants = alt((
-        map(peek(char('}')), |_| CaptureVariant::Unnamed),
+        // This can be terminated by either the end of the match section, or by the beginning of a allowed_matches section.
+        map(peek(alt((char('}'), char('(')))), |_| CaptureVariant::Unnamed),
         map(preceded(tag("*:"), valid_ident_characters), |s| {
             CaptureVariant::ManyNamed(s.to_string())
         }),
@@ -88,7 +89,7 @@ pub fn capture(i: &str) -> IResult<&str, RouteParserToken, VerboseError<&str>> {
     ));
 
     let allowed_matches = map(
-        separated_list(char('|'), valid_exact_match_characters),
+        separated_list(char('|'), valid_exact_match_characters), // TODO this character set may be too limiting (you may want / to appear in the matched section).
         |x: Vec<&str>| x.into_iter().map(String::from).collect::<Vec<_>>()
     );
     let allowed_matches = delimited(char('('), allowed_matches, char(')'));
@@ -104,6 +105,7 @@ pub fn capture(i: &str) -> IResult<&str, RouteParserToken, VerboseError<&str>> {
         }
     );
 
+    // wraps the variant and allowed_matches list between `{` and `}`.
     context(
         "capture",
         map(
@@ -217,6 +219,12 @@ mod test {
     #[test]
     fn capture_consumes() {
         capture("{aoeu").expect_err("Should not complete");
+    }
+
+    #[test]
+    fn can_specify_exact_match_option() {
+
+        capture("{(lorem|ipsum)}").expect("Should complete");
     }
 
 }
