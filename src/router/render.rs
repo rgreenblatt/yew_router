@@ -5,7 +5,7 @@ use crate::router::RouterState;
 use std::fmt::{Debug, Error as FmtError, Formatter};
 use std::rc::Rc;
 use yew::virtual_dom::vcomp::ScopeHolder;
-use yew::virtual_dom::{VComp, VNode};
+use yew::virtual_dom::{VComp};
 use yew::{Component, Html, Renderable};
 
 /// Render function.
@@ -18,23 +18,13 @@ where
 {
 }
 
-/// Creates a component using supplied props and scope.
-pub(crate) fn create_component_with_scope<
-    COMP: Component + Renderable<COMP>,
-    CONTEXT: Component,
->(
-    props: COMP::Properties,
-    scope_holder: ScopeHolder<CONTEXT>,
-) -> Html<CONTEXT> {
-    VNode::VComp(VComp::new::<COMP>(props, scope_holder))
-}
 
 /// Creates a component using supplied props.
 pub(crate) fn create_component<COMP: Component + Renderable<COMP>, CONTEXT: Component>(
     props: COMP::Properties,
 ) -> Html<CONTEXT> {
     let vcomp_scope: ScopeHolder<CONTEXT> = Default::default();
-    create_component_with_scope::<COMP, CONTEXT>(props, vcomp_scope)
+    VComp::new::<COMP>(props, vcomp_scope).into()
 }
 
 /// Creates a `Render` that creates the specified component if its

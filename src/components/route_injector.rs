@@ -208,7 +208,7 @@ where
                     child.props.inject_route(&route_info)
                 }
                 // TODO, is this necessary to render children from an iter over children?
-                crate::router::create_component_with_scope::<C, Self>(child.props, child.scope)
+                yew::virtual_dom::VComp::new::<C>(child.props, child.scope)
             })
             .collect::<VNode<Self>>()
     }
