@@ -1,4 +1,4 @@
-use yew::{html, Component, ComponentLink, Html, Renderable, ShouldRender};
+use yew::{html, Component, ComponentLink, Html,  ShouldRender};
 
 pub struct PageNotFound {}
 
@@ -19,15 +19,14 @@ impl Component for PageNotFound {
     fn change(&mut self, _props: Self::Properties) -> ShouldRender {
         true
     }
-    fn destroy(&mut self) {
-        log::info!("PageNotFound destroyed")
-    }
-}
-
-impl Renderable<PageNotFound> for PageNotFound {
     fn view(&self) -> Html<Self> {
         html! {
             {"Page Not Found"}
         }
     }
+
+    fn destroy(&mut self) {
+        log::info!("PageNotFound destroyed")
+    }
 }
+

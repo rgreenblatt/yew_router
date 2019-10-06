@@ -41,9 +41,7 @@ impl Component for RouterButton {
         self.props = props;
         true
     }
-}
 
-impl Renderable<RouterButton> for RouterButton {
     fn view(&self) -> Html<RouterButton> {
         html! {
             <button
@@ -56,3 +54,4 @@ impl Renderable<RouterButton> for RouterButton {
         }
     }
 }
+

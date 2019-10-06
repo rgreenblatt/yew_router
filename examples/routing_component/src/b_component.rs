@@ -99,9 +99,7 @@ impl Component for BModel {
     fn change(&mut self, _props: Self::Properties) -> ShouldRender {
         true
     }
-}
 
-impl Renderable<BModel> for BModel {
     fn view(&self) -> Html<Self> {
         html! {
             <div>
@@ -117,6 +115,7 @@ impl Renderable<BModel> for BModel {
         }
     }
 }
+
 
 impl FromCaptures for Props {
     fn from_captures(captures: &Captures) -> Result<Self, FromCapturesError> {

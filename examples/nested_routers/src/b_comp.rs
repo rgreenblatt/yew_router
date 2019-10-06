@@ -26,9 +26,7 @@ impl Component for BComp {
     fn destroy(&mut self) {
         log::info!("BComp destroyed")
     }
-}
 
-impl Renderable<BComp> for BComp {
     fn view(&self) -> Html<Self> {
         html! {
             <>

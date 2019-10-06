@@ -4,7 +4,7 @@ use crate::matcher::Matcher;
 use crate::router::render::Render;
 use crate::router::router::Router;
 use std::fmt::{Debug, Error as FmtError, Formatter};
-use yew::{Children, Component, ComponentLink, Properties, ShouldRender};
+use yew::{Children, Component, ComponentLink, Properties, ShouldRender, Html};
 
 /// A nested component used inside of [Router](../router/struct.Router.html) that can determine if a
 /// sub-component can be rendered.
@@ -59,5 +59,9 @@ impl<T: for<'de> RouterState<'de>> Component for Route<T> {
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
         self.props = props;
         true
+    }
+
+    fn view(&self) -> Html<Self> {
+        unimplemented!()
     }
 }

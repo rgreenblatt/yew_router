@@ -24,9 +24,7 @@ impl Component for CModel {
     fn change(&mut self, _props: Self::Properties) -> ShouldRender {
         true
     }
-}
 
-impl Renderable<CModel> for CModel {
     fn view(&self) -> Html<Self> {
         html! {
             <div>
@@ -35,3 +33,4 @@ impl Renderable<CModel> for CModel {
         }
     }
 }
+

@@ -51,9 +51,6 @@ impl Component for Guide {
         }
         true
     }
-}
-
-impl Renderable<Guide> for Guide {
     fn view(&self) -> Html<Guide> {
         if let Some(route) = &self.route {
             let active_markdown_uri: Option<String> = self
@@ -99,6 +96,8 @@ impl Renderable<Guide> for Guide {
         }
     }
 }
+
+
 
 fn render_page_list_item(props: PageProps, route: &RouteInfo) -> Html<Guide> {
     let pm: RouteMatcher = RouteMatcher::try_from(&props.page_url).unwrap();

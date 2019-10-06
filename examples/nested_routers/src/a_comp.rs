@@ -26,9 +26,7 @@ impl Component for AComp {
     fn destroy(&mut self) {
         log::info!("AComp destroyed")
     }
-}
 
-impl Renderable<AComp> for AComp {
     fn view(&self) -> Html<Self> {
         html! {
             <>
@@ -44,3 +42,4 @@ impl Renderable<AComp> for AComp {
         }
     }
 }
+

@@ -22,9 +22,7 @@ impl Component for Model {
     fn update(&mut self, _msg: Self::Message) -> bool {
         false
     }
-}
 
-impl Renderable<Model> for Model {
     fn view(&self) -> Html<Model> {
         html! {
             <Guide>
@@ -57,3 +55,4 @@ impl Renderable<Model> for Model {
         }
     }
 }
+

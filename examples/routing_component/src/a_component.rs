@@ -26,9 +26,7 @@ impl Component for AModel {
     fn change(&mut self, _props: Self::Properties) -> ShouldRender {
         true
     }
-}
 
-impl Renderable<AModel> for AModel {
     fn view(&self) -> Html<Self> {
         html! {
             <div>
@@ -52,3 +50,4 @@ impl Renderable<AModel> for AModel {
         }
     }
 }
+

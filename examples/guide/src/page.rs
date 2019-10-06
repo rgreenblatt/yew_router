@@ -23,4 +23,8 @@ impl Component for Page {
     fn update(&mut self, _msg: Self::Message) -> bool {
         false
     }
+
+    fn view(&self) -> Html<Self> {
+        unimplemented!()
+    }
 }

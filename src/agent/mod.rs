@@ -27,7 +27,6 @@ impl<'de, T> AgentState<'de> for T where T: RouteState + Serialize + Deserialize
 /// Non-instantiable type.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug)]
 pub enum Void {}
-impl Transferable for Void {}
 
 /// Message used for the RouteAgent.
 #[derive(Debug)]
@@ -54,7 +53,6 @@ pub enum RouteRequest<T> {
     Disconnect,
 }
 
-impl<T> Transferable for RouteRequest<T> where for<'de> T: Serialize + Deserialize<'de> {}
 
 /// The RouteAgent holds on to the RouteService singleton and mediates access to it.
 ///

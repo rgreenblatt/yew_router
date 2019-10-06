@@ -11,7 +11,7 @@ use std::rc::Rc;
 use yew::html::ChildrenWithProps;
 use yew::virtual_dom::VChild;
 use yew::{
-    html, virtual_dom::VNode, Component, ComponentLink, Html, Properties, Renderable, ShouldRender,
+    html, virtual_dom::VNode, Component, ComponentLink, Html, Properties, ShouldRender,
 };
 
 /// Rendering control flow component.
@@ -139,9 +139,7 @@ where
         self.props = props;
         true
     }
-}
 
-impl<T: for<'de> RouterState<'de>> Renderable<Router<T>> for Router<T> {
     fn view(&self) -> VNode<Self> {
         trace!(
             "Routing one of {} routes for  {:?}",

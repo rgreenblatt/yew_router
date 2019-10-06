@@ -58,6 +58,16 @@ impl Component for MarkdownWindow {
         self.try_fetch_markdown();
         true
     }
+
+    fn view(&self) -> VNode<MarkdownWindow> {
+        if let Some(md) = &self.markdown {
+            html! {
+                render_markdown(md)
+            }
+        } else {
+            html! {}
+        }
+    }
 }
 
 impl MarkdownWindow {
@@ -73,18 +83,6 @@ impl MarkdownWindow {
                 }
             });
             self.fetch_task = Some(self.fetch_service.fetch(request, callback));
-        }
-    }
-}
-
-impl Renderable<MarkdownWindow> for MarkdownWindow {
-    fn view(&self) -> VNode<MarkdownWindow> {
-        if let Some(md) = &self.markdown {
-            html! {
-                render_markdown(md)
-            }
-        } else {
-            html! {}
         }
     }
 }

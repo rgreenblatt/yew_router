@@ -190,14 +190,8 @@ where
         self.props = props;
         true
     }
-}
 
-impl<T, C> Renderable<RouteInjector<T, C>> for RouteInjector<T, C>
-where
-    T: for<'de> RouterState<'de>,
-    C: Component + Renderable<C>,
-    <C as Component>::Properties: RouteInjectable<T>,
-{
+
     fn view(&self) -> Html<Self> {
         self.props
             .children

@@ -1,7 +1,7 @@
 use crate::a_comp::AComp;
 use crate::b_comp::BComp;
 use crate::page_not_found::PageNotFound;
-use yew::{html, Component, ComponentLink, Html, Renderable, ShouldRender};
+use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_router::components::RouterButton;
 use yew_router::prelude::*;
 use yew_router::route;
@@ -33,9 +33,7 @@ impl Component for Model {
     fn update(&mut self, _msg: Self::Message) -> ShouldRender {
         true
     }
-}
 
-impl Renderable<Model> for Model {
     fn view(&self) -> Html<Self> {
         html! {
             <>
