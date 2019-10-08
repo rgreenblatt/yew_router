@@ -171,9 +171,7 @@ fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -
 
             quote! {
                 let matcher = ::yew_router::matcher::route_matcher::RouteMatcher::try_from(#route_string).expect("Invalid matcher");
-//                if let Some(captures) = matcher.match_route_string(&route.to_string()) { // TODO, there needs to be a way to get an ordered captures map
                 #build_from_captures
-//                }
             }
         })
         .collect::<Vec<_>>();
