@@ -13,7 +13,6 @@ use std::slice::Iter;
 use yew_router_route_parser::parser::util::consume_until;
 use yew_router_route_parser::{CaptureVariant, MatcherToken};
 
-
 /// Allows abstracting over capturing into a HashMap (Captures) or a Vec.
 pub trait CaptureCollection<'a> {
     fn new2() -> Self;
@@ -21,7 +20,7 @@ pub trait CaptureCollection<'a> {
     fn extend2(&mut self, other: Self);
 }
 
-impl <'a> CaptureCollection<'a> for Captures<'a> {
+impl<'a> CaptureCollection<'a> for Captures<'a> {
     fn new2() -> Self {
         Captures::new()
     }
@@ -35,7 +34,7 @@ impl <'a> CaptureCollection<'a> for Captures<'a> {
     }
 }
 
-impl <'a> CaptureCollection<'a> for Vec<(&'a str, String)> {
+impl<'a> CaptureCollection<'a> for Vec<(&'a str, String)> {
     fn new2() -> Self {
         Vec::new()
     }
@@ -48,8 +47,6 @@ impl <'a> CaptureCollection<'a> for Vec<(&'a str, String)> {
         self.extend(other)
     }
 }
-
-
 
 #[allow(clippy::trivially_copy_pass_by_ref)]
 pub(super) fn match_path<'a, 'b: 'a>(
@@ -66,8 +63,6 @@ pub(super) fn match_path_list<'a, 'b: 'a>(
 ) -> impl Fn(&'a str) -> IResult<&'a str, Vec<(&'b str, String)>> {
     move |i: &str| match_path_impl(tokens, *settings, i)
 }
-
-
 
 fn match_path_impl<'a, 'b: 'a, CAP: CaptureCollection<'b>>(
     tokens: &'b [MatcherToken],

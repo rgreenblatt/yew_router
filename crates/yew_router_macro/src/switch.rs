@@ -1,10 +1,11 @@
-use proc_macro::{TokenStream};
-use syn::{Data, DeriveInput, Ident, Variant, Attribute, Meta, MetaNameValue, Lit, Fields, Field, Type};
+use proc_macro::TokenStream;
+use proc_macro2::TokenStream as TokenStream2;
+use quote::quote;
 use syn::parse_macro_input;
 use syn::punctuated::IntoIter;
-use quote::quote;
-use proc_macro2::TokenStream as TokenStream2;
-
+use syn::{
+    Attribute, Data, DeriveInput, Field, Fields, Ident, Lit, Meta, MetaNameValue, Type, Variant,
+};
 
 const ATTRIBUTE_TOKEN_STRING: &str = "to";
 
@@ -14,29 +15,20 @@ pub fn switch_impl(input: TokenStream) -> TokenStream {
     let enum_ident: Ident = input.ident;
 
     let variants: IntoIter<Variant> = match input.data {
-        Data::Struct(_ds) => {
-            panic!("Deriving Switch not supported for Structs.")
-        }
-        Data::Enum(de) => {
-            de.variants.into_iter()
-        }
-        Data::Union(_du) => {
-            panic!("Deriving FromCaptures not supported for Unions.")
-        }
+        Data::Struct(_ds) => panic!("Deriving Switch not supported for Structs."),
+        Data::Enum(de) => de.variants.into_iter(),
+        Data::Union(_du) => panic!("Deriving FromCaptures not supported for Unions."),
     };
 
     let switch_variants: Vec<SwitchVariant> = variants
-        .map(|variant: Variant| {
-            SwitchVariant {
-                route_string: get_route_string(variant.attrs),
-                ident: variant.ident,
-                fields: variant.fields
-            }
+        .map(|variant: Variant| SwitchVariant {
+            route_string: get_route_string(variant.attrs),
+            ident: variant.ident,
+            fields: variant.fields,
         })
         .collect();
 
     generate_trait_impl(enum_ident, switch_variants)
-
 }
 
 /// Gets this section:
@@ -68,18 +60,19 @@ fn get_route_string(attributes: Vec<Attribute>) -> String {
        .unwrap_or_else(|| panic!(r##"The Switch derive expects all variants to be annotated with [{} = "/route/string"] "##, ATTRIBUTE_TOKEN_STRING))
 }
 
-
 pub struct SwitchVariant {
     route_string: String,
     ident: Ident,
-    fields: Fields
+    fields: Fields,
 }
 
-
 fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -> TokenStream {
-
     /// Once the 'captures' exists, attempt to populate the fields from the list of captures.
-    fn build_variant_from_captures(enum_ident: &Ident, variant_ident: Ident, fields: Fields) -> TokenStream2 {
+    fn build_variant_from_captures(
+        enum_ident: &Ident,
+        variant_ident: Ident,
+        fields: Fields,
+    ) -> TokenStream2 {
         match fields {
             Fields::Named(named_fields) => {
                 let fields: Vec<TokenStream2> = named_fields.named.into_iter()
@@ -150,9 +143,9 @@ fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -
                         }
                     }
                 }
-            },
+            }
             Fields::Unit => {
-                quote!{
+                quote! {
                     if let Some(captures) = matcher.capture_route_into_map(&route.to_string()).ok().map(|x| x.1) {
                         return Some(#enum_ident::#variant_ident);
                     }
@@ -160,7 +153,6 @@ fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -
             }
         }
     }
-
 
     let variant_matchers: Vec<TokenStream2> = switch_variants.into_iter()
         .map(|sv| {
@@ -176,7 +168,6 @@ fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -
         })
         .collect::<Vec<_>>();
 
-
     let token_stream = quote! {
         impl ::yew_router::Switch for #enum_ident {
             fn switch<T>(route: ::yew_router::route_info::RouteInfo<T>) -> Option<Self> {
@@ -188,30 +179,6 @@ fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -
     };
     TokenStream::from(token_stream)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 trait Flatten<T> {
     /// Because flatten is a nightly feature. I'm making a new variant of the function here for stable use.

@@ -24,11 +24,10 @@ use crate::route_info::RouteInfo;
 /// assert_eq!(TestEnum::switch(RouteInfo::<()>::from("/test/route")), Some(TestEnum::TestRoute));
 /// assert_eq!(TestEnum::switch(RouteInfo::<()>::from("/capture/string/lorem")), Some(TestEnum::CaptureString{path: "lorem".to_string()}));
 /// assert_eq!(TestEnum::switch(RouteInfo::<()>::from("/capture/number/22")), Some(TestEnum::CaptureNumber{num: 22}));
-///  assert_eq!(TestEnum::switch(RouteInfo::<()>::from("/capture/unnamed/lorem")), Some(TestEnum::CaptureUnnamed("lorem".to_string())));
+/// assert_eq!(TestEnum::switch(RouteInfo::<()>::from("/capture/unnamed/lorem")), Some(TestEnum::CaptureUnnamed("lorem".to_string())));
 /// ```
 ///
 pub trait Switch: Sized {
     /// Based on a route, possibly produce an itself.
     fn switch<T>(route: RouteInfo<T>) -> Option<Self>;
 }
-

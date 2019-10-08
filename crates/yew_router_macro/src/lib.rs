@@ -55,7 +55,6 @@ pub fn route(tokens: TokenStream) -> TokenStream {
     route_impl(tokens)
 }
 
-
 #[proc_macro_derive(Switch, attributes(to))]
 pub fn switch(tokens: TokenStream) -> TokenStream {
     crate::switch::switch_impl(tokens)

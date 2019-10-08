@@ -295,5 +295,4 @@ mod test {
         let expected = "The field: 'lorem' was not present in your path matcher.";
         assert_eq!(displayed, expected);
     }
-
 }
