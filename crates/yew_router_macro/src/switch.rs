@@ -79,20 +79,52 @@ pub struct SwitchVariant {
 
 fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -> TokenStream {
 
+    /// Once the 'captures' exists, attempt to populate the fields from the list of captures.
+    fn build_variant_from_captures(enum_ident: &Ident, variant_ident: Ident, fields: Fields) -> TokenStream2 {
+        match fields {
+            Fields::Named(named_fields) => {
+                let fields: Vec<TokenStream2> = named_fields.named.into_iter()
+                    .filter_map(|field| field.ident.map(|i| {
+                        let key = i.to_string();
+                        (i, key)
+                    }))
+                    .map(|(field_name, key): (Ident, String)|{
+                        quote!{
+                            #field_name: captures.get(#key).map(|x| x.into())? // TODO this early return is wrong- something needs to wrap it in a function or something
+                        }
+                    })
+                    .collect();
+
+                quote!(
+                    Some(#enum_ident#variant_ident{
+                        #(#fields),*
+                    })
+                )
+
+            }
+            Fields::Unnamed(_) => panic!("Tuple enums not supported for the moment."),
+            Fields::Unit => {
+                quote!{
+                    return Some(#enum_ident#variant_ident);
+                }
+            }
+        }
+    }
+
+
     let variant_matchers: Vec<TokenStream2> = switch_variants.into_iter()
         .map(|sv| {
             let SwitchVariant {
                 route_string, ident, fields
             } = sv;
+            let build_from_captures = build_variant_from_captures(&enum_ident, ident, fields);
+
             quote! {
                 let matcher = ::yew_router::matcher::route_matcher::RouteMatcher::try_from(#route_string).expect("Invalid matcher");
                 let matcher = Matcher::from(matcher);
                 if let Some(captures) = matcher.match_route_string(&route.to_string()) {
-                    unimplemented!()
-                    // TODO return enum instance;
-                    // TODO, this will require specific versions for each enum type: unit, struct, tuple.
+                    #build_from_captures
                 }
-
             }
         })
         .collect::<Vec<_>>();
