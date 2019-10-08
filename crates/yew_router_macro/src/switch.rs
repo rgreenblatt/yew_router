@@ -162,7 +162,7 @@ fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -
             let build_from_captures = build_variant_from_captures(&enum_ident, ident, fields);
 
             quote! {
-                let matcher = ::yew_router::matcher::route_matcher::RouteMatcher::try_from(#route_string).expect("Invalid matcher");
+                let matcher = ::yew_router::matcher::route_matcher::RouteMatcher::try_from(#route_string).expect("Invalid matcher"); // TODO this doesn't give adequate diagnostics. Figure out how to parse the failed generation and give useful feedback.
                 #build_from_captures
             }
         })

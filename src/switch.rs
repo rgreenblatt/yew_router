@@ -15,7 +15,7 @@ use crate::route_info::RouteInfo;
 ///     CaptureString{path: String},
 ///     #[to = "/capture/number/{num}"]
 ///     CaptureNumber{num: usize},
-///     #[to = "/capture/unnamed/{doot}"] // TODO doesn't currently give out good diagnostics if the matching string is malformed.
+///     #[to = "/capture/unnamed/{doot}"]
 ///     CaptureUnnamed(String),
 ///     #[to = "{*}/skip/"]
 ///     Skip
