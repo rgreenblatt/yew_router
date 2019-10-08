@@ -1,5 +1,4 @@
 use proc_macro::{TokenStream};
-use syn::token::Enum;
 use syn::{Data, DeriveInput, Ident, Variant, Attribute, Meta, MetaNameValue, Lit, Fields, Field, Type};
 use syn::parse_macro_input;
 use syn::punctuated::IntoIter;
@@ -15,7 +14,7 @@ pub fn switch_impl(input: TokenStream) -> TokenStream {
     let enum_ident: Ident = input.ident;
 
     let variants: IntoIter<Variant> = match input.data {
-        Data::Struct(ds) => {
+        Data::Struct(_ds) => {
             panic!("Deriving Switch not supported for Structs.")
         }
         Data::Enum(de) => {
@@ -94,54 +93,69 @@ fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -
                     .map(|(field_name, key, field_ty): (Ident, String, Type)|{
                         quote!{
                             #field_name: captures.get(#key)
-                            .map_or_else(
-                                || <#field_ty as ::yew_router::matcher::FromCapturedKeyValue>::key_not_available(), // If the key isn't present, possibly resolve the case where the item is an option
-                                |c| {
-                                    <#field_ty as ::yew_router::matcher::FromCapturedKeyValue>::from_value(c.as_str())
-                                }
-                            )?
+                                .map_or_else(
+                                    || <#field_ty as ::yew_router::matcher::FromCapturedKeyValue>::key_not_available(), // If the key isn't present, possibly resolve the case where the item is an option
+                                    |c| {
+                                        <#field_ty as ::yew_router::matcher::FromCapturedKeyValue>::from_value(c.as_str())
+                                    }
+                                )?
                         }
                     })
                     .collect();
 
                 quote! {
-                    let produce_variant = move || -> Option<#enum_ident> {
-                        Some(
-                            #enum_ident::#variant_ident{
-                                #(#fields),*
-                            }
-                        )
-                    };
-                    if let Some(e) = produce_variant() {
-                        return Some(e);
+                    if let Some(captures) = matcher.capture_route_into_map(&route.to_string()).ok().map(|x| x.1) {
+                        let produce_variant = move || -> Option<#enum_ident> {
+                            Some(
+                                #enum_ident::#variant_ident{
+                                    #(#fields),*
+                                }
+                            )
+                        };
+                        if let Some(e) = produce_variant() {
+                            return Some(e);
+                        }
                     }
                 }
             }
             Fields::Unnamed(unnamed_fields) => {
                 // todo, I need a vecdeque/ or zip a vec of captured strings
-                let fields = unnamed_fields.unnamed.iter().map(|x: &Field|{
-//                    unimplemented!()
-                    1
-                });
+
+                let fields = unnamed_fields.unnamed.iter()
+                    .enumerate()
+                    .map(|(index, f): (usize, &Field)|{
+                        let field_ty = &f.ty;
+                        quote!{
+                            captures.get(#index)
+                                .map_or_else(
+                                    || <#field_ty as ::yew_router::matcher::FromCapturedKeyValue>::key_not_available(), // If the key isn't present, possibly resolve the case where the item is an option
+                                    |c: &(&str, String)| {
+                                        <#field_ty as ::yew_router::matcher::FromCapturedKeyValue>::from_value(c.1.as_str())
+                                    }
+                                )?
+                        }
+                    });
+
                 quote! {
-                    let produce_variant = move || -> Option<#enum_ident> {
-                        Some(
-                            #enum_ident::#variant_ident(
-                                #(#fields),*
+                    if let Some(captures) = matcher.capture_route_into_vec(&route.to_string()).ok().map(|x| x.1) {
+                        let produce_variant = move || -> Option<#enum_ident> {
+                            Some(
+                                #enum_ident::#variant_ident(
+                                    #(#fields),*
+                                )
                             )
-                        )
-                    };
-                    if let Some(e) = produce_variant() {
-                        return Some(e);
+                        };
+                        if let Some(e) = produce_variant() {
+                            return Some(e);
+                        }
                     }
-                };
-
-
-                panic!("Tuple enums not supported for the moment.")
+                }
             },
             Fields::Unit => {
                 quote!{
-                    return Some(#enum_ident::#variant_ident);
+                    if let Some(captures) = matcher.capture_route_into_map(&route.to_string()).ok().map(|x| x.1) {
+                        return Some(#enum_ident::#variant_ident);
+                    }
                 }
             }
         }
@@ -157,10 +171,9 @@ fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -
 
             quote! {
                 let matcher = ::yew_router::matcher::route_matcher::RouteMatcher::try_from(#route_string).expect("Invalid matcher");
-                let matcher = ::yew_router::matcher::Matcher::from(matcher); // TODO consider not wrapping this.
-                if let Some(captures) = matcher.match_route_string(&route.to_string()) { // TODO, there needs to be a way to get an ordered captures map
-                    #build_from_captures
-                }
+//                if let Some(captures) = matcher.match_route_string(&route.to_string()) { // TODO, there needs to be a way to get an ordered captures map
+                #build_from_captures
+//                }
             }
         })
         .collect::<Vec<_>>();

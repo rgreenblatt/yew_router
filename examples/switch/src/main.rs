@@ -7,6 +7,10 @@ fn main() {
     let app_route = AppRoute::switch(route);
     dbg!(app_route);
 
+    let route = RouteInfo::<()>::from("/another/other");
+    let app_route = AppRoute::switch(route);
+    dbg!(app_route);
+
     let route = RouteInfo::<()>::from("/yeet");
     let app_route = AppRoute::switch(route);
     dbg!(app_route);
@@ -21,5 +25,7 @@ pub enum AppRoute {
     #[to = "/some/{thing}"]
     Something {
         thing: String
-    }
+    },
+    #[to = "/another/{thing}"]
+    Another(String)
 }
