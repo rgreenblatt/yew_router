@@ -1,6 +1,6 @@
 use proc_macro::{TokenStream};
 use syn::token::Enum;
-use syn::{Data, DeriveInput, Ident, Variant, Attribute, Meta, MetaNameValue, Lit, Fields};
+use syn::{Data, DeriveInput, Ident, Variant, Attribute, Meta, MetaNameValue, Lit, Fields, Field, Type};
 use syn::parse_macro_input;
 use syn::punctuated::IntoIter;
 use quote::quote;
@@ -84,23 +84,38 @@ fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -
         match fields {
             Fields::Named(named_fields) => {
                 let fields: Vec<TokenStream2> = named_fields.named.into_iter()
-                    .filter_map(|field| field.ident.map(|i| {
-                        let key = i.to_string();
-                        (i, key)
-                    }))
-                    .map(|(field_name, key): (Ident, String)|{
+                    .filter_map(|field: Field| {
+                        let field_ty: Type = field.ty;
+                        field.ident.map(|i| {
+                            let key = i.to_string();
+                            (i, key, field_ty)
+                        })
+                    })
+                    .map(|(field_name, key, field_ty): (Ident, String, Type)|{
                         quote!{
-                            #field_name: captures.get(#key).map(|x| x.try_into())? // TODO this early return is wrong- something needs to wrap it in a function or something. do notation please?
+                            #field_name: captures.get(#key)
+                            .map_or_else(
+                                || <#field_ty as ::yew_router::matcher::FromCapturedKeyValue>::key_not_available(), // If the key isn't present, possibly resolve the case where the item is an option
+                                |c| {
+                                    <#field_ty as ::yew_router::matcher::FromCapturedKeyValue>::from_value(c.as_str())
+                                }
+                            )?
                         }
                     })
                     .collect();
 
                 quote!(
-                    Some(#enum_ident::#variant_ident{
-                        #(#fields),*
-                    })
+                    let produce_variant = move || -> Option<#enum_ident> {
+                        Some(
+                            #enum_ident::#variant_ident{
+                                #(#fields),*
+                            }
+                        )
+                    };
+                    if let Some(e) = produce_variant() {
+                        return Some(e);
+                    }
                 )
-
             }
             Fields::Unnamed(_) => panic!("Tuple enums not supported for the moment."),
             Fields::Unit => {
@@ -121,7 +136,7 @@ fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -
 
             quote! {
                 let matcher = ::yew_router::matcher::route_matcher::RouteMatcher::try_from(#route_string).expect("Invalid matcher");
-                let matcher = Matcher::from(matcher); // TODO consider not wrapping this.
+                let matcher = ::yew_router::matcher::Matcher::from(matcher); // TODO consider not wrapping this.
                 if let Some(captures) = matcher.match_route_string(&route.to_string()) { // TODO, there needs to be a way to get an ordered captures map
                     #build_from_captures
                 }
@@ -131,9 +146,11 @@ fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -
 
 
     let token_stream = quote! {
-        impl ::yew_router::switch::Switch for #enum_ident {
-            fn switch<T>(route: RouteInfo<T>) -> Self {
+        impl ::yew_router::Switch for #enum_ident {
+            fn switch<T>(route: ::yew_router::route_info::RouteInfo<T>) -> Option<Self> {
                 #(#variant_matchers)*
+
+                return None
             }
         }
     };
