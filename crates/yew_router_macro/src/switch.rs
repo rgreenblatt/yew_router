@@ -104,7 +104,7 @@ fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -
                     })
                     .collect();
 
-                quote!(
+                quote! {
                     let produce_variant = move || -> Option<#enum_ident> {
                         Some(
                             #enum_ident::#variant_ident{
@@ -115,9 +115,30 @@ fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -
                     if let Some(e) = produce_variant() {
                         return Some(e);
                     }
-                )
+                }
             }
-            Fields::Unnamed(_) => panic!("Tuple enums not supported for the moment."),
+            Fields::Unnamed(unnamed_fields) => {
+                // todo, I need a vecdeque/ or zip a vec of captured strings
+                let fields = unnamed_fields.unnamed.iter().map(|x: &Field|{
+//                    unimplemented!()
+                    1
+                });
+                quote! {
+                    let produce_variant = move || -> Option<#enum_ident> {
+                        Some(
+                            #enum_ident::#variant_ident(
+                                #(#fields),*
+                            )
+                        )
+                    };
+                    if let Some(e) = produce_variant() {
+                        return Some(e);
+                    }
+                };
+
+
+                panic!("Tuple enums not supported for the moment.")
+            },
             Fields::Unit => {
                 quote!{
                     return Some(#enum_ident::#variant_ident);

@@ -60,13 +60,22 @@ impl RouteMatcher {
     }
 
     // TODO see if more error handling can be done here.
-
-    /// Match a route string.
+    /// Match a route string, collecting the results into a map.
     pub fn match_route<'a, 'b: 'a>(&'b self, i: &'a str) -> IResult<&'a str, Captures<'a>> {
         if self.settings.complete {
             all_consuming(match_paths::match_path(&self.tokens, &self.settings))(i)
         } else {
             match_paths::match_path(&self.tokens, &self.settings)(i)
+        }
+    }
+
+
+    /// Match a route string, collecting the results into a vector.
+    pub fn capture_route_into_list<'a, 'b: 'a>(&'b self, i: &'a str) -> IResult<&'a str, Vec<(&'b str, String)>> {
+        if self.settings.complete {
+            all_consuming(match_paths::match_path_list(&self.tokens, &self.settings))(i)
+        } else {
+            match_paths::match_path_list(&self.tokens, &self.settings)(i)
         }
     }
 
