@@ -116,6 +116,9 @@ pub use crate::route_info::RouteState;
 #[cfg(feature = "router")]
 pub use crate::router::RouterState;
 
+
+pub mod switch;
+
 /// The route macro produces a Matcher which can be used to determine if a route string should cause
 /// a section of html or component should render.
 ///
