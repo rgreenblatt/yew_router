@@ -66,7 +66,7 @@ fn get_route_string(attributes: Vec<Attribute>) -> String {
                .flatten_stable()
        })
        .next()
-       .unwrap_or_else(|| panic!(r##"The Switch derive function expects all variants to be annotated with [{} = "/route/string"] "##, ATTRIBUTE_TOKEN_STRING))
+       .unwrap_or_else(|| panic!(r##"The Switch derive expects all variants to be annotated with [{} = "/route/string"] "##, ATTRIBUTE_TOKEN_STRING))
 }
 
 
@@ -90,13 +90,13 @@ fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -
                     }))
                     .map(|(field_name, key): (Ident, String)|{
                         quote!{
-                            #field_name: captures.get(#key).map(|x| x.into())? // TODO this early return is wrong- something needs to wrap it in a function or something
+                            #field_name: captures.get(#key).map(|x| x.try_into())? // TODO this early return is wrong- something needs to wrap it in a function or something. do notation please?
                         }
                     })
                     .collect();
 
                 quote!(
-                    Some(#enum_ident#variant_ident{
+                    Some(#enum_ident::#variant_ident{
                         #(#fields),*
                     })
                 )
@@ -105,7 +105,7 @@ fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -
             Fields::Unnamed(_) => panic!("Tuple enums not supported for the moment."),
             Fields::Unit => {
                 quote!{
-                    return Some(#enum_ident#variant_ident);
+                    return Some(#enum_ident::#variant_ident);
                 }
             }
         }
@@ -121,8 +121,8 @@ fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -
 
             quote! {
                 let matcher = ::yew_router::matcher::route_matcher::RouteMatcher::try_from(#route_string).expect("Invalid matcher");
-                let matcher = Matcher::from(matcher);
-                if let Some(captures) = matcher.match_route_string(&route.to_string()) {
+                let matcher = Matcher::from(matcher); // TODO consider not wrapping this.
+                if let Some(captures) = matcher.match_route_string(&route.to_string()) { // TODO, there needs to be a way to get an ordered captures map
                     #build_from_captures
                 }
             }
