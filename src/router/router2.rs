@@ -2,15 +2,10 @@
 
 use crate::agent::{bridge::RouteAgentBridge, RouteRequest};
 use crate::route_info::RouteInfo;
-use crate::router::render::RenderFn;
-use crate::router::route::Route;
 use crate::router::RouterState;
-use log::{trace, warn};
 use std::fmt::{self, Debug, Error as FmtError, Formatter};
 use std::rc::Rc;
-use yew::html::ChildrenWithProps;
-use yew::virtual_dom::VChild;
-use yew::{html, virtual_dom::VNode, Component, ComponentLink, Html, Properties, Renderable, ShouldRender, Callback};
+use yew::{virtual_dom::VNode, Component, ComponentLink, Html, Properties, Renderable, ShouldRender, Callback};
 use crate::Switch;
 
 /// Rendering control flow component.
@@ -107,7 +102,7 @@ impl <T,M> From<M> for Msg<T,M> {
 
 
 /// Render function definition
-pub trait RenderFn2<CTX: Component, SW>: Fn(Option<&SW>) -> Option<Html<CTX>> {}
+pub trait RenderFn2<CTX: Component, SW>: Fn(Option<&SW>) -> Html<CTX> {}
 /// Owned Render function.
 pub struct Render2<T: for<'de> RouterState<'de>, SW: Switch + 'static, M: 'static>(pub(crate) Rc<dyn RenderFn2<Router<T, SW, M>, SW>>);
 impl <T: for<'de> RouterState<'de>, SW: Switch, M> Render2<T, SW, M> {
@@ -191,7 +186,7 @@ impl<T, SW, M> Component for Router<T, SW, M>
 impl<T: for<'de> RouterState<'de>, SW: Switch + 'static, M: 'static> Renderable<Router<T, SW,M>> for Router<T, SW, M> {
     fn view(&self) -> VNode<Self> {
         let switch = SW::switch(self.route.clone());
-        (&self.props.render.0)(switch.as_ref()).unwrap_or_else(||html!{})
+        (&self.props.render.0)(switch.as_ref())
     }
 }
 
