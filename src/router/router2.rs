@@ -71,10 +71,10 @@ use crate::Switch;
 /// impl Renderable<Model> for Model {
 ///     fn view(&self) -> Html<Self> {
 ///         html! {
-///             <Router<(), S>
+///             <Router<(), S, Msg>
 ///                render = Render::new(|switch| {
 ///                    match switch {
-///                        Switch::V => html!{"yeet"}
+///                        S::V => html!{"yeet"}
 ///                    }
 ///                })
 ///             </Router>
