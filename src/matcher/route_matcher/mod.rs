@@ -59,7 +59,6 @@ impl RouteMatcher {
         Ok(pm)
     }
 
-    // TODO see if more error handling can be done here.
     /// Match a route string, collecting the results into a map.
     pub fn capture_route_into_map<'a, 'b: 'a>(
         &'b self,
