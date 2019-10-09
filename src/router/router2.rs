@@ -10,9 +10,7 @@ use std::fmt::{self, Debug, Error as FmtError, Formatter};
 use std::rc::Rc;
 use yew::html::ChildrenWithProps;
 use yew::virtual_dom::VChild;
-use yew::{
-    html, virtual_dom::VNode, Component, ComponentLink, Html, Properties, Renderable, ShouldRender,
-};
+use yew::{html, virtual_dom::VNode, Component, ComponentLink, Html, Properties, Renderable, ShouldRender, Callback};
 use crate::Switch;
 
 /// Rendering control flow component.
@@ -131,7 +129,9 @@ impl <T: for<'de> RouterState<'de>, SW: Switch, M> Debug for Render2<T, SW, M>{
 pub struct Props<T: for<'de> RouterState<'de>, SW: Switch + 'static, M: 'static> {
     /// Render fn
     #[props(required)]
-    pub render: Render2<T, SW, M>
+    pub render: Render2<T, SW, M>,
+    /// Optional Callback for propagating messages to parent components.
+    pub callback: Option<Callback<M>>
 }
 
 impl<T: for<'de> RouterState<'de>, SW: Switch, M> Debug for Props<T, SW, M> {
@@ -173,8 +173,11 @@ impl<T, SW, M> Component for Router<T, SW, M>
                 self.route = route;
                 did_change
             }
-            Msg::InnerMessage(_m) => {
-                unimplemented!("TODO, respond to callback here!!")
+            Msg::InnerMessage(m) => {
+                if let Some(cb) = &self.props.callback {
+                    cb.emit(m)
+                }
+                false
             }
         }
     }
