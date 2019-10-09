@@ -1,7 +1,7 @@
 //! Logic for matching and capturing route strings.
 
 pub use yew_router_route_parser::{
-    Capture, CaptureVariant, Captures, FromCapturedKeyValue, FromCapturesError, MatcherToken,
+    Capture, CaptureVariant, Captures, FromCapturedKeyValue, FromCapturesError, MatcherToken, parser::YewRouterParseError
 };
 
 pub use yew_router_route_parser::FromCaptures;

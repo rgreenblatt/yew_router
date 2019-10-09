@@ -13,6 +13,7 @@ use nom::combinator::all_consuming;
 use nom::IResult;
 use std::collections::HashSet;
 use yew_router_route_parser::{optimize_tokens, parser};
+use crate::matcher::YewRouterParseError;
 
 /// Attempts to match routes, transform the route to Component props and render that Component.
 ///
@@ -48,9 +49,8 @@ impl Default for MatcherSettings {
 
 impl RouteMatcher {
     /// Attempt to create a PathMatcher from a "matcher string".
-    pub fn try_from(i: &str) -> Result<Self, ()> // TODO: Error handling
-        where {
-        let tokens = parser::parse(i).map_err(|_| ())?;
+    pub fn try_from(i: &str) -> Result<Self, YewRouterParseError> {
+        let tokens = parser::parse(i)?;
         let settings = MatcherSettings::default();
         let pm = RouteMatcher {
             tokens: optimize_tokens(tokens, !settings.strict),
