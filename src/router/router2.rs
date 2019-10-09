@@ -67,7 +67,7 @@ use crate::Switch;
 ///     fn view(&self) -> Html<Self> {
 ///         html! {
 ///             <Router<(), S, Msg>
-///                render = Render::new(|switch| {
+///                render = Router::render(|switch| {
 ///                    match switch {
 ///                        S::V => html!{"yeet"}
 ///                    }
@@ -82,6 +82,20 @@ pub struct Router<T: for<'de> RouterState<'de>, SW: Switch + 'static, M: 'static
     route: RouteInfo<T>,
     props: Props<T, SW, M>,
     router_agent: RouteAgentBridge<T>,
+}
+
+
+impl <T, SW, M> Router<T, SW, M>
+where
+T: for<'de> RouterState<'de>,
+SW: Switch + 'static,
+M: 'static
+{
+    /// Wrap a render closure so that it can be used by the Router.
+    pub fn render<F: RenderFn2<Router<T, SW, M>, SW> + 'static>(f: F) -> Render2<T,SW,M> {
+        Render2::new(f)
+    }
+
 }
 
 /// Message for Router.
@@ -107,7 +121,7 @@ pub trait RenderFn2<CTX: Component, SW>: Fn(Option<&SW>) -> Html<CTX> {}
 pub struct Render2<T: for<'de> RouterState<'de>, SW: Switch + 'static, M: 'static>(pub(crate) Rc<dyn RenderFn2<Router<T, SW, M>, SW>>);
 impl <T: for<'de> RouterState<'de>, SW: Switch, M> Render2<T, SW, M> {
     /// New render function
-    pub fn new<F: RenderFn2<Router<T, SW, M>, SW> + 'static>(f: F) -> Self {
+    fn new<F: RenderFn2<Router<T, SW, M>, SW> + 'static>(f: F) -> Self {
         Render2(Rc::new(f))
     }
 }
