@@ -9,11 +9,11 @@ mod util;
 
 use super::Captures;
 use super::Matcher;
+use crate::matcher::YewRouterParseError;
 use nom::combinator::all_consuming;
 use nom::IResult;
 use std::collections::HashSet;
 use yew_router_route_parser::{optimize_tokens, parser};
-use crate::matcher::YewRouterParseError;
 
 /// Attempts to match routes, transform the route to Component props and render that Component.
 ///

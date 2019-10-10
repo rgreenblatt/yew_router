@@ -3,10 +3,13 @@
 use crate::agent::{bridge::RouteAgentBridge, RouteRequest};
 use crate::route_info::RouteInfo;
 use crate::router::RouterState;
+use crate::Switch;
 use std::fmt::{self, Debug, Error as FmtError, Formatter};
 use std::rc::Rc;
-use yew::{virtual_dom::VNode, Component, ComponentLink, Html, Properties, Renderable, ShouldRender, Callback};
-use crate::Switch;
+use yew::{
+    virtual_dom::VNode, Callback, Component, ComponentLink, Html, Properties, Renderable,
+    ShouldRender,
+};
 
 /// Rendering control flow component.
 ///
@@ -64,35 +67,36 @@ pub struct Router<T: for<'de> RouterState<'de>, SW: Switch + 'static, M: 'static
     router_agent: RouteAgentBridge<T>,
 }
 
-
-impl <T, SW, M> Router<T, SW, M>
+impl<T, SW, M> Router<T, SW, M>
 where
-T: for<'de> RouterState<'de>,
-SW: Switch + 'static,
-M: 'static
+    T: for<'de> RouterState<'de>,
+    SW: Switch + 'static,
+    M: 'static,
 {
     /// Wrap a render closure so that it can be used by the Router.
     /// # Example
     /// ```
-    /// use yew_router::Switch;
-    /// use yew_router::router::router2::Router;
-    /// use yew::{html, Html};
-    /// #[derive(Switch)]
-    /// enum S {
-    ///     #[to = "/route"]
-    ///     Var
-    /// }
+    ///# use yew_router::Switch;
+    ///# use yew_router::router::router2::Router;
+    ///# use yew::{html, Html};
+    ///# #[derive(Switch)]
+    ///# enum S {
+    ///#     #[to = "/route"]
+    ///#     Variant
+    ///# }
     ///
     ///# fn dont_execute() {
     /// let render = Router::render(|switch: Option<&S>| -> Html<Router<(), S, ()>> {
-    ///     return html!{}
+    ///    match switch {
+    ///        Some(S::Variant) => html!{"Variant"},
+    ///        None => html!{"404"}
+    ///    }
     /// });
     ///# }
     /// ```
-    pub fn render<F: RenderFn2<Router<T, SW, M>, SW> + 'static>(f: F) -> Render2<T,SW,M> {
+    pub fn render<F: RenderFn2<Router<T, SW, M>, SW> + 'static>(f: F) -> Render2<T, SW, M> {
         Render2::new(f)
     }
-
 }
 
 /// Message for Router.
@@ -101,35 +105,34 @@ pub enum Msg<T, M> {
     /// Updates the route
     UpdateRoute(RouteInfo<T>),
     /// Inner message
-    InnerMessage(M)
+    InnerMessage(M),
 }
 
-impl <T,M> From<M> for Msg<T,M> {
+impl<T, M> From<M> for Msg<T, M> {
     fn from(inner: M) -> Self {
         Msg::InnerMessage(inner)
     }
 }
 
-
-
+// TODO consider removing the Option, and creating two different render functions - one for rendering the switch, and one for a 404 case.
 /// Render function definition
 pub trait RenderFn2<CTX: Component, SW>: Fn(Option<&SW>) -> Html<CTX> {}
-impl <T, CTX: Component, SW> RenderFn2<CTX, SW> for T where T: Fn(Option<&SW>) -> Html<CTX> {}
+impl<T, CTX: Component, SW> RenderFn2<CTX, SW> for T where T: Fn(Option<&SW>) -> Html<CTX> {}
 /// Owned Render function.
-pub struct Render2<T: for<'de> RouterState<'de>, SW: Switch + 'static, M: 'static>(pub(crate) Rc<dyn RenderFn2<Router<T, SW, M>, SW>>);
-impl <T: for<'de> RouterState<'de>, SW: Switch, M> Render2<T, SW, M> {
+pub struct Render2<T: for<'de> RouterState<'de>, SW: Switch + 'static, M: 'static>(
+    pub(crate) Rc<dyn RenderFn2<Router<T, SW, M>, SW>>,
+);
+impl<T: for<'de> RouterState<'de>, SW: Switch, M> Render2<T, SW, M> {
     /// New render function
     fn new<F: RenderFn2<Router<T, SW, M>, SW> + 'static>(f: F) -> Self {
         Render2(Rc::new(f))
     }
 }
-impl <T: for<'de> RouterState<'de>, SW: Switch, M> Debug for Render2<T, SW, M>{
+impl<T: for<'de> RouterState<'de>, SW: Switch, M> Debug for Render2<T, SW, M> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Render2")
-            .finish()
+        f.debug_struct("Render2").finish()
     }
 }
-
 
 /// Properties for Router.
 #[derive(Properties)]
@@ -138,21 +141,20 @@ pub struct Props<T: for<'de> RouterState<'de>, SW: Switch + 'static, M: 'static>
     #[props(required)]
     pub render: Render2<T, SW, M>,
     /// Optional Callback for propagating messages to parent components.
-    pub callback: Option<Callback<M>>
+    pub callback: Option<Callback<M>>,
 }
 
 impl<T: for<'de> RouterState<'de>, SW: Switch, M> Debug for Props<T, SW, M> {
     fn fmt(&self, f: &mut Formatter) -> Result<(), FmtError> {
-        f.debug_struct("Props")
-            .finish()
+        f.debug_struct("Props").finish()
     }
 }
 
 impl<T, SW, M> Component for Router<T, SW, M>
-    where
-        T: for<'de> RouterState<'de>,
-        SW: Switch + 'static,
-        M: 'static
+where
+    T: for<'de> RouterState<'de>,
+    SW: Switch + 'static,
+    M: 'static,
 {
     type Message = Msg<T, M>;
     type Properties = Props<T, SW, M>;
@@ -195,11 +197,11 @@ impl<T, SW, M> Component for Router<T, SW, M>
     }
 }
 
-impl<T: for<'de> RouterState<'de>, SW: Switch + 'static, M: 'static> Renderable<Router<T, SW,M>> for Router<T, SW, M> {
+impl<T: for<'de> RouterState<'de>, SW: Switch + 'static, M: 'static> Renderable<Router<T, SW, M>>
+    for Router<T, SW, M>
+{
     fn view(&self) -> VNode<Self> {
         let switch = SW::switch(self.route.clone());
         (&self.props.render.0)(switch.as_ref())
     }
 }
-
-
