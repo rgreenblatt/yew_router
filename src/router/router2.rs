@@ -18,36 +18,14 @@ use crate::Switch;
 /// ```
 /// use yew::prelude::*;
 /// use yew_router::router::router2::Router;
+/// use yew_router::Switch;
 ///
-/// pub struct AComponent {}
-///
-/// #[derive(Properties, FromCaptures)]
-/// pub struct AComponentProps {
-///     value: String,
-///     other: Option<String>
-/// }
-///
-/// impl Component for AComponent {
-/// # type Message = ();
-///    type Properties = AComponentProps;
-///    //...
-/// # fn create(props: Self::Properties,link: ComponentLink<Self>) -> Self {
-/// #        unimplemented!()
-/// #    }
-/// # fn update(&mut self,msg: Self::Message) -> bool {
-/// #        unimplemented!()
-/// #    }
-/// }
-/// # impl Renderable<AComponent> for AComponent {
-///  #     fn view(&self) -> Html<Self> {
-/// #        unimplemented!()
-/// #    }
-///# }
+/// pub enum Msg {}
 ///
 /// pub struct Model {}
 /// impl Component for Model {
 ///     //...
-/// #   type Message = ();
+/// #   type Message = Msg;
 /// #   type Properties = ();
 /// #   fn create(_: Self::Properties, _link: ComponentLink<Self>) -> Self {
 /// #       Model {}
@@ -67,12 +45,14 @@ use crate::Switch;
 ///     fn view(&self) -> Html<Self> {
 ///         html! {
 ///             <Router<(), S, Msg>
-///                render = Router::render(|switch| {
+///                callback = From::from
+///                render = Router::render(|switch: Option<&S>| {
 ///                    match switch {
-///                        S::V => html!{"yeet"}
+///                        Some(S::V) => html!{"yeet"},
+///                        _ => unimplemented!()
 ///                    }
 ///                })
-///             </Router>
+///             />
 ///         }
 ///     }
 /// }
@@ -92,6 +72,23 @@ SW: Switch + 'static,
 M: 'static
 {
     /// Wrap a render closure so that it can be used by the Router.
+    /// # Example
+    /// ```
+    /// use yew_router::Switch;
+    /// use yew_router::router::router2::Router;
+    /// use yew::{html, Html};
+    /// #[derive(Switch)]
+    /// enum S {
+    ///     #[to = "/route"]
+    ///     Var
+    /// }
+    ///
+    ///# fn dont_execute() {
+    /// let render = Router::render(|switch: Option<&S>| -> Html<Router<(), S, ()>> {
+    ///     return html!{}
+    /// });
+    ///# }
+    /// ```
     pub fn render<F: RenderFn2<Router<T, SW, M>, SW> + 'static>(f: F) -> Render2<T,SW,M> {
         Render2::new(f)
     }
@@ -117,6 +114,7 @@ impl <T,M> From<M> for Msg<T,M> {
 
 /// Render function definition
 pub trait RenderFn2<CTX: Component, SW>: Fn(Option<&SW>) -> Html<CTX> {}
+impl <T, CTX: Component, SW> RenderFn2<CTX, SW> for T where T: Fn(Option<&SW>) -> Html<CTX> {}
 /// Owned Render function.
 pub struct Render2<T: for<'de> RouterState<'de>, SW: Switch + 'static, M: 'static>(pub(crate) Rc<dyn RenderFn2<Router<T, SW, M>, SW>>);
 impl <T: for<'de> RouterState<'de>, SW: Switch, M> Render2<T, SW, M> {
