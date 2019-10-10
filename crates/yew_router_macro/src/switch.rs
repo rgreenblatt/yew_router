@@ -160,7 +160,12 @@ fn generate_trait_impl(enum_ident: Ident, switch_variants: Vec<SwitchVariant>) -
             let build_from_captures = build_variant_from_captures(&enum_ident, ident, fields);
 
             quote! {
-                let matcher = ::yew_router::matcher::route_matcher::RouteMatcher::try_from(#route_string)
+                let settings = ::yew_router::matcher::route_matcher::MatcherSettings {
+                    strict: true, // Don't add optional sections
+                    complete: false, // Allow incomplete matches. // TODO investigate if this is necessary here.
+                    case_insensitive: true,
+                };
+                let matcher = ::yew_router::matcher::route_matcher::RouteMatcher::new(#route_string, settings)
                     .expect("Invalid Matcher");
 
                 let state = route.state.clone(); // TODO State gets cloned a bunch here. Some refactorings should aim to remove this.
