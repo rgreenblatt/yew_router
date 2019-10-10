@@ -74,8 +74,23 @@ macro_rules! impl_switch_for_from_str {
     };
 }
 
+
+use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6};
+use std::path::PathBuf;
+
+// TODO add implementations for Dates - with various formats, UUIDs
 impl_switch_for_from_str! {
     String,
+    PathBuf,
+    bool,
+    IpAddr,
+    Ipv4Addr,
+    Ipv6Addr,
+    SocketAddr,
+    SocketAddrV4,
+    SocketAddrV6,
+    f64,
+    f32,
     usize,
     u128,
     u64,
@@ -88,7 +103,15 @@ impl_switch_for_from_str! {
     i32,
     i16,
     i8,
-    f64,
-    f32
+    std::num::NonZeroU128,
+    std::num::NonZeroU64,
+    std::num::NonZeroU32,
+    std::num::NonZeroU16,
+    std::num::NonZeroU8,
+    std::num::NonZeroI128,
+    std::num::NonZeroI64,
+    std::num::NonZeroI32,
+    std::num::NonZeroI16,
+    std::num::NonZeroI8
 }
 
