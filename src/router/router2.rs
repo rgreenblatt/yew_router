@@ -41,7 +41,7 @@ use yew::{
 /// #[derive(Switch)]
 /// enum S {
 ///     #[to = "/v"]
-///     V
+///     Variant
 /// }
 ///
 /// impl Renderable<Model> for Model {
@@ -51,7 +51,7 @@ use yew::{
 ///                callback = From::from
 ///                render = Router::render(|switch: Option<&S>| {
 ///                    match switch {
-///                        Some(S::V) => html!{"yeet"},
+///                        Some(S::Variant) => html!{"variant route was matched"},
 ///                        _ => unimplemented!()
 ///                    }
 ///                })
