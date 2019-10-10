@@ -9,7 +9,7 @@ use stdweb::web::Location;
 use stdweb::Value;
 use yew::callback::Callback;
 
-use crate::route_info::RouteState;
+use crate::route::RouteState;
 use std::marker::PhantomData;
 
 /// A service that facilitates manipulation of the browser's URL bar and responding to browser
@@ -52,7 +52,7 @@ impl<T> RouteService<T> {
         let path = location.pathname().unwrap();
         let query = location.search().unwrap();
         let fragment = location.hash().unwrap();
-        crate::route_info::format_route_string(&path, &query, &fragment)
+        crate::route::format_route_string(&path, &query, &fragment)
     }
 
     /// Gets the concatenated path, query, and fragment strings

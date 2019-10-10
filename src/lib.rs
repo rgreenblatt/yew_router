@@ -59,12 +59,12 @@ use proc_macro_hack::proc_macro_hack;
 
 #[macro_use]
 mod alias;
-pub mod route_service;
+pub mod service;
 
 #[cfg(feature = "agent")]
 pub mod agent;
 
-pub mod route_info;
+pub mod route;
 
 #[cfg(feature = "components")]
 pub mod components;
@@ -83,7 +83,7 @@ pub mod unit_state {
 pub mod prelude {
     #[cfg(any(feature = "matchers", feature = "router"))]
     pub use super::matcher::{
-        Captures, CustomMatcher, FromCaptures, FromCapturesError, Matcher, MatcherProvider,
+        Captures, FromCaptures, FromCapturesError, Matcher, MatcherProvider,
         RouteMatcher,
     };
     #[cfg(feature = "unit_alias")]
@@ -95,7 +95,7 @@ pub mod prelude {
     // State restrictions
     #[cfg(feature = "agent")]
     pub use crate::agent::AgentState;
-    pub use crate::route_info::RouteState;
+    pub use crate::route::RouteState;
     #[cfg(feature = "router")]
     pub use crate::router::RouterState;
 }
@@ -112,7 +112,7 @@ pub use yew_router_macro::FromCaptures;
 
 #[cfg(feature = "agent")]
 pub use crate::agent::AgentState;
-pub use crate::route_info::RouteState;
+pub use crate::route::RouteState;
 #[cfg(feature = "router")]
 pub use crate::router::RouterState;
 

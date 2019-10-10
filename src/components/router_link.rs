@@ -1,6 +1,6 @@
 //! A component wrapping an `<a>` tag that changes the route.
 use crate::agent::{RouteRequest, RouteSenderBridge, Void};
-use crate::route_info::{RouteInfo};
+use crate::route::{Route};
 use yew::prelude::*;
 
 use super::Msg;
@@ -27,11 +27,11 @@ impl Component for RouterLink {
         match msg {
             Msg::NoOp => false,
             Msg::Clicked => {
-                let route_info = RouteInfo {
+                let route = Route {
                     route: self.props.link.clone(),
                     state: self.props.state,
                 };
-                self.router.send(RouteRequest::ChangeRoute(route_info));
+                self.router.send(RouteRequest::ChangeRoute(route));
                 false
             }
         }

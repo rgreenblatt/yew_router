@@ -8,6 +8,7 @@ use yew::prelude::*;
 use yew_router::components::RouterButton;
 use yew_router::components::RouterLink;
 use yew_router::prelude::*;
+use yew_router::Switch;
 
 use crate::a_component::AModel;
 use crate::b_component::BModel;
@@ -38,6 +39,24 @@ impl Component for Model {
     }
 }
 
+#[derive(Debug, Switch)]
+pub enum AppRoute {
+    #[to = "/a{*:inner}"]
+    A(Option<ARoute>),
+    #[to = "/b/[?sub_path={}][#{number}]"]
+    B{sub_path: Option<String>, number: Option<usize>},
+    #[to = "/c"]
+    C,
+    #[to = "/e/{string}"]
+    E(String),
+}
+
+#[derive(Debug, Switch, PartialEq, Clone, Copy)]
+pub enum ARoute {
+    #[to = "/c"]
+    C
+}
+
 impl Renderable<Model> for Model {
     fn view(&self) -> Html<Self> {
         html! {
@@ -47,35 +66,22 @@ impl Renderable<Model> for Model {
                     <RouterLink: text=String::from("Go to B"), link="/b/#", />
                     <RouterButton: text=String::from("Go to C"), link="/c", />
                     <RouterButton: text=String::from("Go to A/C"), link="/a/c", />
-                    <RouterButton: text=String::from("Go to E"), link="/e", />
-                    <RouterButton: text=String::from("Go to E/C"), link="/e/c", />
-                    <RouterButton: text=String::from("Go to F (hello there)"), link="/f/there", />
-                    <RouterButton: text=String::from("Go to F (hello world)"), link="/f/world", />
+                    <RouterButton: text=String::from("Go to E (hello there)"), link="/e/there", />
+                    <RouterButton: text=String::from("Go to E (hello world)"), link="/e/world", />
                     <RouterButton: text=String::from("Go to bad path"), link="/a_bad_path", />
                 </nav>
                 <div>
-                    <Router>
-                        <Route matcher=route!("/a/{}"  Strict CaseInsensitive) render=component::<AModel>() />
-                        <Route matcher=route!("/c") render=component::<CModel>() />
-                        <Route matcher=route!("/b[?sub_path={sub_path}][#{number}]") render=component::<BModel>()/>
-                        <Route matcher=route!("/e")>
-                             {"Hello there from the E \"child\""}
-                        </Route>
-                        <Route matcher=route!("/e/c") render=component::<CModel>() >
-                             {"Hello there from the other E \"child\""}
-                        </Route>
-                        <Route
-                            matcher=route!("/f/{capture}")
-                            render=render(|captures: &Captures| {
-                                Some(html!{
-                                    {format!("hello {}", captures[&"capture"])}
-                                })
-                            })
-                        />
-                        <Route matcher=route!("{*:any}") render=render(|captures: &Captures| {
-                            Some(html!{{format!("404, page not found for '{}'", captures["any"])}})
-                        }) />
-                    </Router>
+                    <Router<AppRoute, ()>
+                        render = Router::render(|switch: Option<&AppRoute>| {
+                            match switch {
+                                Some(AppRoute::A(route)) => html!{<AModel route = route />},
+                                Some(AppRoute::B{sub_path, number}) => html!{<BModel sub_path=sub_path.clone(), number=number.clone()/>},
+                                Some(AppRoute::C) => html!{<CModel />},
+                                Some(AppRoute::E(string)) => html!{format!("hello {}", string)},
+                                None => html!{"404"}
+                            }
+                        })
+                    />
                 </div>
             </div>
         }

@@ -13,12 +13,11 @@ core = ["router", "components", "matchers"]
 
 unit_alias = []
 
-router = ["agent", "yew_router_route_parser"]
+router = ["agent"]
 components = ["agent" ]
 
 agent = []
-matchers = [ "regex_matcher", "route_matcher", "proc-macro-hack"]
-regex_matcher = ["regex"]
+matchers = [ "route_matcher", "proc-macro-hack"]
 route_matcher = ["yew_router_route_parser", "yew_router_macro", "nom"]
 
 
@@ -43,7 +42,6 @@ members = [
     "crates/yew_router_macro",
     "examples/routing_component",
     "examples/guide",
-    "examples/nested_routers",
     "examples/switch"
 ]
 
