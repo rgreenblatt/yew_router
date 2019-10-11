@@ -43,7 +43,7 @@ impl Component for Model {
 pub enum AppRoute {
     #[to = "/a{*:inner}"]
     A(Option<ARoute>),
-    #[to = "/b/[?sub_path={}][#{number}]"]
+    #[to = "/b/[?sub_path={sub_path}][#{number}]"]
     B{sub_path: Option<String>, number: Option<usize>},
     #[to = "/c"]
     C,
@@ -62,7 +62,7 @@ impl Renderable<Model> for Model {
         html! {
             <div>
                 <nav class="menu",>
-                    <RouterButton: text=String::from("Go to A"), link="/A/", />
+                    <RouterButton: text=String::from("Go to A"), link="/a", />
                     <RouterLink: text=String::from("Go to B"), link="/b/#", />
                     <RouterButton: text=String::from("Go to C"), link="/c", />
                     <RouterButton: text=String::from("Go to A/C"), link="/a/c", />

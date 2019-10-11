@@ -42,6 +42,7 @@ members = [
     "crates/yew_router_macro",
     "examples/routing_component",
     "examples/guide",
-    "examples/switch"
+    "examples/switch",
+    "examples/minimal"
 ]
 
