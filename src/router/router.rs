@@ -20,7 +20,7 @@ use yew::{
 /// # Example
 /// ```
 /// use yew::prelude::*;
-/// use yew_router::router::router::Router;
+/// use yew_router::router::Router;
 /// use yew_router::Switch;
 ///
 /// pub enum Msg {}
@@ -77,16 +77,17 @@ where
     /// # Example
     /// ```
     ///# use yew_router::Switch;
-    ///# use yew_router::router::router::Router;
+    ///# use yew_router::router::Router;
     ///# use yew::{html, Html};
     ///# #[derive(Switch)]
     ///# enum S {
     ///#     #[to = "/route"]
     ///#     Variant
     ///# }
+    ///# pub enum Msg {}
     ///
     ///# fn dont_execute() {
-    /// let render = Router::render(|switch: Option<&S>| -> Html<Router<(), S, ()>> {
+    /// let render = Router::render(|switch: Option<&S>| -> Html<Router<(), S, Msg>> {
     ///    match switch {
     ///        Some(S::Variant) => html!{"Variant"},
     ///        None => html!{"404"}

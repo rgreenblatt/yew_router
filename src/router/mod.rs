@@ -1,5 +1,5 @@
 //! Router component and related types.
-pub mod router;
+mod router;
 
 pub use router::{Props, Router, Render};
 

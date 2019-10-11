@@ -5,7 +5,7 @@
 /// Because they should be the same across a given application,
 /// its a handy way to make sure that every type that could be needed is generated.
 ///
-/// This macro is used to generate aliases and functions for the state type of `()` within yew_router.
+/// This macro is used to generate aliases for the state type of `()` within yew_router.
 /// Instead of doing these yourself, use this macro if you need to store state in the browser.
 ///
 /// # Example
