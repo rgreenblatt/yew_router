@@ -5,8 +5,6 @@ mod c_component;
 
 use yew::prelude::*;
 
-//use yew_router::components::RouterButton;
-//use yew_router::components::RouterLink;
 use yew_router::prelude::*;
 use yew_router::Switch;
 
@@ -42,7 +40,7 @@ impl Component for Model {
 #[derive(Debug, Switch)]
 pub enum AppRoute {
     #[to = "/a{*:inner}"]
-    A(Option<ARoute>),
+    A(ARoute),
     #[to = "/b/[?sub_path={sub_path}][#{number}]"]
     B{sub_path: Option<String>, number: Option<usize>},
     #[to = "/c"]
@@ -53,8 +51,13 @@ pub enum AppRoute {
 
 #[derive(Debug, Switch, PartialEq, Clone, Copy)]
 pub enum ARoute {
+    /// Match "/c" after "/a" ("/a/c")
     #[to = "/c"]
-    C
+    C,
+    // Because it is impossible to specify an Optional nested route:
+    // Still accept the route, when matching, but consider it invalid. Wrappin
+    #[to = "{*}"]
+    None
 }
 
 impl Renderable<Model> for Model {

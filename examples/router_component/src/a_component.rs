@@ -11,7 +11,7 @@ pub struct AModel {
 #[derive(PartialEq, Properties)]
 pub struct Props {
     #[props(required)]
-    pub route: Option<ARoute>
+    pub route: ARoute
 }
 
 pub enum Msg {}
@@ -52,8 +52,8 @@ impl Renderable<AModel> for AModel {
                 <div>
                 {
                     match self.props.route {
-                        Some(_) => html!{<CModel/>},
-                        None => html!{}
+                        ARoute::C => html!{<CModel/>},
+                        ARoute::None => html!{}
                     }
                 }
                 </div>
