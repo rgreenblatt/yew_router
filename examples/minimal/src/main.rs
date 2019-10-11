@@ -1,19 +1,10 @@
-#![recursion_limit = "1024"]
-//mod a_component;
-//mod b_component;
-//mod c_component;
-
+#![recursion_limit = "256"]
 use yew::prelude::*;
 
-//use yew_router::components::RouterButton;
-//use yew_router::components::RouterLink;
 use yew_router::Switch;
 use yew_router::service::RouteService;
 use yew_router::route::Route;
 
-//use crate::a_component::AModel;
-//use crate::b_component::BModel;
-//use crate::c_component::CModel;
 
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
