@@ -40,7 +40,7 @@ proc-macro-hack = {version = "0.5.9", optional=true}
 members = [
     "crates/yew_router_route_parser",
     "crates/yew_router_macro",
-    "examples/routing_component",
+    "examples/router_component",
     "examples/guide",
     "examples/switch",
     "examples/minimal"

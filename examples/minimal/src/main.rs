@@ -7,9 +7,9 @@ use yew::prelude::*;
 
 //use yew_router::components::RouterButton;
 //use yew_router::components::RouterLink;
-use yew_router::prelude::*;
 use yew_router::Switch;
 use yew_router::service::RouteService;
+use yew_router::route::Route;
 
 //use crate::a_component::AModel;
 //use crate::b_component::BModel;
@@ -27,11 +27,11 @@ fn main() {
 
 pub struct Model {
     route_service: RouteService<()>,
-    route: Route,
+    route: Route<()>,
 }
 
 pub enum Msg {
-    RouteChanged(Route),
+    RouteChanged(Route<()>),
     ChangeRoute(AppRoute)
 }
 
