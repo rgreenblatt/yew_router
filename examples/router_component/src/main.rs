@@ -5,8 +5,8 @@ mod c_component;
 
 use yew::prelude::*;
 
-use yew_router::components::RouterButton;
-use yew_router::components::RouterLink;
+//use yew_router::components::RouterButton;
+//use yew_router::components::RouterLink;
 use yew_router::prelude::*;
 use yew_router::Switch;
 

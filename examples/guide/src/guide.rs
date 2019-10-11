@@ -4,10 +4,8 @@ use yew::html::ChildrenWithProps;
 use yew::prelude::*;
 use yew::Properties;
 use yew_router::agent::RouteRequest::GetCurrentRoute;
-use yew_router::components::RouterLink;
 use yew_router::matcher::RouteMatcher;
 use yew_router::prelude::*;
-//use yew_router::{RouteAgent, Route};
 
 pub struct Guide {
     router_agent: Box<dyn Bridge<RouteAgent>>,

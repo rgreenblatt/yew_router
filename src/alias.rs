@@ -52,8 +52,20 @@ macro_rules! define_router_state {
             #[cfg(feature="agent")]
             #[doc = "Alias to [RouteAgentDispatcher<"]
             #[doc = $StateName]
-            #[doc = ">](agent/bridge/struct.RouteAgentDispatcher.html)`."]
+            #[doc = ">](agent/struct.RouteAgentDispatcher.html)`."]
             pub type RouteAgentDispatcher = $crate::agent::RouteAgentDispatcher<$StateT>;
+
+            #[cfg(feature="components")]
+            #[doc = "Alias to [RouterLink<"]
+            #[doc = $StateName]
+            #[doc = ">](components/struct.RouterLink.html)`."]
+            pub type RouterLink = $crate::components::RouterLink<$StateT>;
+
+            #[cfg(feature="components")]
+            #[doc = "Alias to [RouterButton<"]
+            #[doc = $StateName]
+            #[doc = ">](components/struct.RouterButton.html)`."]
+            pub type RouterButton = $crate::components::RouterButton<$StateT>;
 
             #[cfg(feature="router")]
             #[doc = "Alias to [Router<"]

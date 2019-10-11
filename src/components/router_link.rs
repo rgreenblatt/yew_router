@@ -5,17 +5,18 @@ use yew::prelude::*;
 
 use super::Msg;
 use super::Props;
+use crate::RouterState;
 
 /// An anchor tag Component that when clicked, will navigate to the provided route.
 #[derive(Debug)]
-pub struct RouterLink {
-    router: RouteAgentDispatcher<()>,
-    props: Props,
+pub struct RouterLink<T: for <'de> RouterState<'de>> {
+    router: RouteAgentDispatcher<T>,
+    props: Props<T>,
 }
 
-impl Component for RouterLink {
+impl <T: for<'de>RouterState<'de>> Component for RouterLink<T> {
     type Message = Msg;
-    type Properties = Props;
+    type Properties = Props<T>;
 
     fn create(props: Self::Properties, _link: ComponentLink<Self>) -> Self {
         let router = RouteAgentDispatcher::new();
@@ -27,7 +28,7 @@ impl Component for RouterLink {
             Msg::Clicked => {
                 let route = Route {
                     route: self.props.link.clone(),
-                    state: self.props.state,
+                    state: self.props.state.clone(),
                 };
                 self.router.send(RouteRequest::ChangeRoute(route));
                 false
@@ -41,8 +42,8 @@ impl Component for RouterLink {
     }
 }
 
-impl Renderable<RouterLink> for RouterLink {
-    fn view(&self) -> Html<RouterLink> {
+impl <T: for<'de>RouterState<'de>> Renderable<RouterLink<T>> for RouterLink<T> {
+    fn view(&self) -> Html<Self> {
         use stdweb::web::event::IEvent;
         let target: &str = &self.props.link;
 
