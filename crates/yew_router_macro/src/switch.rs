@@ -21,7 +21,7 @@ const ATTRIBUTE_TOKEN_STRING: &str = "to";
 
 /// Holds data that is required to derive Switch for a struct or a single enum variant.
 pub struct SwitchItem {
-    pub route_string: String,
+    pub matcher: Vec<ShadowMatcherToken>,
     pub ident: Ident,
     pub fields: Fields,
 }
@@ -34,8 +34,9 @@ pub fn switch_impl(input: TokenStream) -> TokenStream {
     match input.data {
         Data::Struct(ds) => {
             let attrs = input.attrs;
+            let matcher = AttrToken::convert_attributes_to_tokens(attrs).into_iter().map(AttrToken::into_shadow_matcher_tokens).flatten().collect::<Vec<_>>();
             let switch_item = SwitchItem {
-                route_string: get_route_string(attrs),
+                matcher,
                 ident,
                 fields: ds.fields
             };
@@ -45,7 +46,7 @@ pub fn switch_impl(input: TokenStream) -> TokenStream {
             let switch_variants = de.variants
                 .into_iter()
                 .map(|variant: Variant| SwitchItem {
-                    route_string: get_route_string(variant.attrs),
+                    matcher: AttrToken::convert_attributes_to_tokens(variant.attrs).into_iter().map(AttrToken::into_shadow_matcher_tokens).flatten().collect::<Vec<_>>(),
                     ident: variant.ident,
                     fields: variant.fields,
                 });
@@ -178,16 +179,16 @@ impl<T> Flatten<T> for Option<Option<T>> {
 }
 
 
-fn matcher_from_tokens(tokens: Vec<ShadowMatcherToken>) -> TokenStream2 {
+fn build_matcher_from_tokens(tokens: Vec<ShadowMatcherToken>) -> TokenStream2 {
     quote::quote! {
         let settings = ::yew_router::matcher::MatcherSettings {
             strict: true, // Don't add optional sections
             complete: false, // Allow incomplete matches. // TODO investigate if this is necessary here.
             case_insensitive: true,
         };
-        let matcher = ::yew_router::matcher::route_matcher::RouteMatcher {
+        let matcher = ::yew_router::matcher::RouteMatcher {
             tokens : vec![#(#tokens),*],
             settings
-        }
+        };
     }
 }

@@ -96,20 +96,13 @@ pub fn generate_enum_impl(enum_ident: Ident, switch_variants: impl Iterator<Item
     let variant_matchers: Vec<TokenStream2> = switch_variants.into_iter()
         .map(|sv| {
             let SwitchItem {
-                route_string, ident, fields
+                matcher, ident, fields
             } = sv;
             let build_from_captures = build_variant_from_captures(&enum_ident, ident, fields);
+            let matcher = super::build_matcher_from_tokens(matcher);
 
-//            let matcher = super::build_matcher_from_tokens(route_string);
             quote! {
-                let settings = ::yew_router::matcher::MatcherSettings {
-                    strict: true, // Don't add optional sections
-                    complete: false, // Allow incomplete matches. // TODO investigate if this is necessary here.
-                    case_insensitive: true,
-                };
-                let matcher = ::yew_router::matcher::RouteMatcher::new(#route_string, settings)
-                    .expect("Invalid Matcher");
-
+                #matcher
                 let state = &route.state; // TODO State gets cloned a bunch here. Some refactorings should aim to remove this.
                 #build_from_captures
             }
