@@ -55,7 +55,8 @@ pub enum ARoute {
     #[to = "/c"]
     C,
     // Because it is impossible to specify an Optional nested route:
-    // Still accept the route, when matching, but consider it invalid. Wrappin
+    // Still accept the route, when matching, but consider it invalid.
+    // This is effectively the same as wrapping the ARoute in Option, but doesn't run afoul of the current routing syntax.
     #[to = "{*}"]
     None
 }
