@@ -51,14 +51,14 @@ fn build_variant_from_captures(
                 })
                 .map(|(field_name, key, field_ty): (Ident, String, Type)|{
                     quote!{
-                            #field_name: captures.get(#key) // TODO try to get an Option<T> instead of an Option<&T> out of the map.
-                                .map_or_else(
-                                    || <#field_ty as ::yew_router::Switch>::key_not_available(), // If the key isn't present, possibly resolve the case where the item is an option
-                                    |value: &String| {
-                                        <#field_ty as ::yew_router::Switch>::switch(::yew_router::route_info::RouteInfo{route: value.clone(), state})
-                                    }
-                                )?
-                        }
+                        #field_name: captures.get(#key) // TODO try to get an Option<T> instead of an Option<&T> out of the map.
+                            .map_or_else(
+                                || <#field_ty as ::yew_router::Switch>::key_not_available(), // If the key isn't present, possibly resolve the case where the item is an option
+                                |value: &String| {
+                                    <#field_ty as ::yew_router::Switch>::switch(::yew_router::route_info::RouteInfo{route: value.clone(), state})
+                                }
+                            )?
+                    }
                 })
                 .collect();
 
@@ -83,14 +83,14 @@ fn build_variant_from_captures(
                 .map(|(index, f): (usize, &Field)|{
                     let field_ty = &f.ty;
                     quote!{
-                            captures.get(#index)
-                                .map_or_else(
-                                    || <#field_ty as ::yew_router::Switch>::key_not_available(), // If the key isn't present, possibly resolve the case where the item is an option
-                                    |(_key, value): &(&str, String)| {
-                                        <#field_ty as ::yew_router::Switch>::switch(::yew_router::route_info::RouteInfo{route: value.clone(), state}) // TODO add the actual state here.
-                                    }
-                                )?
-                        }
+                        captures.get(#index)
+                            .map_or_else(
+                                || <#field_ty as ::yew_router::Switch>::key_not_available(), // If the key isn't present, possibly resolve the case where the item is an option
+                                |(_key, value): &(&str, String)| {
+                                    <#field_ty as ::yew_router::Switch>::switch(::yew_router::route_info::RouteInfo{route: value.clone(), state}) // TODO add the actual state here.
+                                }
+                            )?
+                    }
                 });
 
             return quote! {
