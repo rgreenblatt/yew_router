@@ -1,33 +1,51 @@
 use proc_macro::TokenStream;
 //use proc_macro2::TokenStream as TokenStream2;
 //use quote::quote;
-use syn::parse_macro_input;
+use syn::{parse_macro_input, Fields};
 //use syn::punctuated::IntoIter;
 use syn::{
     Attribute, Data, DeriveInput, Ident, Lit, Meta, MetaNameValue, Variant,
 };
-use crate::switch::enum_impl::{SwitchVariant, generate_enum_impl};
+use crate::switch::enum_impl::{generate_enum_impl};
+use crate::switch::struct_impl::generate_struct_impl;
 
 mod enum_impl;
+mod struct_impl;
 
 const ATTRIBUTE_TOKEN_STRING: &str = "to";
+
+
+/// Holds data that is required to derive Switch for a struct or a single enum variant.
+pub struct SwitchItem {
+    pub route_string: String,
+    pub ident: Ident,
+    pub fields: Fields,
+}
 
 pub fn switch_impl(input: TokenStream) -> TokenStream {
     let input: DeriveInput = parse_macro_input!(input as DeriveInput);
 
-    let enum_ident: Ident = input.ident;
+    let ident: Ident = input.ident;
 
     match input.data {
-        Data::Struct(_ds) => panic!("Deriving Switch not supported for Structs."),
+        Data::Struct(ds) => {
+            let attrs = input.attrs;
+            let switch_item = SwitchItem {
+                route_string: get_route_string(attrs),
+                ident,
+                fields: ds.fields
+            };
+            generate_struct_impl(switch_item)
+        }
         Data::Enum(de) => {
             let switch_variants = de.variants
                 .into_iter()
-                .map(|variant: Variant| SwitchVariant {
+                .map(|variant: Variant| SwitchItem {
                     route_string: get_route_string(variant.attrs),
                     ident: variant.ident,
                     fields: variant.fields,
                 });
-            generate_enum_impl(enum_ident, switch_variants)
+            generate_enum_impl(ident, switch_variants)
         }
         Data::Union(_du) => panic!("Deriving FromCaptures not supported for Unions."),
     }

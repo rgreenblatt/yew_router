@@ -4,14 +4,10 @@ use syn::{
 use quote::quote;
 use syn::export::TokenStream2;
 use proc_macro::TokenStream;
+use crate::switch::SwitchItem;
 
-pub struct SwitchVariant {
-    pub route_string: String,
-    pub ident: Ident,
-    pub fields: Fields,
-}
 
-pub fn generate_enum_impl(enum_ident: Ident, switch_variants: impl Iterator<Item=SwitchVariant>) -> TokenStream {
+pub fn generate_enum_impl(enum_ident: Ident, switch_variants: impl Iterator<Item=SwitchItem>) -> TokenStream {
     /// Once the 'captures' exists, attempt to populate the fields from the list of captures.
     fn build_variant_from_captures(
         enum_ident: &Ident,
@@ -99,7 +95,7 @@ pub fn generate_enum_impl(enum_ident: Ident, switch_variants: impl Iterator<Item
 
     let variant_matchers: Vec<TokenStream2> = switch_variants.into_iter()
         .map(|sv| {
-            let SwitchVariant {
+            let SwitchItem {
                 route_string, ident, fields
             } = sv;
             let build_from_captures = build_variant_from_captures(&enum_ident, ident, fields);
