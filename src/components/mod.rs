@@ -26,8 +26,6 @@ pub struct Props {
 /// Message for `RouterButton` and `RouterLink`.
 #[derive(Clone, Copy, Debug)]
 pub enum Msg {
-    /// Perform no action
-    NoOp,
     /// Tell the router to navigate the application to the Component's pre-defined route.
     Clicked,
 }

@@ -47,7 +47,13 @@ macro_rules! define_router_state {
             #[doc = "Alias to [RouteAgentBridge<"]
             #[doc = $StateName]
             #[doc = ">](agent/bridge/struct.RouteAgentBridge.html)`."]
-            pub type RouteAgentBridge = $crate::agent::bridge::RouteAgentBridge<$StateT>;
+            pub type RouteAgentBridge = $crate::agent::RouteAgentBridge<$StateT>;
+
+            #[cfg(feature="agent")]
+            #[doc = "Alias to [RouteAgentDispatcher<"]
+            #[doc = $StateName]
+            #[doc = ">](agent/bridge/struct.RouteAgentDispatcher.html)`."]
+            pub type RouteAgentDispatcher = $crate::agent::RouteAgentDispatcher<$StateT>;
 
             #[cfg(feature="router")]
             #[doc = "Alias to [Router<"]

@@ -1,6 +1,6 @@
 //! Router Component.
 
-use crate::agent::{bridge::RouteAgentBridge, RouteRequest};
+use crate::agent::{RouteAgentBridge, RouteRequest};
 use crate::route::Route;
 use crate::router::RouterState;
 use crate::Switch;

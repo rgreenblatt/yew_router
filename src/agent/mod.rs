@@ -15,10 +15,13 @@ use std::fmt::{Debug, Error as FmtError, Formatter};
 use crate::route::Route;
 use crate::route::RouteState;
 use log::trace;
-use yew::callback::Callback;
 
-pub mod bridge;
-use bridge::RouteAgentBridge;
+mod bridge;
+pub use bridge::RouteAgentBridge;
+
+mod dispatcher;
+pub use dispatcher::RouteAgentDispatcher;
+
 
 /// Any state that can be used in the router agent must meet the criteria of this trait.
 pub trait AgentState<'de>: RouteState + Serialize + Deserialize<'de> + Debug {}
@@ -174,74 +177,3 @@ where
     }
 }
 
-/// A sender for the Router that doesn't send messages back to the component that connects to it.
-///
-/// This may be subject to change
-#[deprecated(note = "Dispatchers should make having an indirection agent unnecessary.")]
-pub struct RouteSenderAgent<T>
-where
-    for<'de> T: AgentState<'de>,
-{
-    /// This acts as a level of indirection.
-    router_agent: RouteAgentBridge<T>,
-}
-
-impl<T: for<'de> AgentState<'de>> Debug for RouteSenderAgent<T> {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), FmtError> {
-        f.debug_struct("RouteSenderAgent")
-            .field("router_agent", &"-")
-            .finish()
-    }
-}
-
-impl<T> Agent for RouteSenderAgent<T>
-where
-    for<'de> T: AgentState<'de>,
-{
-    type Reach = Context;
-    type Message = ();
-    type Input = RouteRequest<T>;
-    type Output = Void;
-
-    fn create(link: AgentLink<Self>) -> Self {
-        RouteSenderAgent {
-            router_agent: RouteAgentBridge::new(link.send_back(|_| ())),
-        }
-    }
-
-    fn update(&mut self, _msg: Self::Message) {}
-
-    fn handle(&mut self, msg: Self::Input, _who: HandlerId) {
-        self.router_agent.send(msg);
-    }
-}
-
-/// Alias to RouteSenderBridge<()>;
-pub type RouteSenderBridge = RouteSenderAgentBridge<()>;
-
-/// A simplified interface to the router agent
-pub struct RouteSenderAgentBridge<T>(Box<dyn Bridge<RouteSenderAgent<T>>>)
-where
-    for<'de> T: AgentState<'de>;
-
-impl<T: for<'de> AgentState<'de>> Debug for RouteSenderAgentBridge<T> {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), FmtError> {
-        f.debug_tuple("RouteSenderBridge").finish()
-    }
-}
-
-impl<T> RouteSenderAgentBridge<T>
-where
-    for<'de> T: AgentState<'de>,
-{
-    /// Creates a new sender only bridge.
-    pub fn new(callback: Callback<Void>) -> Self {
-        let router_agent = RouteSenderAgent::bridge(callback);
-        RouteSenderAgentBridge(router_agent)
-    }
-
-    /// Sends a `RouteRequest` Message.
-    pub fn send(&mut self, request: RouteRequest<T>) {
-        self.0.send(request)
-    }
-}
