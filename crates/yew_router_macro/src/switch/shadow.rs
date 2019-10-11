@@ -1,3 +1,8 @@
+use yew_router_route_parser::{CaptureVariant, MatcherToken, Capture};
+use quote::ToTokens;
+use syn::export::TokenStream2;
+use quote::quote;
+
 impl ToTokens for ShadowMatcherToken {
     fn to_tokens(&self, ts: &mut TokenStream2) {
         use ShadowMatcherToken as SOT;
@@ -18,13 +23,13 @@ impl ToTokens for ShadowMatcherToken {
 
 /// A shadow of the OptimizedToken type.
 /// It should match it exactly so that this macro can expand to the original.
-enum ShadowMatcherToken {
+pub enum ShadowMatcherToken {
     Exact(String),
     Capture(ShadowCapture),
     Optional(Vec<ShadowMatcherToken>),
 }
 
-enum ShadowCaptureVariant {
+pub enum ShadowCaptureVariant {
     Unnamed,                                         // {} - matches anything
     ManyUnnamed,                                     // {*} - matches over multiple sections
     NumberedUnnamed { sections: usize },             // {4} - matches 4 sections
@@ -33,7 +38,7 @@ enum ShadowCaptureVariant {
     NumberedNamed { sections: usize, name: String }, // {2:name} - captures a fixed number of sections with a given name.
 }
 
-struct ShadowCapture {
+pub struct ShadowCapture {
     capture_variant: ShadowCaptureVariant,
     allowed_captures: Option<Vec<String>>,
 }

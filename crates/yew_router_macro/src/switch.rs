@@ -8,9 +8,13 @@ use syn::{
 };
 use crate::switch::enum_impl::{generate_enum_impl};
 use crate::switch::struct_impl::generate_struct_impl;
+use crate::switch::shadow::ShadowMatcherToken;
+use yew_router_route_parser::MatcherToken;
+use syn::export::TokenStream2;
 
 mod enum_impl;
 mod struct_impl;
+mod shadow;
 
 const ATTRIBUTE_TOKEN_STRING: &str = "to";
 
@@ -81,6 +85,81 @@ fn get_route_string(attributes: Vec<Attribute>) -> String {
 }
 
 
+pub enum AttrToken {
+    To(String),
+    Lit(String),
+    Capture(Option<String>),
+    End,
+    Rest(Option<String>),
+    Query(String),
+    Frag(Option<String>)
+}
+
+impl AttrToken {
+    fn convert_attributes_to_tokens(attributes: Vec<Attribute>) -> Vec<Self> {
+        fn get_meta_name_value_str(mnv: &MetaNameValue) -> Option<String> {
+            match &mnv.lit {
+                Lit::Str(s) => Some(s.value()),
+                _ => None
+            }
+        }
+
+        attributes.iter()
+            .filter_map(|attr: &Attribute| attr.parse_meta().ok())
+            .filter_map(|meta: Meta| {
+                match meta {
+                    Meta::NameValue(mnv) => {
+                        mnv.path.clone()
+                            .get_ident()
+                            .into_iter()
+                            .filter_map(|ident| {
+                                match ident.to_string().as_str() {
+                                    ATTRIBUTE_TOKEN_STRING => Some(AttrToken::To(get_meta_name_value_str(&mnv).expect("Value provided after `to` must be a String"))),
+                                    "lit" => Some(AttrToken::Lit(get_meta_name_value_str(&mnv).expect("Value provided after `lit` must be a String`"))),
+                                    "capture" | "cap" => Some(AttrToken::Capture(Some(get_meta_name_value_str(&mnv).expect("Value provided after `capture` or `cap` must be a String`")))),
+                                    "rest" => Some(AttrToken::Rest(Some(get_meta_name_value_str(&mnv).expect("Value provided after `rest` must be a String")))),
+                                    "query" => Some(AttrToken::Query(get_meta_name_value_str(&mnv).expect("Value provided after `rest` must be a String"))),
+                                    "frag" => Some(AttrToken::Frag(Some(get_meta_name_value_str(&mnv).expect("Value provided after `frag` must be a String")))),
+                                    _ => None
+                                }
+                            })
+                            .next()
+                    }
+                    Meta::Path(path) => {
+                        path.get_ident()
+                            .into_iter()
+                            .filter_map(|ident| {
+                                match ident.to_string().as_str() {
+                                    "capture" | "cap" => Some(AttrToken::Capture(None)),
+                                    "end" => Some(AttrToken::End),
+                                    "rest" => Some(AttrToken::Rest(None)),
+                                    "frag" => Some(AttrToken::Frag(None)),
+                                    _ => None
+                                }
+                            })
+                            .next()
+                    }
+                    _ => None,
+                }
+            })
+            .collect()
+    }
+
+    fn into_shadow_matcher_tokens(self) -> Vec<ShadowMatcherToken> {
+        match self {
+            AttrToken::To(matcher_string) => {
+                yew_router_route_parser::parser::parse(&matcher_string)
+                    .map(|tokens| yew_router_route_parser::optimize_tokens(tokens, false))
+                    .expect("Invalid Matcher") // This is the point where users should see an error message if their matcher string has some syntax error.
+                    .into_iter()
+                    .map(shadow::ShadowMatcherToken::from)
+                    .collect()
+            }
+            _ => unimplemented!()
+        }
+    }
+}
+
 
 
 trait Flatten<T> {
@@ -94,6 +173,21 @@ impl<T> Flatten<T> for Option<Option<T>> {
         match self {
             None => None,
             Some(v) => v,
+        }
+    }
+}
+
+
+fn matcher_from_tokens(tokens: Vec<ShadowMatcherToken>) -> TokenStream2 {
+    quote::quote! {
+        let settings = ::yew_router::matcher::MatcherSettings {
+            strict: true, // Don't add optional sections
+            complete: false, // Allow incomplete matches. // TODO investigate if this is necessary here.
+            case_insensitive: true,
+        };
+        let matcher = ::yew_router::matcher::route_matcher::RouteMatcher {
+            tokens : vec![#(#tokens),*],
+            settings
         }
     }
 }

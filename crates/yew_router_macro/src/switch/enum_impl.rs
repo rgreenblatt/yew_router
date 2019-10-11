@@ -100,6 +100,7 @@ pub fn generate_enum_impl(enum_ident: Ident, switch_variants: impl Iterator<Item
             } = sv;
             let build_from_captures = build_variant_from_captures(&enum_ident, ident, fields);
 
+//            let matcher = super::build_matcher_from_tokens(route_string);
             quote! {
                 let settings = ::yew_router::matcher::MatcherSettings {
                     strict: true, // Don't add optional sections
@@ -126,4 +127,6 @@ pub fn generate_enum_impl(enum_ident: Ident, switch_variants: impl Iterator<Item
     };
     TokenStream::from(token_stream)
 }
+
+
 
