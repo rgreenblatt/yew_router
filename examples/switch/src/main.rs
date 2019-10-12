@@ -38,11 +38,12 @@ pub enum AppRoute {
     Something { thing: String, other: String },
     #[to = "/another/{thing}"]
     Another(String),
-    #[to = "/inner{*:inner}"]
+    #[lit = "inner"]
+    #[rest]
     Nested(InnerRoute),
-    #[to = "{*:x}"]
+    #[rest]
     Single(Single),
-    #[to = "{*:x}"]
+    #[rest]
     OtherSingle(OtherSingle),
 }
 
