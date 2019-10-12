@@ -39,8 +39,8 @@ pub enum ShadowCaptureVariant {
 }
 
 pub struct ShadowCapture {
-    capture_variant: ShadowCaptureVariant,
-    allowed_captures: Option<Vec<String>>,
+    pub capture_variant: ShadowCaptureVariant,
+    pub allowed_captures: Option<Vec<String>>,
 }
 
 impl ToTokens for ShadowCapture {

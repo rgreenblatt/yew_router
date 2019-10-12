@@ -51,7 +51,7 @@ pub enum AppRoute {
 
 #[derive(Switch, Debug)]
 pub enum InnerRoute {
-    #[to = "/left"]
+    #[lit = "left"] // same as #[to = "/left"]
     Left,
     #[to = "/right"]
     Right
