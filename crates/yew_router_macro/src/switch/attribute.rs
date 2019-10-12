@@ -62,7 +62,7 @@ impl AttrToken {
     }
 
     /// The id is an unique identifier that allows otherwise unnamed captures to still be captured with unique names.
-    pub fn into_shadow_matcher_tokens(self, id: usize) -> Vec<ShadowMatcherToken> {
+    pub fn into_shadow_matcher_tokens(self, id: usize, encountered_query: &mut bool) -> Vec<ShadowMatcherToken> {
         match self {
             AttrToken::To(matcher_string) => {
                 yew_router_route_parser::parser::parse(&matcher_string)
@@ -97,10 +97,18 @@ impl AttrToken {
                 ]
             }
             AttrToken::Query(capture_name) => {
-                vec![
-                    ShadowMatcherToken::Exact(format!("?{}=", capture_name)), // TODO, this will be incorrect on second queries.
-                    ShadowMatcherToken::Capture(ShadowCapture{capture_variant: ShadowCaptureVariant::Named(capture_name), allowed_captures: None })
-                ]
+                if *encountered_query {
+                    vec![
+                        ShadowMatcherToken::Exact(format!("&{}=", capture_name)),
+                        ShadowMatcherToken::Capture(ShadowCapture{capture_variant: ShadowCaptureVariant::Named(capture_name), allowed_captures: None })
+                    ]
+                } else {
+                    *encountered_query = true;
+                    vec![
+                        ShadowMatcherToken::Exact(format!("?{}=", capture_name)),
+                        ShadowMatcherToken::Capture(ShadowCapture{capture_variant: ShadowCaptureVariant::Named(capture_name), allowed_captures: None })
+                    ]
+                }
             }
             AttrToken::Frag(Some(capture_name)) => {
                 vec![

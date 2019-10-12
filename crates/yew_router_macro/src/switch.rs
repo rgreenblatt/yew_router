@@ -33,11 +33,11 @@ pub fn switch_impl(input: TokenStream) -> TokenStream {
 
     match input.data {
         Data::Struct(ds) => {
-            let attrs = input.attrs;
-            let matcher = AttrToken::convert_attributes_to_tokens(attrs)
+            let mut encountered_query = false;
+            let matcher = AttrToken::convert_attributes_to_tokens(input.attrs)
                 .into_iter()
                 .enumerate()
-                .map(|(index, at)| at.into_shadow_matcher_tokens(index))
+                .map(|(index, at)| at.into_shadow_matcher_tokens(index, &mut encountered_query))
                 .flatten()
                 .collect::<Vec<_>>();
             let switch_item = SwitchItem {
@@ -51,10 +51,11 @@ pub fn switch_impl(input: TokenStream) -> TokenStream {
             let switch_variants = de.variants
                 .into_iter()
                 .map(|variant: Variant| {
+                    let mut encountered_query = false;
                     let matcher = AttrToken::convert_attributes_to_tokens(variant.attrs)
                         .into_iter()
                         .enumerate()
-                        .map(|(index, at)| at.into_shadow_matcher_tokens(index))
+                        .map(|(index, at)| at.into_shadow_matcher_tokens(index, &mut encountered_query ))
                         .flatten()
                         .collect::<Vec<_>>();
                     SwitchItem {
