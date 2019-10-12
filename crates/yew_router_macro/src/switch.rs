@@ -34,7 +34,12 @@ pub fn switch_impl(input: TokenStream) -> TokenStream {
     match input.data {
         Data::Struct(ds) => {
             let attrs = input.attrs;
-            let matcher = AttrToken::convert_attributes_to_tokens(attrs).into_iter().map(AttrToken::into_shadow_matcher_tokens).flatten().collect::<Vec<_>>();
+            let matcher = AttrToken::convert_attributes_to_tokens(attrs)
+                .into_iter()
+                .enumerate()
+                .map(|(index, at)| at.into_shadow_matcher_tokens(index))
+                .flatten()
+                .collect::<Vec<_>>();
             let switch_item = SwitchItem {
                 matcher,
                 ident,
@@ -45,10 +50,18 @@ pub fn switch_impl(input: TokenStream) -> TokenStream {
         Data::Enum(de) => {
             let switch_variants = de.variants
                 .into_iter()
-                .map(|variant: Variant| SwitchItem {
-                    matcher: AttrToken::convert_attributes_to_tokens(variant.attrs).into_iter().map(AttrToken::into_shadow_matcher_tokens).flatten().collect::<Vec<_>>(),
-                    ident: variant.ident,
-                    fields: variant.fields,
+                .map(|variant: Variant| {
+                    let matcher = AttrToken::convert_attributes_to_tokens(variant.attrs)
+                        .into_iter()
+                        .enumerate()
+                        .map(|(index, at)| at.into_shadow_matcher_tokens(index))
+                        .flatten()
+                        .collect::<Vec<_>>();
+                    SwitchItem {
+                        matcher,
+                        ident: variant.ident,
+                        fields: variant.fields,
+                    }
                 });
             generate_enum_impl(ident, switch_variants)
         }

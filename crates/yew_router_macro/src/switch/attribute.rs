@@ -61,7 +61,8 @@ impl AttrToken {
             .collect()
     }
 
-    pub fn into_shadow_matcher_tokens(self) -> Vec<ShadowMatcherToken> {
+    /// The id is an unique identifier that allows otherwise unnamed captures to still be captured with unique names.
+    pub fn into_shadow_matcher_tokens(self, id: usize) -> Vec<ShadowMatcherToken> {
         match self {
             AttrToken::To(matcher_string) => {
                 yew_router_route_parser::parser::parse(&matcher_string)
@@ -81,7 +82,7 @@ impl AttrToken {
             AttrToken::Capture(None) => {
                 vec![
                     ShadowMatcherToken::Exact("/".to_string()),
-                    ShadowMatcherToken::Capture(ShadowCapture{capture_variant: ShadowCaptureVariant::Unnamed, allowed_captures: None }) // TODO, consider abolishing the unnamed, and using some numbering scheme instead here
+                    ShadowMatcherToken::Capture(ShadowCapture{capture_variant: ShadowCaptureVariant::Named(id.to_string()), allowed_captures: None })
                 ]
             }
             AttrToken::End => unimplemented!("No matcher token currently exists for expressing the termination of a route"),
@@ -92,7 +93,7 @@ impl AttrToken {
             }
             AttrToken::Rest(None) => {
                 vec![
-                    ShadowMatcherToken::Capture(ShadowCapture{capture_variant: ShadowCaptureVariant::ManyUnnamed, allowed_captures: None }) // TODO, get rid of unnamed variants here
+                    ShadowMatcherToken::Capture(ShadowCapture{capture_variant: ShadowCaptureVariant::ManyNamed(id.to_string()), allowed_captures: None })
                 ]
             }
             AttrToken::Query(capture_name) => {
@@ -110,7 +111,7 @@ impl AttrToken {
             AttrToken::Frag(None) => {
                 vec![
                     ShadowMatcherToken::Exact("#".to_string()),
-                    ShadowMatcherToken::Capture(ShadowCapture{capture_variant: ShadowCaptureVariant::Unnamed, allowed_captures: None })
+                    ShadowMatcherToken::Capture(ShadowCapture{capture_variant: ShadowCaptureVariant::Named(id.to_string()), allowed_captures: None })
                 ]
             }
         }
