@@ -1,7 +1,7 @@
-use yew_router_route_parser::{CaptureVariant, MatcherToken, Capture};
+use quote::quote;
 use quote::ToTokens;
 use syn::export::TokenStream2;
-use quote::quote;
+use yew_router_route_parser::{Capture, CaptureVariant, MatcherToken};
 
 impl ToTokens for ShadowMatcherToken {
     fn to_tokens(&self, ts: &mut TokenStream2) {

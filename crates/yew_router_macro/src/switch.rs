@@ -3,21 +3,18 @@ use proc_macro::TokenStream;
 //use quote::quote;
 use syn::{parse_macro_input, Fields};
 //use syn::punctuated::IntoIter;
-use syn::{
-    Data, DeriveInput, Ident, Variant,
-};
-use crate::switch::enum_impl::{generate_enum_impl};
+use crate::switch::enum_impl::generate_enum_impl;
+use crate::switch::shadow::ShadowMatcherToken;
 use crate::switch::struct_impl::generate_struct_impl;
-use crate::switch::shadow::{ShadowMatcherToken};
 use syn::export::TokenStream2;
+use syn::{Data, DeriveInput, Ident, Variant};
 
-mod enum_impl;
-mod struct_impl;
-mod shadow;
 mod attribute;
+mod enum_impl;
+mod shadow;
+mod struct_impl;
 
 use self::attribute::AttrToken;
-
 
 /// Holds data that is required to derive Switch for a struct or a single enum variant.
 pub struct SwitchItem {
@@ -43,37 +40,30 @@ pub fn switch_impl(input: TokenStream) -> TokenStream {
             let switch_item = SwitchItem {
                 matcher,
                 ident,
-                fields: ds.fields
+                fields: ds.fields,
             };
             generate_struct_impl(switch_item)
         }
         Data::Enum(de) => {
-            let switch_variants = de.variants
-                .into_iter()
-                .map(|variant: Variant| {
-                    let mut encountered_query = false;
-                    let matcher = AttrToken::convert_attributes_to_tokens(variant.attrs)
-                        .into_iter()
-                        .enumerate()
-                        .map(|(index, at)| at.into_shadow_matcher_tokens(index, &mut encountered_query ))
-                        .flatten()
-                        .collect::<Vec<_>>();
-                    SwitchItem {
-                        matcher,
-                        ident: variant.ident,
-                        fields: variant.fields,
-                    }
-                });
+            let switch_variants = de.variants.into_iter().map(|variant: Variant| {
+                let mut encountered_query = false;
+                let matcher = AttrToken::convert_attributes_to_tokens(variant.attrs)
+                    .into_iter()
+                    .enumerate()
+                    .map(|(index, at)| at.into_shadow_matcher_tokens(index, &mut encountered_query))
+                    .flatten()
+                    .collect::<Vec<_>>();
+                SwitchItem {
+                    matcher,
+                    ident: variant.ident,
+                    fields: variant.fields,
+                }
+            });
             generate_enum_impl(ident, switch_variants)
         }
         Data::Union(_du) => panic!("Deriving FromCaptures not supported for Unions."),
     }
 }
-
-
-
-
-
 
 trait Flatten<T> {
     /// Because flatten is a nightly feature. I'm making a new variant of the function here for stable use.
@@ -89,7 +79,6 @@ impl<T> Flatten<T> for Option<Option<T>> {
         }
     }
 }
-
 
 fn build_matcher_from_tokens(tokens: Vec<ShadowMatcherToken>) -> TokenStream2 {
     quote::quote! {

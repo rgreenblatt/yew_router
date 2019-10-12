@@ -9,7 +9,6 @@ mod switch;
 //mod route;
 //use route::route_impl;
 
-
 /// Derives `FromCaptures` for the specified struct.
 ///
 /// # Note
@@ -65,7 +64,6 @@ pub fn switch(tokens: TokenStream) -> TokenStream {
 pub fn to(_: TokenStream, _: TokenStream) -> TokenStream {
     TokenStream::new()
 }
-
 
 #[proc_macro_attribute]
 pub fn lit(_: TokenStream, _: TokenStream) -> TokenStream {
