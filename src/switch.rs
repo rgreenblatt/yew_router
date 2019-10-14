@@ -2,6 +2,7 @@
 use crate::route::Route;
 use crate::RouteState;
 use std::str::FromStr;
+use std::path::PathBuf;
 
 /// Routing trait for enums
 ///
@@ -72,20 +73,12 @@ macro_rules! impl_switch_for_from_str {
     };
 }
 
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6};
-use std::path::PathBuf;
 
 // TODO add implementations for Dates - with various formats, UUIDs
 impl_switch_for_from_str! {
     String,
     PathBuf,
     bool,
-    IpAddr,
-    Ipv4Addr,
-    Ipv6Addr,
-    SocketAddr,
-    SocketAddrV4,
-    SocketAddrV6,
     f64,
     f32,
     usize,
