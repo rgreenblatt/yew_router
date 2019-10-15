@@ -77,8 +77,8 @@ fn build_variant_from_captures(ident: &Ident, fields: Fields) -> TokenStream2 {
                 .collect();
 
             return quote! {
-                let mut state = if let Some(mut captures) = matcher.capture_route_into_map(&route_string).ok().map(|x| x.1) {
-                    let (val, state) = (
+                if let Some(mut captures) = matcher.capture_route_into_map(&route_string).ok().map(|x| x.1) {
+                    return (
                         Some(
                             #ident {
                                 #(#fields),*
@@ -86,12 +86,6 @@ fn build_variant_from_captures(ident: &Ident, fields: Fields) -> TokenStream2 {
                         ),
                         state
                     );
-                    if val.is_some() {
-                        return (val, state);
-                    }
-                    state
-                } else {
-                    state
                 };
             };
         }
@@ -135,9 +129,9 @@ fn build_variant_from_captures(ident: &Ident, fields: Fields) -> TokenStream2 {
 
             quote! {
                 // TODO put an annotation here allowing unused muts.
-                let mut state = if let Some(mut captures) = matcher.capture_route_into_vec(&route_string).ok().map(|x| x.1) {
+                if let Some(mut captures) = matcher.capture_route_into_vec(&route_string).ok().map(|x| x.1) {
                     let mut drain = captures.drain(..);
-                    let (val, state) = (
+                    return (
                         Some(
                             #ident(
                                 #(#fields),*
@@ -145,12 +139,6 @@ fn build_variant_from_captures(ident: &Ident, fields: Fields) -> TokenStream2 {
                         ),
                         state
                     );
-                    if val.is_some() {
-                        return (val, state);
-                    }
-                    state
-                } else {
-                    state
                 };
             }
 
