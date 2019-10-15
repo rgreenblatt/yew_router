@@ -97,32 +97,32 @@ fn build_variant_from_captures(ident: &Ident, fields: Fields) -> TokenStream2 {
                     .map(| f: &Field| {
                         let field_ty = &f.ty;
                         quote! {
-                                {
-                                    let (v, s) = match drain.next() {
-                                        Some((_key, value)) => {
-                                            <#field_ty as ::yew_router::RouteItem>::from_route_part(
-                                                ::yew_router::route::Route {
-                                                    route: value,
-                                                    state,
-                                                }
-                                            )
-                                        },
-                                        None => {
-                                            (
-                                                <#field_ty as ::yew_router::RouteItem>::key_not_available(),
+                            {
+                                let (v, s) = match drain.next() {
+                                    Some((_key, value)) => {
+                                        <#field_ty as ::yew_router::RouteItem>::from_route_part(
+                                            ::yew_router::route::Route {
+                                                route: value,
                                                 state,
-                                            )
-                                        }
-                                    };
-                                    match v {
-                                        Some(val) => {
-                                            state = s; // Set state for the next var.
-                                            val
-                                        },
-                                        None => return (None, s) // Failed
+                                            }
+                                        )
+                                    },
+                                    None => {
+                                        (
+                                            <#field_ty as ::yew_router::RouteItem>::key_not_available(),
+                                            state,
+                                        )
                                     }
+                                };
+                                match v {
+                                    Some(val) => {
+                                        state = s; // Set state for the next var.
+                                        val
+                                    },
+                                    None => return (None, s) // Failed
                                 }
                             }
+                        }
                     });
 
 

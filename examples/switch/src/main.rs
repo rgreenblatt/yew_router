@@ -28,7 +28,7 @@ fn main() {
     dbg!(app_route);
 }
 use yew_router::route::Route;
-use yew_router::{Switch};
+use yew_router::Switch;
 
 #[derive(Debug, Switch)]
 pub enum AppRoute {
@@ -49,7 +49,6 @@ pub enum AppRoute {
     OtherSingle(OtherSingle),
 }
 
-
 #[derive(Switch, Debug)]
 pub enum InnerRoute {
     #[lit = "left"] // same as #[to = "/left"]
@@ -67,6 +66,3 @@ pub struct Single {
 #[derive(Switch, Debug)]
 #[to = "/othersingle/{number}"]
 pub struct OtherSingle(u32);
-
-
-
