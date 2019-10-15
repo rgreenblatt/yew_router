@@ -3,7 +3,7 @@ fn main() {
     let app_route = AppRoute::switch(route);
     dbg!(app_route);
 
-    let route = Route::<()>::from("/some/other");
+    let route = Route::<()>::from("/some/thing/other");
     let app_route = AppRoute::switch(route);
     dbg!(app_route);
 
@@ -15,22 +15,22 @@ fn main() {
     let app_route = AppRoute::switch(route);
     dbg!(app_route);
 
-    let route = Route::<()>::from("/yeet");
+    let route = Route::<()>::from("/yeet"); // should not match
     let app_route = AppRoute::switch(route);
     dbg!(app_route);
 
-    let route = Route::<()>::from("/single/32");
-    let app_route = AppRoute::switch(route);
-    dbg!(app_route);
-
-    let route = Route::<()>::from("/othersingle/472");
-    let app_route = AppRoute::switch(route);
-    dbg!(app_route);
+//    let route = Route::<()>::from("/single/32");
+//    let app_route = AppRoute::switch(route);
+//    dbg!(app_route);
+//
+//    let route = Route::<()>::from("/othersingle/472");
+//    let app_route = AppRoute::switch(route);
+//    dbg!(app_route);
 }
 use yew_router::route::Route;
-use yew_router::Switch;
+use yew_router::{Switch, RouteItem};
 
-#[derive(Switch, Debug)]
+#[derive(Debug, Switch)]
 pub enum AppRoute {
     #[to = "/some/route"]
     SomeRoute,
@@ -38,14 +38,17 @@ pub enum AppRoute {
     Something { thing: String, other: String },
     #[to = "/another/{thing}"]
     Another(String),
+    #[to = "/doot/{one}/{two}"]
+    Yeet(String, String),
     #[lit = "inner"]
     #[rest]
     Nested(InnerRoute),
-    #[rest]
-    Single(Single),
-    #[rest]
-    OtherSingle(OtherSingle),
+//    #[rest]
+//    Single(Single),
+//    #[rest]
+//    OtherSingle(OtherSingle),
 }
+
 
 #[derive(Switch, Debug)]
 pub enum InnerRoute {
@@ -55,12 +58,12 @@ pub enum InnerRoute {
     Right,
 }
 
-#[derive(Switch, Debug)]
-#[to = "/single/{number}"]
-pub struct Single {
-    number: u32,
-}
-
-#[derive(Switch, Debug)]
-#[to = "/othersingle/{number}"]
-pub struct OtherSingle(u32);
+//#[derive(Switch, Debug)]
+//#[to = "/single/{number}"]
+//pub struct Single {
+//    number: u32,
+//}
+//
+//#[derive(Switch, Debug)]
+//#[to = "/othersingle/{number}"]
+//pub struct OtherSingle(u32);

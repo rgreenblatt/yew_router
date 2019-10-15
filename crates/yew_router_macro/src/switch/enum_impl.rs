@@ -26,30 +26,52 @@ pub fn generate_enum_impl(
                     })
                     .map(|(field_name, key, field_ty): (Ident, String, Type)|{
                         quote!{
-                            #field_name: captures.get(#key) // TODO try to get an Option<T> instead of an Option<&T> out of the map.
-                                .map_or_else(
-                                    || <#field_ty as ::yew_router::Switch>::key_not_available(), // If the key isn't present, possibly resolve the case where the item is an option
-                                    |value: &String| {
-                                        <#field_ty as ::yew_router::Switch>::switch(::yew_router::route::Route{route: value.clone(), state: state.clone()})
+                            #field_name: {
+                                let (v, s) = match captures.remove(#key) {
+                                    Some(value) => {
+                                        <#field_ty as ::yew_router::RouteItem>::from_route_part(
+                                            ::yew_router::route::Route {
+                                                route: value,
+                                                state,
+                                            }
+                                        )
                                     }
-                                )?
+                                    None => {
+                                        (
+                                            <#field_ty as ::yew_router::RouteItem>::key_not_available(),
+                                            state,
+                                        )
+                                    }
+                                };
+                                match v {
+                                    Some(val) => {
+                                        state = s; // Set state for the next var.
+                                        val
+                                    },
+                                    None => return (None, s) // Failed
+                                }
+                            }
                         }
                     })
                     .collect();
 
                 quote! {
-                    if let Some(captures) = matcher.capture_route_into_map(&route.to_string()).ok().map(|x| x.1) {
-                        let produce_variant = move || -> Option<#enum_ident> {
+                    let mut state = if let Some(mut captures) = matcher.capture_route_into_map(&route_string).ok().map(|x| x.1) {
+                        let (val, state) = (
                             Some(
                                 #enum_ident::#variant_ident{
                                     #(#fields),*
                                 }
-                            )
-                        };
-                        if let Some(e) = produce_variant() {
-                            return Some(e);
+                            ),
+                            state
+                        );
+                        if val.is_some() {
+                            return (val, state);
                         }
-                    }
+                        state
+                    } else {
+                        state
+                    };
                 }
             }
             Fields::Unnamed(unnamed_fields) => {
@@ -57,40 +79,65 @@ pub fn generate_enum_impl(
                     unnamed_fields
                         .unnamed
                         .iter()
-                        .enumerate()
-                        .map(|(index, f): (usize, &Field)| {
+                        .map(| f: &Field| {
                             let field_ty = &f.ty;
                             quote! {
-                                captures.get(#index)
-                                    .map_or_else(
-                                        || <#field_ty as ::yew_router::Switch>::key_not_available(), // If the key isn't present, possibly resolve the case where the item is an option
-                                        |(_key, value): &(&str, String)| {
-                                            <#field_ty as ::yew_router::Switch>::switch(::yew_router::route::Route{route: value.clone(), state: state.clone()}) // TODO add the actual state here.
+                                {
+                                    let (v, s) = match drain.next() {
+                                        Some((_key, value)) => {
+                                            <#field_ty as ::yew_router::RouteItem>::from_route_part(
+                                                ::yew_router::route::Route {
+                                                    route: value,
+                                                    state,
+                                                }
+                                            )
+                                        },
+                                        None => {
+                                            (
+                                                <#field_ty as ::yew_router::RouteItem>::key_not_available(),
+                                                state,
+                                            )
                                         }
-                                    )?
+                                    };
+                                    match v {
+                                        Some(val) => {
+                                            state = s; // Set state for the next var.
+                                            val
+                                        },
+                                        None => return (None, s) // Failed
+                                    }
+                                }
                             }
                         });
 
                 quote! {
-                    if let Some(captures) = matcher.capture_route_into_vec(&route.to_string()).ok().map(|x| x.1) {
-                        let produce_variant = move || -> Option<#enum_ident> {
+                    // TODO put an annotation here allowing unused muts.
+                    let mut state = if let Some(mut captures) = matcher.capture_route_into_vec(&route_string).ok().map(|x| x.1) {
+                        let mut drain = captures.drain(..);
+                        let (val, state) = (
                             Some(
                                 #enum_ident::#variant_ident(
                                     #(#fields),*
                                 )
-                            )
-                        };
-                        if let Some(e) = produce_variant() {
-                            return Some(e);
+                            ),
+                            state
+                        );
+                        if val.is_some() {
+                            return (val, state);
                         }
-                    }
+                        state
+                    } else {
+                        state
+                    };
                 }
             }
             Fields::Unit => {
                 quote! {
-                    if let Some(captures) = matcher.capture_route_into_map(&route.to_string()).ok().map(|x| x.1) {
-                        return Some(#enum_ident::#variant_ident);
-                    }
+                    let mut state = if let Some(_captures) = matcher.capture_route_into_map(&route_string).ok().map(|x| x.1) {
+                        return (Some(#enum_ident::#variant_ident), state);
+                    } else {
+                        state
+                    };
                 }
             }
         }
@@ -109,7 +156,8 @@ pub fn generate_enum_impl(
 
             quote! {
                 #matcher
-                let state = &route.state; // TODO State gets cloned a bunch here. Some refactorings should aim to remove this.
+
+
                 #build_from_captures
             }
         })
@@ -117,10 +165,16 @@ pub fn generate_enum_impl(
 
     let token_stream = quote! {
         impl ::yew_router::Switch for #enum_ident {
-            fn switch<T: yew_router::route::RouteState>(route: ::yew_router::route::Route<T>) -> Option<Self> {
+            fn from_route_part<T: ::yew_router::route::RouteState>(route: ::yew_router::route::Route<T>) -> (Option<Self>, Option<T>) {
+                let mut state = route.state;
+                let route_string = route.route;
                 #(#variant_matchers)*
 
-                return None
+                return (None, state)
+            }
+
+            fn build_route_section<T>(self, route: &mut String) -> Option<T> {
+                unimplemented!()
             }
         }
     };

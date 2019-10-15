@@ -1,11 +1,14 @@
 //! Route based on enums.
 use crate::route::Route;
 use crate::RouteState;
-use std::str::FromStr;
-use std::path::PathBuf;
-use std::fmt;
+use std::fmt::Write;
 
-/// Routing trait for enums
+/// Routing trait for enums.
+///
+/// # Note
+/// Don't try to implement this yourself, rely on the derive macro.
+///
+/// If you want to dictate how an item is serialized/deserialized to a route string, implement `RouteItem` instead.
 ///
 /// # Example
 /// ```
@@ -33,59 +36,107 @@ use std::fmt;
 ///
 pub trait Switch: Sized {
     /// Based on a route, possibly produce an itself.
-    fn switch<T: RouteState>(route: Route<T>) -> Option<Self>;
+    fn switch<T: RouteState>(route: Route<T>) -> Option<Self> {
+        Self::from_route_part(route).0
+    }
 
-    /// If the key isn't available, this will be called.
-    /// This allows an implementation to provide a default when matching fails instead of outright failing the parse.
-    fn key_not_available() -> Option<Self> {
-        None
+    /// Get self from a part of the state
+    fn from_route_part<T: RouteState>(part: Route<T>) -> (Option<Self>, Option<T>);
+
+    /// Build part of a route from itself.
+    fn build_route_section<T>(self, route: &mut String) -> Option<T>;
+}
+
+// Ok, the pattern is:
+// Provide route
+// For each match, pull the expected item out of the hashmap,
+// create a Route comprised of that item, and the state.
+// Rescue the state afterwords to move it into the next item.
+
+
+
+/// Builds a route from a switch.
+pub fn build_route_from_switch<T: Switch, U>(switch: T) -> Route<U> {
+    let mut buf = String::with_capacity(50); // TODO, play with this to maximize perf/size.
+
+    let state: Option<U> = None;
+    let state = state.or( switch.build_route_section(&mut buf));
+    Route {
+        route: buf,
+        state
     }
 }
 
 
 
-pub struct RoutePart<'a, T> {
-    route: &'a str,
-    state: Option<T>
-}
-
+// TODO, Axe the RoutePart. Use just Routes, and based on how the matching works, use replace_range to remove all characters, and replace with the post-parse str.
+/// TEMP
 pub trait RouteItem: Sized {
-    fn from_route_part<T>(part: &mut RoutePart<T>) -> Option<Self>;
+    /// TEMP
+    fn from_route_part<T: RouteState>(part: Route<T>) -> (Option<Self>, Option<T>);
 
+    /// TEMP
     fn build_route_section<T>(self, route: &mut String) -> Option<T>;
 
+    /// TEMP
     fn key_not_available() -> Option<Self> {
         None
     }
 }
 
-impl <U: RouteItem> RouteItem for Option<U> {
-    fn from_route_part<T>(part: &mut RoutePart<'_, T>) -> Option<Self> {
-        Some(Some(RouteItem::from_route_part(part)?)) // TODO not 100% sure about the semantics of this.
+impl <U> RouteItem for U where U: Switch {
+    fn from_route_part<T: RouteState>(part: Route<T>) -> (Option<Self>, Option<T>) {
+        <Self as Switch>::from_route_part(part)
     }
 
-    fn build_route_section<T>(self, f: &mut String) -> Option<T> {
-        if let Some(item) = self {
-            item.build_route_section(f)
-        } else {
-            None
-        }
-    }
-
-    fn key_not_available() -> Option<Self> {
-        Some(None)
+    fn build_route_section<T>(self, route: &mut String) -> Option<T> {
+        <Self as Switch>::build_route_section(self, route)
     }
 }
 
-use fmt::Display;
-use std::fmt::Write;
+//impl <U: RouteItem> RouteItem for Option<U> {
+//    fn from_route_part<T: RouteState>(part: &mut Route<T>) -> Option<Self> {
+//        Some(Some(RouteItem::from_route_part(part)?)) // TODO not 100% sure about the semantics of this.
+//    }
+//
+//    fn build_route_section<T>(self, f: &mut String) -> Option<T> {
+//        if let Some(item) = self {
+//            item.build_route_section(f)
+//        } else {
+//            None
+//        }
+//    }
+//
+//    fn key_not_available() -> Option<Self> {
+//        Some(None)
+//    }
+//}
+
+/// Wrapper that allows any implementor of RouteItem to be treated as a switch.
+/// It stipulates that the first character must be a slash.
+//pub struct LeadingSlash<T>(pub T);
+//impl <U: RouteItem> Switch for LeadingSlash<U> {
+//    fn switch<T: RouteState>(route: Route<T>) -> (Option<Self>, Route<T>) {
+//        unimplemented!()
+//    }
+//
+//    fn build_route_section<T>(self, route: &mut String) -> Option<T> {
+//        write!(f, "/{}", self.0).ok()?;
+//        None
+//    }
+//}
+
+
 
 macro_rules! impl_route_item_for_from_to_str {
     ($($SelfT: ty),*) => {
         $(
         impl RouteItem for $SelfT {
-            fn from_route_part<T>(part: &mut RoutePart<'_, T>) -> Option<Self> {
-                ::std::str::FromStr::from_str(&part.route).ok()
+            fn from_route_part<T: RouteState>(part: Route<T>) -> (Option<Self>, Option<T>) {
+                (
+                    ::std::str::FromStr::from_str(&part.route).ok(),
+                    part.state
+                )
             }
 
             fn build_route_section<T>(self, f: &mut String) -> Option<T> {
@@ -136,68 +187,66 @@ fn isize_build_route() {
 }
 
 
+//impl<U: Switch> Switch for Option<U> {
+//    fn switch<T: RouteState>(route: Route<T>) -> Option<Self> {
+//        Some(Some(Switch::switch(route)?))
+//    }
+//
+//    /// This will cause the derivation of `from_matches` to not fail if the key can't be located
+//    fn key_not_available() -> Option<Self> {
+//        Some(None)
+//    }
+//}
 
-
-impl<U: Switch> Switch for Option<U> {
-    fn switch<T: RouteState>(route: Route<T>) -> Option<Self> {
-        Some(Some(Switch::switch(route)?))
-    }
-
-    /// This will cause the derivation of `from_matches` to not fail if the key can't be located
-    fn key_not_available() -> Option<Self> {
-        Some(None)
-    }
-}
-
-impl<U, E> Switch for Result<U, E>
-where
-    U: FromStr<Err = E>,
-{
-    fn switch<T: RouteState>(route: Route<T>) -> Option<Self> {
-        Some(U::from_str(&route.route))
-    }
-}
-
-macro_rules! impl_switch_for_from_str {
-    ($($SelfT: ty),*) => {
-        $(
-        impl Switch for $SelfT {
-            fn switch<T>(route: Route<T>) -> Option<Self> {
-                std::str::FromStr::from_str(&route.route).ok()
-            }
-        }
-        )*
-    };
-}
+//impl<U, E> Switch for Result<U, E>
+//where
+//    U: FromStr<Err = E>,
+//{
+//    fn switch<T: RouteState>(route: Route<T>) -> Option<Self> {
+//        Some(U::from_str(&route.route))
+//    }
+//}
+//
+//macro_rules! impl_switch_for_from_str {
+//    ($($SelfT: ty),*) => {
+//        $(
+//        impl Switch for $SelfT {
+//            fn switch<T>(route: Route<T>) -> Option<Self> {
+//                std::str::FromStr::from_str(&route.route).ok()
+//            }
+//        }
+//        )*
+//    };
+//}
 
 
 // TODO add implementations for Dates - with various formats, UUIDs
-impl_switch_for_from_str! {
-    String,
-    PathBuf,
-    bool,
-    f64,
-    f32,
-    usize,
-    u128,
-    u64,
-    u32,
-    u16,
-    u8,
-    isize,
-    i128,
-    i64,
-    i32,
-    i16,
-    i8,
-    std::num::NonZeroU128,
-    std::num::NonZeroU64,
-    std::num::NonZeroU32,
-    std::num::NonZeroU16,
-    std::num::NonZeroU8,
-    std::num::NonZeroI128,
-    std::num::NonZeroI64,
-    std::num::NonZeroI32,
-    std::num::NonZeroI16,
-    std::num::NonZeroI8
-}
+//impl_switch_for_from_str! {
+//    String,
+//    PathBuf,
+//    bool,
+//    f64,
+//    f32,
+//    usize,
+//    u128,
+//    u64,
+//    u32,
+//    u16,
+//    u8,
+//    isize,
+//    i128,
+//    i64,
+//    i32,
+//    i16,
+//    i8,
+//    std::num::NonZeroU128,
+//    std::num::NonZeroU64,
+//    std::num::NonZeroU32,
+//    std::num::NonZeroU16,
+//    std::num::NonZeroU8,
+//    std::num::NonZeroI128,
+//    std::num::NonZeroI64,
+//    std::num::NonZeroI32,
+//    std::num::NonZeroI16,
+//    std::num::NonZeroI8
+//}

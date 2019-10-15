@@ -202,7 +202,7 @@ impl<T: for<'de> RouterState<'de>, SW: Switch + 'static, M: 'static> Renderable<
     for Router<T, SW, M>
 {
     fn view(&self) -> VNode<Self> {
-        let switch = SW::switch(self.route.clone());
+        let switch: Option<SW>= SW::switch(self.route.clone());
         (&self.props.render.0)(switch)
     }
 }
