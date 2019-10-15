@@ -57,14 +57,18 @@ pub fn generate_enum_impl(
 
                 quote! {
                     let mut state = if let Some(mut captures) = matcher.capture_route_into_map(&route_string).ok().map(|x| x.1) {
-                        let (val, state) = (
-                            Some(
-                                #enum_ident::#variant_ident{
-                                    #(#fields),*
-                                }
-                            ),
-                            state
-                        );
+                        let create_item = || {
+                             (
+                                Some(
+                                    #enum_ident::#variant_ident {
+                                        #(#fields),*
+                                    }
+                                ),
+                                state
+                            )
+                        };
+                        let (val, state) = create_item();
+
                         if val.is_some() {
                             return (val, state);
                         }
@@ -114,14 +118,17 @@ pub fn generate_enum_impl(
                     // TODO put an annotation here allowing unused muts.
                     let mut state = if let Some(mut captures) = matcher.capture_route_into_vec(&route_string).ok().map(|x| x.1) {
                         let mut drain = captures.drain(..);
-                        let (val, state) = (
-                            Some(
-                                #enum_ident::#variant_ident(
-                                    #(#fields),*
-                                )
-                            ),
-                            state
-                        );
+                        let create_item = || {
+                             (
+                                Some(
+                                    #enum_ident::#variant_ident(
+                                        #(#fields),*
+                                    )
+                                ),
+                                state
+                            )
+                        };
+                        let (val, state) = create_item();
                         if val.is_some() {
                             return (val, state);
                         }
