@@ -19,16 +19,16 @@ fn main() {
     let app_route = AppRoute::switch(route);
     dbg!(app_route);
 
-//    let route = Route::<()>::from("/single/32");
-//    let app_route = AppRoute::switch(route);
-//    dbg!(app_route);
-//
-//    let route = Route::<()>::from("/othersingle/472");
-//    let app_route = AppRoute::switch(route);
-//    dbg!(app_route);
+    let route = Route::<()>::from("/single/32");
+    let app_route = AppRoute::switch(route);
+    dbg!(app_route);
+
+    let route = Route::<()>::from("/othersingle/472");
+    let app_route = AppRoute::switch(route);
+    dbg!(app_route);
 }
 use yew_router::route::Route;
-use yew_router::{Switch, RouteItem};
+use yew_router::{Switch};
 
 #[derive(Debug, Switch)]
 pub enum AppRoute {
@@ -43,10 +43,10 @@ pub enum AppRoute {
     #[lit = "inner"]
     #[rest]
     Nested(InnerRoute),
-//    #[rest]
-//    Single(Single),
-//    #[rest]
-//    OtherSingle(OtherSingle),
+    #[rest]
+    Single(Single),
+    #[rest]
+    OtherSingle(OtherSingle),
 }
 
 
@@ -58,12 +58,15 @@ pub enum InnerRoute {
     Right,
 }
 
-//#[derive(Switch, Debug)]
-//#[to = "/single/{number}"]
-//pub struct Single {
-//    number: u32,
-//}
-//
-//#[derive(Switch, Debug)]
-//#[to = "/othersingle/{number}"]
-//pub struct OtherSingle(u32);
+#[derive(Switch, Debug)]
+#[to = "/single/{number}"]
+pub struct Single {
+    number: u32,
+}
+
+#[derive(Switch, Debug)]
+#[to = "/othersingle/{number}"]
+pub struct OtherSingle(u32);
+
+
+
