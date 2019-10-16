@@ -27,17 +27,24 @@ fn main() {
     let app_route = AppRoute::switch(route);
     dbg!(app_route);
 
-
     let mut buf = String::new();
     AppRoute::Another("yeet".to_string()).build_route_section::<()>(&mut buf);
     println!("{}", buf);
 
     let mut buf = String::new();
-    AppRoute::Something{thing: "yeet".to_string(), other: "yote".to_string()}.build_route_section::<()>(&mut buf);
+    AppRoute::Something {
+        thing: "yeet".to_string(),
+        other: "yote".to_string(),
+    }
+    .build_route_section::<()>(&mut buf);
+    println!("{}", buf);
+
+    let mut buf = String::new();
+    OtherSingle(23).build_route_section::<()>(&mut buf);
     println!("{}", buf);
 }
 use yew_router::route::Route;
-use yew_router::{Switch};
+use yew_router::Switch;
 
 #[derive(Debug, Switch)]
 pub enum AppRoute {

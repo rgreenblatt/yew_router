@@ -55,7 +55,7 @@ impl<T> Route<T> {
     }
 
     /// Replace the route with a new string.
-    pub (crate) fn replace_route(&mut self, new_route: &str) {
+    pub(crate) fn replace_route(&mut self, new_route: &str) {
         self.route.replace_range(.., new_route)
     }
 }

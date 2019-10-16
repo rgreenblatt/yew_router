@@ -1,14 +1,11 @@
-use crate::switch::{SwitchItem, build_serializer_for_enum};
+use crate::switch::{build_serializer_for_enum, SwitchItem};
 use proc_macro::TokenStream;
+use proc_macro2::Span;
 use quote::quote;
 use syn::export::TokenStream2;
 use syn::{Field, Fields, Ident, Type};
-use proc_macro2::Span;
 
-pub fn generate_enum_impl(
-    enum_ident: Ident,
-    switch_variants: Vec<SwitchItem>,
-) -> TokenStream {
+pub fn generate_enum_impl(enum_ident: Ident, switch_variants: Vec<SwitchItem>) -> TokenStream {
     /// Once the 'captures' exists, attempt to populate the fields from the list of captures.
     fn build_variant_from_captures(
         enum_ident: &Ident,
@@ -80,40 +77,36 @@ pub fn generate_enum_impl(
                 }
             }
             Fields::Unnamed(unnamed_fields) => {
-                let fields =
-                    unnamed_fields
-                        .unnamed
-                        .iter()
-                        .map(| f: &Field| {
-                            let field_ty = &f.ty;
-                            quote! {
-                                {
-                                    let (v, s) = match drain.next() {
-                                        Some((_key, value)) => {
-                                            <#field_ty as ::yew_router::Switch>::from_route_part(
-                                                ::yew_router::route::Route {
-                                                    route: value,
-                                                    state,
-                                                }
-                                            )
-                                        },
-                                        None => {
-                                            (
-                                                <#field_ty as ::yew_router::Switch>::key_not_available(),
-                                                state,
-                                            )
+                let fields = unnamed_fields.unnamed.iter().map(|f: &Field| {
+                    let field_ty = &f.ty;
+                    quote! {
+                        {
+                            let (v, s) = match drain.next() {
+                                Some((_key, value)) => {
+                                    <#field_ty as ::yew_router::Switch>::from_route_part(
+                                        ::yew_router::route::Route {
+                                            route: value,
+                                            state,
                                         }
-                                    };
-                                    match v {
-                                        Some(val) => {
-                                            state = s; // Set state for the next var.
-                                            val
-                                        },
-                                        None => return (None, s) // Failed
-                                    }
+                                    )
+                                },
+                                None => {
+                                    (
+                                        <#field_ty as ::yew_router::Switch>::key_not_available(),
+                                        state,
+                                    )
                                 }
+                            };
+                            match v {
+                                Some(val) => {
+                                    state = s; // Set state for the next var.
+                                    val
+                                },
+                                None => return (None, s) // Failed
                             }
-                        });
+                        }
+                    }
+                });
 
                 quote! {
                     // TODO put an annotation here allowing unused muts.

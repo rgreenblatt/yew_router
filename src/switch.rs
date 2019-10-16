@@ -62,22 +62,14 @@ pub trait Switch: Sized {
 // create a Route comprised of that item, and the state.
 // Rescue the state afterwords to move it into the next item.
 
-
-
 /// Builds a route from a switch.
 pub fn build_route_from_switch<T: Switch, U>(switch: T) -> Route<U> {
     let mut buf = String::with_capacity(50); // TODO, play with this to maximize perf/size.
 
     let state: Option<U> = None;
-    let state = state.or( switch.build_route_section(&mut buf));
-    Route {
-        route: buf,
-        state
-    }
+    let state = state.or(switch.build_route_section(&mut buf));
+    Route { route: buf, state }
 }
-
-
-
 
 //impl <U: RouteItem> RouteItem for Option<U> {
 //    fn from_route_part<T: RouteState>(part: &mut Route<T>) -> Option<Self> {
@@ -110,8 +102,6 @@ pub fn build_route_from_switch<T: Switch, U>(switch: T) -> Route<U> {
 //        None
 //    }
 //}
-
-
 
 macro_rules! impl_switch_for_from_to_str {
     ($($SelfT: ty),*) => {
@@ -162,7 +152,6 @@ impl_switch_for_from_to_str! {
     std::num::NonZeroI8
 }
 
-
 #[test]
 fn isize_build_route() {
     let mut route = "/".to_string();
@@ -170,7 +159,6 @@ fn isize_build_route() {
     state.or((-432isize).build_route_section(&mut route));
     assert_eq!(route, "/-432".to_string());
 }
-
 
 //impl<U: Switch> Switch for Option<U> {
 //    fn switch<T: RouteState>(route: Route<T>) -> Option<Self> {
@@ -203,7 +191,6 @@ fn isize_build_route() {
 //        )*
 //    };
 //}
-
 
 // TODO add implementations for Dates - with various formats, UUIDs
 //impl_switch_for_from_str! {
