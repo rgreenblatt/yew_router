@@ -160,7 +160,7 @@ fn write_for_token(token: &ShadowMatcherToken, naming_scheme: FieldType) -> Toke
                         | ShadowCaptureVariant::NumberedNamed { .. } => {
                             let name = unnamed_field_index_item(index);
                             quote! {
-                                state = state.or(#name.build_route_section(&mut buf));
+                                state = state.or(#name.build_route_section(&mut buf)); // TODO, this needs type information in order not to clobber the namespace. I don't want to have to import RouteInfo.
                             }
                         },
                     }
@@ -224,7 +224,7 @@ pub fn build_serializer_for_enum(switch_items: &[SwitchItem], enum_ident: &Ident
         });
     quote! {
         use ::std::fmt::Write;
-        use ::yew_router::RouteItem;
+        use ::yew_router::RouteItem as _; // TODO get rid of this boi, its polluting the whole namespace. That or get rid of the whole RouteItem concept. It doesn't have to be different than Switch.
         let mut state: Option<T> = None;
         match #match_item {
             #(#variants)*,
