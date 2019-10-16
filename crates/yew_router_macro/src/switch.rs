@@ -225,7 +225,7 @@ pub fn build_serializer_for_enum(switch_items: &[SwitchItem], enum_ident: &Ident
         });
     quote! {
         use ::std::fmt::Write as __Write; // TODO: is importing this here hygenic?
-        use ::yew_router::RouteItem as _; // TODO get rid of this boi, its polluting the whole namespace. That or get rid of the whole RouteItem concept. It doesn't have to be different than Switch.
+//        use ::yew_router::RouteItem as _; // TODO get rid of this boi, its polluting the whole namespace. That or get rid of the whole RouteItem concept. It doesn't have to be different than Switch.
         let mut state: Option<T> = None;
         match #match_item {
             #(#variants)*,

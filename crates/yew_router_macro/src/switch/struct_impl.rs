@@ -50,7 +50,7 @@ fn build_variant_from_captures(ident: &Ident, fields: &Fields) -> TokenStream2 {
                         #field_name: {
                             let (v, s) = match captures.remove(#key) {
                                 Some(value) => {
-                                    <#field_ty as ::yew_router::RouteItem>::from_route_part(
+                                    <#field_ty as ::yew_router::Switch>::from_route_part(
                                         ::yew_router::route::Route {
                                             route: value,
                                             state,
@@ -59,7 +59,7 @@ fn build_variant_from_captures(ident: &Ident, fields: &Fields) -> TokenStream2 {
                                 }
                                 None => {
                                     (
-                                        <#field_ty as ::yew_router::RouteItem>::key_not_available(),
+                                        <#field_ty as ::yew_router::Switch>::key_not_available(),
                                         state,
                                     )
                                 }
@@ -100,7 +100,7 @@ fn build_variant_from_captures(ident: &Ident, fields: &Fields) -> TokenStream2 {
                             {
                                 let (v, s) = match drain.next() {
                                     Some((_key, value)) => {
-                                        <#field_ty as ::yew_router::RouteItem>::from_route_part(
+                                        <#field_ty as ::yew_router::Switch>::from_route_part(
                                             ::yew_router::route::Route {
                                                 route: value,
                                                 state,
@@ -109,7 +109,7 @@ fn build_variant_from_captures(ident: &Ident, fields: &Fields) -> TokenStream2 {
                                     },
                                     None => {
                                         (
-                                            <#field_ty as ::yew_router::RouteItem>::key_not_available(),
+                                            <#field_ty as ::yew_router::Switch>::key_not_available(),
                                             state,
                                         )
                                     }

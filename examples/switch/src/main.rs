@@ -49,13 +49,13 @@ pub enum AppRoute {
     Another(String),
     #[to = "/doot/{one}/{two}"]
     Yeet(String, String),
-//    #[lit = "inner"]
-//    #[rest]
-//    Nested(InnerRoute),
-//    #[rest]
-//    Single(Single),
-//    #[rest]
-//    OtherSingle(OtherSingle),
+    #[lit = "inner"]
+    #[rest]
+    Nested(InnerRoute),
+    #[rest]
+    Single(Single),
+    #[rest]
+    OtherSingle(OtherSingle),
 }
 
 #[derive(Switch, Debug)]

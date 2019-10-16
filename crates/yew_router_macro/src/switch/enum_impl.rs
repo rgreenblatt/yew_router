@@ -30,7 +30,7 @@ pub fn generate_enum_impl(
                             #field_name: {
                                 let (v, s) = match captures.remove(#key) {
                                     Some(value) => {
-                                        <#field_ty as ::yew_router::RouteItem>::from_route_part(
+                                        <#field_ty as ::yew_router::Switch>::from_route_part(
                                             ::yew_router::route::Route {
                                                 route: value,
                                                 state,
@@ -39,7 +39,7 @@ pub fn generate_enum_impl(
                                     }
                                     None => {
                                         (
-                                            <#field_ty as ::yew_router::RouteItem>::key_not_available(),
+                                            <#field_ty as ::yew_router::Switch>::key_not_available(),
                                             state,
                                         )
                                     }
@@ -90,7 +90,7 @@ pub fn generate_enum_impl(
                                 {
                                     let (v, s) = match drain.next() {
                                         Some((_key, value)) => {
-                                            <#field_ty as ::yew_router::RouteItem>::from_route_part(
+                                            <#field_ty as ::yew_router::Switch>::from_route_part(
                                                 ::yew_router::route::Route {
                                                     route: value,
                                                     state,
@@ -99,7 +99,7 @@ pub fn generate_enum_impl(
                                         },
                                         None => {
                                             (
-                                                <#field_ty as ::yew_router::RouteItem>::key_not_available(),
+                                                <#field_ty as ::yew_router::Switch>::key_not_available(),
                                                 state,
                                             )
                                         }

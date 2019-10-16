@@ -45,6 +45,15 @@ pub trait Switch: Sized {
 
     /// Build part of a route from itself.
     fn build_route_section<T>(self, route: &mut String) -> Option<T>;
+
+    /// Called when the key (the named capture group) can't be located. Instead of failing outright, a default item can be provided instead.
+    ///
+    /// Its primary motivation for existing is to allow implementing Switch for Option.
+    /// This doesn't make sense at the moment because this only works for the individual key section - any surrounding literals are pretty much guaranteed to make the parse step fail.
+    /// because of this, this functionality might be removed in favor of using a nested Switch enum, or multiple variants.
+    fn key_not_available() -> Option<Self> {
+        None
+    }
 }
 
 // Ok, the pattern is:
@@ -69,30 +78,6 @@ pub fn build_route_from_switch<T: Switch, U>(switch: T) -> Route<U> {
 
 
 
-// TODO, Axe the RoutePart. Use just Routes, and based on how the matching works, use replace_range to remove all characters, and replace with the post-parse str.
-/// TEMP
-pub trait RouteItem: Sized {
-    /// TEMP
-    fn from_route_part<T: RouteState>(part: Route<T>) -> (Option<Self>, Option<T>);
-
-    /// TEMP
-    fn build_route_section<T>(self, route: &mut String) -> Option<T>;
-
-    /// TEMP
-    fn key_not_available() -> Option<Self> {
-        None
-    }
-}
-
-impl <U> RouteItem for U where U: Switch {
-    fn from_route_part<T: RouteState>(part: Route<T>) -> (Option<Self>, Option<T>) {
-        <Self as Switch>::from_route_part(part)
-    }
-
-    fn build_route_section<T>(self, route: &mut String) -> Option<T> {
-        <Self as Switch>::build_route_section(self, route)
-    }
-}
 
 //impl <U: RouteItem> RouteItem for Option<U> {
 //    fn from_route_part<T: RouteState>(part: &mut Route<T>) -> Option<Self> {
@@ -128,10 +113,10 @@ impl <U> RouteItem for U where U: Switch {
 
 
 
-macro_rules! impl_route_item_for_from_to_str {
+macro_rules! impl_switch_for_from_to_str {
     ($($SelfT: ty),*) => {
         $(
-        impl RouteItem for $SelfT {
+        impl Switch for $SelfT {
             fn from_route_part<T: RouteState>(part: Route<T>) -> (Option<Self>, Option<T>) {
                 (
                     ::std::str::FromStr::from_str(&part.route).ok(),
@@ -148,7 +133,7 @@ macro_rules! impl_route_item_for_from_to_str {
     };
 }
 
-impl_route_item_for_from_to_str! {
+impl_switch_for_from_to_str! {
     String,
     bool,
     f64,
