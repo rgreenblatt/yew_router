@@ -31,6 +31,10 @@ fn main() {
     let mut buf = String::new();
     AppRoute::Another("yeet".to_string()).build_route_section::<()>(&mut buf);
     println!("{}", buf);
+
+    let mut buf = String::new();
+    AppRoute::Something{thing: "yeet".to_string(), other: "yote".to_string()}.build_route_section::<()>(&mut buf);
+    println!("{}", buf);
 }
 use yew_router::route::Route;
 use yew_router::{Switch};
@@ -45,9 +49,9 @@ pub enum AppRoute {
     Another(String),
     #[to = "/doot/{one}/{two}"]
     Yeet(String, String),
-    #[lit = "inner"]
-    #[rest]
-    Nested(InnerRoute),
+//    #[lit = "inner"]
+//    #[rest]
+//    Nested(InnerRoute),
 //    #[rest]
 //    Single(Single),
 //    #[rest]
