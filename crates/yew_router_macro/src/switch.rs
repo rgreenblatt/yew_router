@@ -4,10 +4,13 @@ use proc_macro::TokenStream;
 use syn::{parse_macro_input, Fields};
 //use syn::punctuated::IntoIter;
 use crate::switch::enum_impl::generate_enum_impl;
-use crate::switch::shadow::ShadowMatcherToken;
+use crate::switch::shadow::{ShadowMatcherToken, ShadowCapture, ShadowCaptureVariant};
 use crate::switch::struct_impl::generate_struct_impl;
 use syn::export::TokenStream2;
 use syn::{Data, DeriveInput, Ident, Variant};
+use proc_macro2::Span;
+use quote::quote;
+
 
 mod attribute;
 mod enum_impl;
@@ -58,7 +61,8 @@ pub fn switch_impl(input: TokenStream) -> TokenStream {
                     ident: variant.ident,
                     fields: variant.fields,
                 }
-            });
+            })
+                .collect::<Vec<SwitchItem>>();
             generate_enum_impl(ident, switch_variants)
         }
         Data::Union(_du) => panic!("Deriving FromCaptures not supported for Unions."),
@@ -80,8 +84,8 @@ impl<T> Flatten<T> for Option<Option<T>> {
     }
 }
 
-fn build_matcher_from_tokens(tokens: Vec<ShadowMatcherToken>) -> TokenStream2 {
-    quote::quote! {
+fn build_matcher_from_tokens(tokens: &[ShadowMatcherToken]) -> TokenStream2 {
+    quote! {
         let settings = ::yew_router::matcher::MatcherSettings {
             strict: true, // Don't add optional sections
             complete: false, // Allow incomplete matches. // TODO investigate if this is necessary here.
@@ -92,4 +96,144 @@ fn build_matcher_from_tokens(tokens: Vec<ShadowMatcherToken>) -> TokenStream2 {
             settings
         };
     }
+}
+
+// TODO remove this
+fn test() {
+    enum TestEnum {
+        Var{s: String}
+    }
+    let te = TestEnum::Var {s: "yeet".to_string()};
+    let mut buf = String::new();
+//    if let TestEnum::Var {s} = te {
+//        state = state.or(s.build_route_section*&mut buf)
+//    }
+}
+
+
+
+
+
+
+
+
+
+pub (crate) enum FieldType {
+    Named,
+    Unnamed{index: usize},
+    Unit
+}
+
+
+/// This assumes that the variant/struct has been destructured.
+fn write_for_token(token: &ShadowMatcherToken, naming_scheme: FieldType) -> TokenStream2 {
+    match token {
+        ShadowMatcherToken::Exact(lit) => {
+            quote! {
+                write!(buf, #lit).unwrap();
+            }
+        }
+        ShadowMatcherToken::Capture(capture) => {
+            match naming_scheme {
+                FieldType::Named | FieldType::Unit => {
+                    match &capture.capture_variant {
+                        ShadowCaptureVariant::Unnamed => panic!("Unnamed sections not supported for writing"),
+                        ShadowCaptureVariant::ManyUnnamed => panic!("ManyUnnamed sections not supported for writing"),
+                        ShadowCaptureVariant::NumberedUnnamed { .. } => panic!("NumberedUnnamed sections not supported for writing"),
+                        ShadowCaptureVariant::Named(name)
+                        | ShadowCaptureVariant::ManyNamed(name)
+                        | ShadowCaptureVariant::NumberedNamed { name, .. } => {
+                            let name = Ident::new(&name, Span::call_site());
+                            quote! {
+                                state = state.or(#name.build_route_section(buf));
+                            }
+                        },
+                    }
+                }
+                FieldType::Unnamed{index} => {
+                    match &capture.capture_variant {
+                        ShadowCaptureVariant::Unnamed => panic!("Unnamed sections not supported for writing"),
+                        ShadowCaptureVariant::ManyUnnamed => panic!("ManyUnnamed sections not supported for writing"),
+                        ShadowCaptureVariant::NumberedUnnamed { .. } => panic!("NumberedUnnamed sections not supported for writing"),
+                        ShadowCaptureVariant::Named(_)
+                        | ShadowCaptureVariant::ManyNamed(_)
+                        | ShadowCaptureVariant::NumberedNamed { .. } => {
+                            let name = unnamed_field_index_item(index);
+                            quote! {
+                                state = state.or(#name.build_route_section(&mut buf));
+                            }
+                        },
+                    }
+                }
+            }
+
+        }
+        ShadowMatcherToken::Optional(_) => {
+            panic!("Writing optional sections is not supported.")
+        }
+    }
+}
+
+pub fn build_serializer_for_enum(switch_items: &[SwitchItem], enum_ident: &Ident, match_item: &Ident) -> TokenStream2 {
+    let variants = switch_items.iter()
+        .map(|switch_item: &SwitchItem| {
+            let SwitchItem {
+                matcher,
+                ident,
+                fields
+            } = switch_item;
+            match fields {
+                Fields::Named(fields_named) => {
+                    let field_names = fields_named.named.iter().filter_map(|named| named.ident.as_ref());
+                    let writers = matcher.iter().map(|token| write_for_token(token, FieldType::Named));
+                    quote! {
+                        #enum_ident::#ident{#(#field_names),*} => {
+                            #(#writers)*
+                        }
+                    }
+                },
+                Fields::Unnamed(fields_unnamed) => {
+                    let field_names = fields_unnamed.unnamed.iter().enumerate().map(|(index, _)| unnamed_field_index_item(index));
+                    let mut item_count = 0;
+                    let writers = matcher.iter()
+                        .map(| token| {
+                            if let ShadowMatcherToken::Capture(_) = &token {
+                                let ts = write_for_token(token, FieldType::Unnamed {index: item_count});
+                                item_count += 1;
+                                ts
+                            } else {
+                                // Its either a literal, or something that will panic currently
+                                write_for_token(token, FieldType::Unit)
+                            }
+                        });
+                    quote! {
+                        #enum_ident::#ident(#(#field_names),*) => {
+                            #(#writers)*
+                        }
+                    }
+                },
+                Fields::Unit => {
+                    let writers = matcher.iter().map(|token| write_for_token(token, FieldType::Unit));
+                    quote! {
+                        #enum_ident::#ident => {
+                            #(#writers)*
+                        }
+                    }
+                },
+            }
+        });
+    quote! {
+        use ::std::fmt::Write;
+        use ::yew_router::RouteItem;
+        let mut state: Option<T> = None;
+        match #match_item {
+            #(#variants)*,
+        }
+        return None;
+    }
+}
+
+/// Creates an ident used for destructuring
+fn unnamed_field_index_item(index: usize) -> Ident {
+    Ident::new(&format!("__field_{}", index), Span::call_site())
 }

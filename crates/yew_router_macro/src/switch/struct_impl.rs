@@ -1,4 +1,4 @@
-use crate::switch::SwitchItem;
+use crate::switch::{SwitchItem};
 use proc_macro2::Ident;
 use quote::quote;
 use syn::export::{TokenStream, TokenStream2};
@@ -10,8 +10,8 @@ pub fn generate_struct_impl(item: SwitchItem) -> TokenStream {
         ident,
         fields,
     } = item;
-    let build_from_captures = build_variant_from_captures(&ident, fields);
-    let matcher = super::build_matcher_from_tokens(matcher);
+    let build_from_captures = build_variant_from_captures(&ident, &fields);
+    let matcher = super::build_matcher_from_tokens(&matcher);
 
     let token_stream = quote! {
         impl ::yew_router::Switch for #ident {
@@ -34,18 +34,18 @@ pub fn generate_struct_impl(item: SwitchItem) -> TokenStream {
     TokenStream::from(token_stream)
 }
 
-fn build_variant_from_captures(ident: &Ident, fields: Fields) -> TokenStream2 {
+fn build_variant_from_captures(ident: &Ident, fields: &Fields) -> TokenStream2 {
     match fields {
         Fields::Named(named_fields) => {
-            let fields: Vec<TokenStream2> = named_fields.named.into_iter()
-                .filter_map(|field: Field| {
-                    let field_ty: Type = field.ty;
-                    field.ident.map(|i| {
+            let fields: Vec<TokenStream2> = named_fields.named.iter()
+                .filter_map(|field: &Field| {
+                    let field_ty: &Type = &field.ty;
+                    field.ident.as_ref().map(|i| {
                         let key = i.to_string();
                         (i, key, field_ty)
                     })
                 })
-                .map(|(field_name, key, field_ty): (Ident, String, Type)|{
+                .map(|(field_name, key, field_ty): (&Ident, String, &Type)|{
                     quote!{
                         #field_name: {
                             let (v, s) = match captures.remove(#key) {

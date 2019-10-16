@@ -32,21 +32,21 @@ use yew_router::Switch;
 
 #[derive(Debug, Switch)]
 pub enum AppRoute {
-    #[to = "/some/route"]
-    SomeRoute,
-    #[to = "/some/{thing}/{other}"]
-    Something { thing: String, other: String },
+//    #[to = "/some/route"]
+//    SomeRoute,
+//    #[to = "/some/{thing}/{other}"]
+//    Something { thing: String, other: String },
     #[to = "/another/{thing}"]
     Another(String),
-    #[to = "/doot/{one}/{two}"]
-    Yeet(String, String),
-    #[lit = "inner"]
-    #[rest]
-    Nested(InnerRoute),
-    #[rest]
-    Single(Single),
-    #[rest]
-    OtherSingle(OtherSingle),
+//    #[to = "/doot/{one}/{two}"]
+//    Yeet(String, String),
+//    #[lit = "inner"]
+//    #[rest]
+//    Nested(InnerRoute),
+//    #[rest]
+//    Single(Single),
+//    #[rest]
+//    OtherSingle(OtherSingle),
 }
 
 #[derive(Switch, Debug)]

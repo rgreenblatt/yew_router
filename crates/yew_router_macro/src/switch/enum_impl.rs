@@ -1,30 +1,31 @@
-use crate::switch::SwitchItem;
+use crate::switch::{SwitchItem, build_serializer_for_enum};
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::export::TokenStream2;
 use syn::{Field, Fields, Ident, Type};
+use proc_macro2::Span;
 
 pub fn generate_enum_impl(
     enum_ident: Ident,
-    switch_variants: impl Iterator<Item = SwitchItem>,
+    switch_variants: Vec<SwitchItem>,
 ) -> TokenStream {
     /// Once the 'captures' exists, attempt to populate the fields from the list of captures.
     fn build_variant_from_captures(
         enum_ident: &Ident,
-        variant_ident: Ident,
-        fields: Fields,
+        variant_ident: &Ident,
+        fields: &Fields,
     ) -> TokenStream2 {
         match fields {
             Fields::Named(named_fields) => {
-                let fields: Vec<TokenStream2> = named_fields.named.into_iter()
-                    .filter_map(|field: Field| {
-                        let field_ty: Type = field.ty;
-                        field.ident.map(|i| {
+                let fields: Vec<TokenStream2> = named_fields.named.iter()
+                    .filter_map(|field: &Field| {
+                        let field_ty: &Type = &field.ty;
+                        field.ident.as_ref().map(|i: &Ident| {
                             let key = i.to_string();
                             (i, key, field_ty)
                         })
                     })
-                    .map(|(field_name, key, field_ty): (Ident, String, Type)|{
+                    .map(|(field_name, key, field_ty): (&Ident, String, &Type)|{
                         quote!{
                             #field_name: {
                                 let (v, s) = match captures.remove(#key) {
@@ -151,7 +152,7 @@ pub fn generate_enum_impl(
     }
 
     let variant_matchers: Vec<TokenStream2> = switch_variants
-        .into_iter()
+        .iter()
         .map(|sv| {
             let SwitchItem {
                 matcher,
@@ -159,16 +160,17 @@ pub fn generate_enum_impl(
                 fields,
             } = sv;
             let build_from_captures = build_variant_from_captures(&enum_ident, ident, fields);
-            let matcher = super::build_matcher_from_tokens(matcher);
+            let matcher = super::build_matcher_from_tokens(&matcher);
 
             quote! {
                 #matcher
-
-
                 #build_from_captures
             }
         })
         .collect::<Vec<_>>();
+
+    let match_item = Ident::new("self", Span::call_site());
+    let serializer = build_serializer_for_enum(&switch_variants, &enum_ident, &match_item);
 
     let token_stream = quote! {
         impl ::yew_router::Switch for #enum_ident {
@@ -180,8 +182,12 @@ pub fn generate_enum_impl(
                 return (None, state)
             }
 
-            fn build_route_section<T>(self, route: &mut String) -> Option<T> {
-                unimplemented!()
+            fn build_route_section<T>(self, mut buf: &mut String) -> Option<T> {
+                //pseudo-code:
+                // For every field:
+                //    write!(route, "{}", self.#field)
+                // Return None for now, because marking routes isn't supported yet.
+                #serializer
             }
         }
     };
