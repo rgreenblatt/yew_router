@@ -186,6 +186,7 @@ mod tests {
             .expect("should parse");
     }
 
+    // TODO fix this test
     #[test]
     fn match_n() {
         let tokens = vec![
@@ -244,7 +245,7 @@ mod tests {
     fn match_many() {
         let tokens = vec![
             RouteParserToken::Separator,
-            RouteParserToken::Capture(Capture::from(CaptureVariant::ManyUnnamed)),
+            RouteParserToken::Capture(Capture::from(CaptureVariant::ManyNamed("lorem".to_string()))),
             RouteParserToken::Separator,
             RouteParserToken::Exact("a".to_string()),
         ];

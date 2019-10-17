@@ -113,15 +113,6 @@ mod test {
     use super::*;
 
     #[test]
-    fn match_any() {
-        let cap = capture("{}").expect("Should match").1;
-        assert_eq!(
-            cap,
-            RouteParserToken::Capture(Capture::from(CaptureVariant::Unnamed))
-        );
-    }
-
-    #[test]
     fn capture_named_test() {
         let cap = capture("{loremipsum}").unwrap();
         assert_eq!(
@@ -131,18 +122,6 @@ mod test {
                 RouteParserToken::Capture(Capture::from(CaptureVariant::Named(
                     "loremipsum".to_string()
                 )))
-            )
-        );
-    }
-
-    #[test]
-    fn capture_many_unnamed_test() {
-        let cap = capture("{*}").unwrap();
-        assert_eq!(
-            cap,
-            (
-                "",
-                RouteParserToken::Capture(Capture::from(CaptureVariant::ManyUnnamed))
             )
         );
     }
