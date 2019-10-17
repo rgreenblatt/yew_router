@@ -113,7 +113,7 @@ macro_rules! impl_switch_for_from_to_str {
             }
 
             fn build_route_section<T>(self, f: &mut String) -> Option<T> {
-                write!(f, "{}", self).ok()?; // TODO no idea if this works or not.
+                write!(f, "{}", self).expect("Writing to string should never fail.");
                 None
             }
         }
