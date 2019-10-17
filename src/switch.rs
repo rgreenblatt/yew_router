@@ -8,8 +8,6 @@ use std::fmt::Write;
 /// # Note
 /// Don't try to implement this yourself, rely on the derive macro.
 ///
-/// If you want to dictate how an item is serialized/deserialized to a route string, implement `RouteItem` instead.
-///
 /// # Example
 /// ```
 /// use yew_router::Switch;
@@ -64,8 +62,12 @@ pub fn build_route_from_switch<T: Switch, U>(switch: T) -> Route<U> {
 }
 
 
-/// Wrapper that allows any implementor of RouteItem to be treated as a switch.
-/// It stipulates that the first character must be a slash.
+/// Wrapper that requires that an implementor of Switch must start with a `/`.
+///
+/// This is needed for any non-derived type provided by yew-router to be used by itself.
+///
+/// This is because route strings will almost always start with `/`, so in order to get a std type
+/// with the `rest` attribute, without a specified leading `/`, this wrapper is needed.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct LeadingSlash<T>(pub T);
 impl <U: Switch> Switch for LeadingSlash<U> {
