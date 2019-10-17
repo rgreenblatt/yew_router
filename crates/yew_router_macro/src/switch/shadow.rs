@@ -31,9 +31,6 @@ pub enum ShadowCaptureVariant {
     NumberedNamed { sections: usize, name: String }, // {2:name} - captures a fixed number of sections with a given name.
 }
 
-
-
-
 impl ToTokens for ShadowCaptureVariant {
     fn to_tokens(&self, ts: &mut TokenStream2) {
         let t = match self {
@@ -74,4 +71,3 @@ impl From<CaptureVariant> for ShadowCaptureVariant {
         }
     }
 }
-

@@ -7,9 +7,9 @@ use std::slice::Iter;
 //use nom::bytes::complete::take_till1;
 use crate::parser::util::alternative;
 use crate::parser::YewRouterParseError;
-use nom::branch::alt;
-use nom::combinator::{cond, map_opt, rest, map};
 use crate::CaptureVariant;
+use nom::branch::alt;
+use nom::combinator::{cond, map, map_opt, rest};
 
 /// Tokens used to determine how to match and capture sections from a URL.
 #[derive(Debug, PartialEq, Clone)]
@@ -75,10 +75,7 @@ pub fn next_delimiters<'a>(
     );
 
     // if the sequence contains an optional section, it can attempt to match until the end.
-    map(
-             alternative(delimiters),
-        |x| x,
-    )
+    map(alternative(delimiters), |x| x)
 }
 
 /// Tokens that can be coalesced to a OptimizedToken::Match are converted to strings here.
@@ -96,13 +93,10 @@ fn token_to_string(token: &RouteParserToken) -> &str {
 }
 
 /// Parse the provided "matcher string" and then optimize the tokens.
-pub fn parse_str_and_optimize_tokens(
-    i: &str,
-) -> Result<Vec<MatcherToken>, YewRouterParseError> {
+pub fn parse_str_and_optimize_tokens(i: &str) -> Result<Vec<MatcherToken>, YewRouterParseError> {
     let tokens = parse(i)?;
     Ok(optimize_tokens(tokens))
 }
-
 
 /// Optimize `RouteParserToken`s to `MatcherToken`s.
 ///
@@ -110,9 +104,7 @@ pub fn parse_str_and_optimize_tokens(
 /// For example, the tokens \[Separator, Match("thing"), Separator\] becomes just \[Match("/thing/")\].
 ///
 /// It also if configured to do so, will add optional slashes at the end of path sections where appropriate.
-pub fn optimize_tokens(
-    tokens: Vec<RouteParserToken>,
-) -> Vec<MatcherToken> {
+pub fn optimize_tokens(tokens: Vec<RouteParserToken>) -> Vec<MatcherToken> {
     // The list of optimized tokens.
     let mut optimized: Vec<MatcherToken> = vec![];
     // Stores consecutive Tokens that can be reduced down to a OptimizedToken::Match.
@@ -132,9 +124,7 @@ pub fn optimize_tokens(
             RouteParserToken::Exact(_) => {
                 run.push(token);
             }
-            RouteParserToken::Optional(tokens) => {
-                panic!("Optionals being removed")
-            }
+            RouteParserToken::Optional(tokens) => panic!("Optionals being removed"),
             RouteParserToken::Capture(variant) => {
                 // Empty the run when a capture is encountered.
                 if !run.is_empty() {
@@ -193,10 +183,7 @@ mod test {
         let mt = MatcherToken::from(CaptureOrExact::Capture(Capture::from(
             CaptureVariant::Unnamed,
         )));
-        assert_eq!(
-            mt,
-            MatcherToken::Capture(aptureVariant::Unnamed)
-        )
+        assert_eq!(mt, MatcherToken::Capture(aptureVariant::Unnamed))
     }
 
     #[test]
@@ -304,9 +291,9 @@ mod test {
             CaptureVariant::ManyNamed("lorem".to_string()),
         ))];
         let optimized = optimize_tokens(tokens, true);
-        let expected = vec![MatcherToken::Capture(
-            CaptureVariant::ManyNamed("lorem".to_string()),
-        )];
+        let expected = vec![MatcherToken::Capture(CaptureVariant::ManyNamed(
+            "lorem".to_string(),
+        ))];
         assert_eq!(expected, optimized);
     }
 
@@ -321,9 +308,7 @@ mod test {
         let optimized = optimize_tokens(tokens, true);
         let expected = vec![
             MatcherToken::Exact("/".to_string()),
-            MatcherToken::Capture(CaptureVariant::ManyNamed(
-                "lorem".to_string(),
-            )),
+            MatcherToken::Capture(CaptureVariant::ManyNamed("lorem".to_string())),
         ];
         assert_eq!(expected, optimized);
     }

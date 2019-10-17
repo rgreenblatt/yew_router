@@ -81,26 +81,18 @@ fn match_path_impl<'a, 'b: 'a, CAP: CaptureCollection<'b>>(
                 tag_possibly_case_sensitive(literal.as_str(), !settings.case_insensitive)(i)?.0
             }
             MatcherToken::Capture(capture) => match &capture {
-                CaptureVariant::Named(name) => capture_named(
-                    i,
-                    &mut iter,
-                    &name,
-                    &mut captures,
-                    &None
-                )?,
-                CaptureVariant::ManyNamed(name) => capture_many_named(
-                    i,
-                    &mut iter,
-                    &name,
-                    &mut captures,
-                    &None
-                )?,
+                CaptureVariant::Named(name) => {
+                    capture_named(i, &mut iter, &name, &mut captures, &None)?
+                }
+                CaptureVariant::ManyNamed(name) => {
+                    capture_many_named(i, &mut iter, &name, &mut captures, &None)?
+                }
                 CaptureVariant::NumberedNamed { sections, name } => capture_numbered_named(
                     i,
                     &mut iter,
                     Some((&name, &mut captures)),
                     *sections,
-                    &None
+                    &None,
                 )?,
             },
         };

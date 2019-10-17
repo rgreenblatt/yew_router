@@ -192,7 +192,7 @@ mod tests {
             RouteParserToken::Separator,
             RouteParserToken::Capture(Capture::from(CaptureVariant::NumberedNamed {
                 sections: 3,
-                name: "lorem".to_string()
+                name: "lorem".to_string(),
             })),
             RouteParserToken::Separator,
             RouteParserToken::Exact("a".to_string()),
@@ -209,7 +209,7 @@ mod tests {
             RouteParserToken::Separator,
             RouteParserToken::Capture(Capture::from(CaptureVariant::NumberedNamed {
                 sections: 3,
-                name: "lorem".to_string()
+                name: "lorem".to_string(),
             })),
         ];
         let path_matcher = RouteMatcher::from(tokens);

@@ -218,7 +218,6 @@ pub fn build_serializer_for_enum(
     }
 }
 
-
 pub fn build_serializer_for_struct(switch_item: &SwitchItem, item: &Ident) -> TokenStream2 {
     let SwitchItem {
         matcher,
