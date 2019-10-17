@@ -54,12 +54,6 @@ pub trait Switch: Sized {
     }
 }
 
-// Ok, the pattern is:
-// Provide route
-// For each match, pull the expected item out of the hashmap,
-// create a Route comprised of that item, and the state.
-// Rescue the state afterwords to move it into the next item.
-
 /// Builds a route from a switch.
 pub fn build_route_from_switch<T: Switch, U>(switch: T) -> Route<U> {
     let mut buf = String::with_capacity(50); // TODO, play with this to maximize perf/size.
