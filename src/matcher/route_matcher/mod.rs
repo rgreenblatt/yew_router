@@ -100,9 +100,6 @@ impl RouteMatcher {
                             | CaptureVariant::NumberedNamed { name, .. } => {
                                 acc.insert(&name);
                             }
-//                            CaptureVariant::ManyUnnamed
-//                            | CaptureVariant::Unnamed
-//                            | CaptureVariant::NumberedUnnamed { .. } => {}
                         },
                     }
                     acc
@@ -117,14 +114,6 @@ mod tests {
     use super::*;
     use yew_router_route_parser::parser::RouteParserToken;
     use yew_router_route_parser::Capture;
-
-    //    use std::sync::{Once, ONCE_INIT};
-    //    static INIT: Once = ONCE_INIT;
-    //    fn setup_logs() {
-    //        INIT.call_once(|| {
-    //            env_logger::init();
-    //        });
-    //    }
 
     impl From<Vec<RouteParserToken>> for RouteMatcher {
         fn from(tokens: Vec<RouteParserToken>) -> Self {
@@ -192,7 +181,7 @@ mod tests {
             RouteParserToken::Separator,
             RouteParserToken::Exact("a".to_string()),
             RouteParserToken::Separator,
-            RouteParserToken::Capture(Capture::from(CaptureVariant::Unnamed)),
+            RouteParserToken::Capture(Capture::from(CaptureVariant::Named("lorem".to_string()))),
         ];
         let path_matcher = RouteMatcher::from(tokens);
         let (_, _matches) = path_matcher
@@ -204,8 +193,9 @@ mod tests {
     fn match_n() {
         let tokens = vec![
             RouteParserToken::Separator,
-            RouteParserToken::Capture(Capture::from(CaptureVariant::NumberedUnnamed {
+            RouteParserToken::Capture(Capture::from(CaptureVariant::NumberedNamed {
                 sections: 3,
+                name: "lorem".to_string()
             })),
             RouteParserToken::Separator,
             RouteParserToken::Exact("a".to_string()),
@@ -220,8 +210,9 @@ mod tests {
     fn match_n_no_overrun() {
         let tokens = vec![
             RouteParserToken::Separator,
-            RouteParserToken::Capture(Capture::from(CaptureVariant::NumberedUnnamed {
+            RouteParserToken::Capture(Capture::from(CaptureVariant::NumberedNamed {
                 sections: 3,
+                name: "lorem".to_string()
             })),
         ];
         let path_matcher = RouteMatcher::from(tokens);

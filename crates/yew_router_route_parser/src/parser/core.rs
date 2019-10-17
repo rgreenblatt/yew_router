@@ -49,32 +49,16 @@ pub fn match_exact(i: &str) -> IResult<&str, RouteParserToken, VerboseError<&str
 
 /// Matches any of the capture variants
 ///
-/// * {}
-/// * {*}
-/// * {5}
 /// * {name}
 /// * {*:name}
 /// * {5:name}
-/// With optional specification of exact matches.
-///
-///
-/// * {(yes|no)}
-/// * {*(yes|no)}
-/// * {5(yes|no)}
-/// * {name(yes|no)}
-/// * {*:name(yes|no)}
-/// * {5:name(yes|no)}
 pub fn capture(i: &str) -> IResult<&str, RouteParserToken, VerboseError<&str>> {
     // Capture the variant.
     let capture_variants = alt((
         // This can be terminated by either the end of the match section, or by the beginning of a allowed_matches section.
-//        map(peek(alt((char('}'), char('(')))), |_| {
-//            CaptureVariant::Unnamed
-//        }),
         map(preceded(tag("*:"), valid_ident_characters), |s| {
             CaptureVariant::ManyNamed(s.to_string())
         }),
-//        map(char('*'), |_| CaptureVariant::ManyUnnamed),
         map(valid_ident_characters, |s| {
             CaptureVariant::Named(s.to_string())
         }),
@@ -85,9 +69,6 @@ pub fn capture(i: &str) -> IResult<&str, RouteParserToken, VerboseError<&str>> {
                 name: s.to_string(),
             },
         ),
-//        map(digit1, |num: &str| CaptureVariant::NumberedUnnamed {
-//            sections: num.parse().expect("should parse digits"),
-//        }),
     ));
 
     let allowed_matches = map(
@@ -234,10 +215,5 @@ mod test {
     #[test]
     fn capture_consumes() {
         capture("{aoeu").expect_err("Should not complete");
-    }
-
-    #[test]
-    fn can_specify_exact_match_option() {
-        capture("{(lorem|ipsum)}").expect("Should complete");
     }
 }

@@ -2,7 +2,6 @@ use crate::matcher::route_matcher::util::tag_possibly_case_sensitive;
 use crate::matcher::route_matcher::MatcherSettings;
 use crate::matcher::Captures;
 use log::{debug, trace};
-use nom::branch::alt;
 use nom::bytes::complete::{is_not, tag};
 use nom::combinator::{map, verify};
 use nom::error::ErrorKind;
@@ -82,19 +81,6 @@ fn match_path_impl<'a, 'b: 'a, CAP: CaptureCollection<'b>>(
                 tag_possibly_case_sensitive(literal.as_str(), !settings.case_insensitive)(i)?.0
             }
             MatcherToken::Capture(capture) => match &capture {
-//                CaptureVariant::Unnamed => {
-//                    capture_unnamed(i, &mut iter, &None)?
-//                }
-//                CaptureVariant::ManyUnnamed => {
-//                    capture_many_unnamed(i, &mut iter, &None)?
-//                }
-//                CaptureVariant::NumberedUnnamed { sections } => capture_numbered_named::<CAP>(
-//                    i,
-//                    &mut iter,
-//                    None,
-//                    *sections,
-//                    &None,
-//                )?,
                 CaptureVariant::Named(name) => capture_named(
                     i,
                     &mut iter,
@@ -125,63 +111,6 @@ fn match_path_impl<'a, 'b: 'a, CAP: CaptureCollection<'b>>(
 }
 
 // TODO This section of code is kind of a mess. It needs a pretty through rework.
-
-/// Captures a section and doesn't add it to the matches.
-///
-/// It will capture characters until a separator or other invalid character is encountered
-/// and the next string of characters is confirmed to be the next literal.
-///
-// TODO remove the allowed captures parameter, because it is always NONE
-pub fn capture_unnamed<'a>(
-    i: &'a str,
-    iter: &mut Peekable<Iter<MatcherToken>>,
-    allowed_captures: &Option<Vec<String>>,
-) -> Result<&'a str, nom::Err<(&'a str, ErrorKind)>> {
-    log::trace!("Matching Unnamed");
-    let ii = if let Some(_peaked_next_token) = iter.peek() {
-        let delimiter = yew_router_route_parser::next_delimiters(iter.clone());
-        let matcher = alt((
-            consume_until(alt((tag("/"), tag("?"), tag("#")))),
-            consume_until(delimiter),
-        ));
-        optionally_check_if_parsed_is_allowed_capture(matcher, allowed_captures)(i)?.0
-    } else if i.is_empty() {
-        i // Match even if nothing is left
-    } else {
-        let valid_capture_characters = map(valid_capture_characters, String::from);
-        optionally_check_if_parsed_is_allowed_capture(valid_capture_characters, allowed_captures)(
-            i,
-        )?
-        .0
-    };
-    Ok(ii)
-}
-
-// TODO remove the allowed captures parameter, because it is always NONE
-fn capture_many_unnamed<'a>(
-    i: &'a str,
-    iter: &mut Peekable<Iter<MatcherToken>>,
-    allowed_captures: &Option<Vec<String>>,
-) -> Result<&'a str, nom::Err<(&'a str, ErrorKind)>> {
-    trace!("Matching ManyUnnamed");
-    let ii = if let Some(_peaked_next_token) = iter.peek() {
-        let delimiter = yew_router_route_parser::next_delimiters(iter.clone());
-        optionally_check_if_parsed_is_allowed_capture(consume_until(delimiter), allowed_captures)(
-            i,
-        )?
-        .0
-    } else if i.is_empty() {
-        i // Match even if nothing is left
-    } else {
-        let valid_many_capture_characters = map(valid_many_capture_characters, String::from);
-        optionally_check_if_parsed_is_allowed_capture(
-            valid_many_capture_characters,
-            allowed_captures,
-        )(i)?
-        .0
-    };
-    Ok(ii)
-}
 
 // TODO remove the allowed captures parameter, because it is always NONE
 fn capture_named<'a, 'b: 'a, CAP: CaptureCollection<'b>>(
