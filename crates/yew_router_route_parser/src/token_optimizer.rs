@@ -42,12 +42,6 @@ pub fn next_delimiters<'a>(
     enum MatchOrOptSequence<'a> {
         Match(&'a str),
     }
-//    fn search_for_inner_sequence(matcher_token: &MatcherToken) -> Option<&str> {
-//        match matcher_token {
-//            MatcherToken::Exact(sequence) => Some(&sequence),
-//            MatcherToken::Capture(_) => None, // TODO still may want to handle this
-//        }
-//    }
 
     let mut sequences = vec![];
     for next in iter {
@@ -190,7 +184,7 @@ mod test {
             RouteParserToken::Separator,
             RouteParserToken::Exact("thing".to_string()),
         ];
-        let optimized = optimize_tokens(tokens, true);
+        let optimized = optimize_tokens(tokens);
         let expected = vec![
             MatcherToken::Exact("/thing".to_string()),
             MatcherToken::Optional(vec![MatcherToken::Exact("/".to_string())]),
@@ -209,7 +203,7 @@ mod test {
                 capture_or_match: CaptureOrExact::Exact("GeneralKenobi".to_string()),
             },
         ];
-        let optimized = optimize_tokens(tokens, true);
+        let optimized = optimize_tokens(tokens);
         let expected = vec![
             MatcherToken::Exact("/thing".to_string()),
             MatcherToken::Optional(vec![MatcherToken::Exact("/".to_string())]),
@@ -225,7 +219,7 @@ mod test {
             RouteParserToken::Exact("thing".to_string()),
             RouteParserToken::FragmentBegin,
         ];
-        let optimized = optimize_tokens(tokens, true);
+        let optimized = optimize_tokens(tokens);
         let expected = vec![
             MatcherToken::Exact("/thing".to_string()),
             MatcherToken::Optional(vec![MatcherToken::Exact("/".to_string())]),
@@ -241,7 +235,7 @@ mod test {
             RouteParserToken::Exact("thing".to_string()),
             RouteParserToken::Separator,
         ];
-        let optimized = optimize_tokens(tokens, true);
+        let optimized = optimize_tokens(tokens);
         let expected = vec![MatcherToken::Exact("/thing/".to_string())];
         assert_eq!(expected, optimized);
     }
@@ -256,7 +250,7 @@ mod test {
                 RouteParserToken::Exact("lorem".to_string()),
             ]),
         ];
-        let optimized = optimize_tokens(tokens, false);
+        let optimized = optimize_tokens(tokens);
         let expected = vec![
             MatcherToken::Exact("/lorem".to_string()),
             MatcherToken::Optional(vec![MatcherToken::Exact("/lorem".to_string())]),
@@ -274,7 +268,7 @@ mod test {
                 RouteParserToken::Exact("lorem".to_string()),
             ]),
         ];
-        let optimized = optimize_tokens(tokens, true);
+        let optimized = optimize_tokens(tokens);
         let expected = vec![
             MatcherToken::Exact("/lorem".to_string()),
             MatcherToken::Optional(vec![MatcherToken::Exact("/lorem".to_string())]),
@@ -288,7 +282,7 @@ mod test {
         let tokens = vec![RouteParserToken::Capture(Capture::from(
             CaptureVariant::ManyNamed("lorem".to_string()),
         ))];
-        let optimized = optimize_tokens(tokens, true);
+        let optimized = optimize_tokens(tokens);
         let expected = vec![MatcherToken::Capture(CaptureVariant::ManyNamed(
             "lorem".to_string(),
         ))];
@@ -303,7 +297,7 @@ mod test {
                 "lorem".to_string(),
             ))),
         ];
-        let optimized = optimize_tokens(tokens, true);
+        let optimized = optimize_tokens(tokens);
         let expected = vec![
             MatcherToken::Exact("/".to_string()),
             MatcherToken::Capture(CaptureVariant::ManyNamed("lorem".to_string())),
@@ -320,7 +314,7 @@ mod test {
                 capture_or_match: CaptureOrExact::Capture(Capture::from(CaptureVariant::Unnamed)),
             },
         ];
-        let optimized = optimize_tokens(tokens, true);
+        let optimized = optimize_tokens(tokens);
         let expected = vec![
             MatcherToken::Exact("?lorem=".to_string()),
             MatcherToken::Capture(CaptureVariant::Unnamed),
