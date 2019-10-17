@@ -1,7 +1,7 @@
 use quote::quote;
 use quote::ToTokens;
 use syn::export::TokenStream2;
-use yew_router_route_parser::{Capture, CaptureVariant, MatcherToken};
+use yew_router_route_parser::{CaptureVariant, MatcherToken};
 
 impl ToTokens for ShadowMatcherToken {
     fn to_tokens(&self, ts: &mut TokenStream2) {
@@ -26,9 +26,6 @@ pub enum ShadowMatcherToken {
 }
 
 pub enum ShadowCaptureVariant {
-//    Unnamed,                                         // {} - matches anything
-//    ManyUnnamed,                                     // {*} - matches over multiple sections
-//    NumberedUnnamed { sections: usize },             // {4} - matches 4 sections
     Named(String), // {name} - captures a section and adds it to the map with a given name
     ManyNamed(String), // {*:name} - captures over many sections and adds it to the map with a given name.
     NumberedNamed { sections: usize, name: String }, // {2:name} - captures a fixed number of sections with a given name.
@@ -67,7 +64,6 @@ impl From<MatcherToken> for ShadowMatcherToken {
 
 impl From<CaptureVariant> for ShadowCaptureVariant {
     fn from(cv: CaptureVariant) -> Self {
-        use CaptureVariant as CV;
         use ShadowCaptureVariant as SCV;
         match cv {
             CaptureVariant::Named(name) => SCV::Named(name),

@@ -83,7 +83,7 @@ impl AttrToken {
         match self {
             AttrToken::To(matcher_string) => {
                 yew_router_route_parser::parser::parse(&matcher_string)
-                    .map(|tokens| yew_router_route_parser::optimize_tokens(tokens, false))
+                    .map(|tokens| yew_router_route_parser::optimize_tokens(tokens))
                     .expect("Invalid Matcher") // This is the point where users should see an error message if their matcher string has some syntax error.
                     .into_iter()
                     .map(crate::switch::shadow::ShadowMatcherToken::from)

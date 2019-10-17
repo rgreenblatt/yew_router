@@ -98,11 +98,11 @@ fn token_to_string(token: &RouteParserToken) -> &str {
 /// Parse the provided "matcher string" and then optimize the tokens.
 pub fn parse_str_and_optimize_tokens(
     i: &str,
-    append_optional_slash: bool,
 ) -> Result<Vec<MatcherToken>, YewRouterParseError> {
     let tokens = parse(i)?;
-    Ok(optimize_tokens(tokens, append_optional_slash))
+    Ok(optimize_tokens(tokens))
 }
+
 
 /// Optimize `RouteParserToken`s to `MatcherToken`s.
 ///
@@ -112,7 +112,6 @@ pub fn parse_str_and_optimize_tokens(
 /// It also if configured to do so, will add optional slashes at the end of path sections where appropriate.
 pub fn optimize_tokens(
     tokens: Vec<RouteParserToken>,
-    append_optional_slash: bool,
 ) -> Vec<MatcherToken> {
     // The list of optimized tokens.
     let mut optimized: Vec<MatcherToken> = vec![];

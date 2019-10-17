@@ -27,8 +27,6 @@ pub struct RouteMatcher {
 /// Settings used for the matcher (and optimization of the parsed tokens that make up the matcher).
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct MatcherSettings {
-    /// Disallow insertion of Optional `/` at the end of paths.
-    pub strict: bool,
     /// A matcher must consume all of the input to succeed.
     pub complete: bool,
     /// All literal matches do not care about case.
@@ -38,7 +36,6 @@ pub struct MatcherSettings {
 impl Default for MatcherSettings {
     fn default() -> Self {
         MatcherSettings {
-            strict: false,
             complete: true,
             case_insensitive: false,
         }
@@ -56,7 +53,7 @@ impl RouteMatcher {
     pub fn new(i: &str, settings: MatcherSettings) -> Result<Self, YewRouterParseError> {
         let tokens = parser::parse(i)?;
         Ok(RouteMatcher {
-            tokens: optimize_tokens(tokens, !settings.strict),
+            tokens: optimize_tokens(tokens),
             settings,
         })
     }
@@ -119,7 +116,7 @@ mod tests {
         fn from(tokens: Vec<RouteParserToken>) -> Self {
             let settings = MatcherSettings::default();
             RouteMatcher {
-                tokens: optimize_tokens(tokens, !settings.strict),
+                tokens: optimize_tokens(tokens),
                 settings,
             }
         }
