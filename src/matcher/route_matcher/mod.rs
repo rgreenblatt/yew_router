@@ -93,10 +93,6 @@ impl RouteMatcher {
                 .iter()
                 .fold(HashSet::new(), |mut acc: HashSet<&str>, token| {
                     match token {
-                        MatcherToken::Optional(t) => {
-                            let captures = capture_names_impl(&t);
-                            acc.extend(captures)
-                        }
                         MatcherToken::Exact(_) => {}
                         MatcherToken::Capture(capture) => match &capture.capture_variant {
                             CaptureVariant::ManyNamed(name)

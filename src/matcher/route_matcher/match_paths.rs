@@ -81,17 +81,6 @@ fn match_path_impl<'a, 'b: 'a, CAP: CaptureCollection<'b>>(
                 trace!("Matching '{}' against literal: '{}'", i, literal);
                 tag_possibly_case_sensitive(literal.as_str(), !settings.case_insensitive)(i)?.0
             }
-            MatcherToken::Optional(inner_tokens) => {
-                match opt(|i| match_path_impl(&inner_tokens, settings, i))(i) {
-                    Ok((ii, inner_captures)) => {
-                        if let Some(inner_captures) = inner_captures {
-                            captures.extend2(inner_captures);
-                        }
-                        ii
-                    }
-                    _ => i, // Do nothing if this fails
-                }
-            }
             MatcherToken::Capture(capture) => match &capture.capture_variant {
                 CaptureVariant::Unnamed => {
                     capture_unnamed(i, &mut iter, &capture.allowed_captures)?

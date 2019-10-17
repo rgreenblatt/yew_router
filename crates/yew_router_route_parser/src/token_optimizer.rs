@@ -8,7 +8,7 @@ use std::slice::Iter;
 use crate::parser::util::alternative;
 use crate::parser::YewRouterParseError;
 use nom::branch::alt;
-use nom::combinator::{cond, map_opt, rest};
+use nom::combinator::{cond, map_opt, rest, map};
 
 /// Tokens used to determine how to match and capture sections from a URL.
 #[derive(Debug, PartialEq, Clone)]
@@ -17,8 +17,6 @@ pub enum MatcherToken {
     Exact(String),
     /// Capture section.
     Capture(Capture),
-    /// Section that doesn't have to match.
-    Optional(Vec<MatcherToken>),
 }
 
 impl From<CaptureOrExact> for MatcherToken {
@@ -43,21 +41,10 @@ pub fn next_delimiters<'a>(
 ) -> impl Fn(&'a str) -> IResult<&'a str, &'a str> {
     enum MatchOrOptSequence<'a> {
         Match(&'a str),
-        Optional(&'a str),
     }
     fn search_for_inner_sequence(matcher_token: &MatcherToken) -> Option<&str> {
         match matcher_token {
             MatcherToken::Exact(sequence) => Some(&sequence),
-            MatcherToken::Optional(inner) => inner
-                .iter()
-                .filter_map(|inner_token| {
-                    if let Some(inner_sequence) = search_for_inner_sequence(inner_token) {
-                        Some(inner_sequence)
-                    } else {
-                        None
-                    }
-                })
-                .next(),
             MatcherToken::Capture(_) => None, // TODO still may want to handle this
         }
     }
@@ -69,27 +56,14 @@ pub fn next_delimiters<'a>(
                 sequences.push(MatchOrOptSequence::Match(&sequence));
                 break;
             }
-            MatcherToken::Optional(inner) => {
-                let sequence: &str = inner
-                    .iter()
-                    .filter_map(search_for_inner_sequence)
-                    .next()
-                    .expect("Should be in sequence");
-                sequences.push(MatchOrOptSequence::Optional(sequence))
-            }
             _ => panic!("underlying parser should not allow token order not of match or optional"),
         }
     }
 
-    let contains_optional = sequences.iter().any(|x| {
-        std::mem::discriminant(x) == std::mem::discriminant(&&MatchOrOptSequence::Optional(""))
-    });
-    log::trace!("next delimiter: contains optional: {}", contains_optional);
     let delimiters: Vec<String> = sequences
         .into_iter()
         .map(|s| match s {
             MatchOrOptSequence::Match(s) => s,
-            MatchOrOptSequence::Optional(s) => s,
         })
         .map(String::from)
         .collect();
@@ -100,11 +74,8 @@ pub fn next_delimiters<'a>(
     );
 
     // if the sequence contains an optional section, it can attempt to match until the end.
-    map_opt(
-        alt((
-            cond(true, alternative(delimiters)),
-            cond(contains_optional, rest),
-        )),
+    map(
+             alternative(delimiters),
         |x| x,
     )
 }
@@ -160,45 +131,9 @@ pub fn optimize_tokens(
             RouteParserToken::Separator | RouteParserToken::QuerySeparator => run.push(token),
             RouteParserToken::Exact(_) => {
                 run.push(token);
-
-                // Only append the optional slash if:
-                if append_optional_slash // the settings allow it
-                    && !fragment_or_query_encountered // There hasn't been a fragment or query
-                    && token_is_not_present_or_is_either_a_slash_or_question(token_iterator.peek())
-                // The next token doesn't exist or is a '/' or '?'
-                {
-                    let s: String = run.iter().map(token_to_string).collect();
-                    optimized.push(MatcherToken::Exact(s));
-                    run.clear();
-                    optimized.push(MatcherToken::Optional(vec![MatcherToken::Exact(
-                        "/".to_string(),
-                    )]))
-                }
             }
-
             RouteParserToken::Optional(tokens) => {
-                // Empty the run when a optional is encountered.
-                if !run.is_empty() {
-                    let s: String = run.iter().map(token_to_string).collect();
-                    optimized.push(MatcherToken::Exact(s));
-                    run.clear()
-                }
-
-                optimized.push(MatcherToken::Optional(optimize_tokens(
-                    tokens.clone(),
-                    false,
-                )));
-
-                if append_optional_slash {
-                    // If the optional is the last token (at this level of nesting), then stick a optional (/) at the end
-                    if token_iterator.peek().is_none() {
-                        // Safety: its fine to unconditionally add another optional slash here,
-                        // because optional sections SHOULD_NOT be able to be parsed with a trailing '/'
-                        optimized.push(MatcherToken::Optional(vec![MatcherToken::Exact(
-                            "/".to_string(),
-                        )]))
-                    }
-                }
+                panic!("Optionals being removed")
             }
             RouteParserToken::Capture(variant) => {
                 // Empty the run when a capture is encountered.

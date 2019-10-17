@@ -162,7 +162,6 @@ fn write_for_token(token: &ShadowMatcherToken, naming_scheme: FieldType) -> Toke
                 }
             }
         }
-        ShadowMatcherToken::Optional(_) => panic!("Writing optional sections is not supported."),
     }
 }
 
