@@ -4,7 +4,7 @@ use crate::matcher::Captures;
 use log::{debug, trace};
 use nom::branch::alt;
 use nom::bytes::complete::{is_not, tag};
-use nom::combinator::{map, opt, verify};
+use nom::combinator::{map, verify};
 use nom::error::ErrorKind;
 use nom::sequence::terminated;
 use nom::IResult;
@@ -81,40 +81,40 @@ fn match_path_impl<'a, 'b: 'a, CAP: CaptureCollection<'b>>(
                 trace!("Matching '{}' against literal: '{}'", i, literal);
                 tag_possibly_case_sensitive(literal.as_str(), !settings.case_insensitive)(i)?.0
             }
-            MatcherToken::Capture(capture) => match &capture.capture_variant {
+            MatcherToken::Capture(capture) => match &capture {
                 CaptureVariant::Unnamed => {
-                    capture_unnamed(i, &mut iter, &capture.allowed_captures)?
+                    capture_unnamed(i, &mut iter, &None)?
                 }
                 CaptureVariant::ManyUnnamed => {
-                    capture_many_unnamed(i, &mut iter, &capture.allowed_captures)?
+                    capture_many_unnamed(i, &mut iter, &None)?
                 }
                 CaptureVariant::NumberedUnnamed { sections } => capture_numbered_named::<CAP>(
                     i,
                     &mut iter,
                     None,
                     *sections,
-                    &capture.allowed_captures,
+                    &None,
                 )?,
                 CaptureVariant::Named(name) => capture_named(
                     i,
                     &mut iter,
                     &name,
                     &mut captures,
-                    &capture.allowed_captures,
+                    &None
                 )?,
                 CaptureVariant::ManyNamed(name) => capture_many_named(
                     i,
                     &mut iter,
                     &name,
                     &mut captures,
-                    &capture.allowed_captures,
+                    &None
                 )?,
                 CaptureVariant::NumberedNamed { sections, name } => capture_numbered_named(
                     i,
                     &mut iter,
                     Some((&name, &mut captures)),
                     *sections,
-                    &capture.allowed_captures,
+                    &None
                 )?,
             },
         };
@@ -130,6 +130,8 @@ fn match_path_impl<'a, 'b: 'a, CAP: CaptureCollection<'b>>(
 ///
 /// It will capture characters until a separator or other invalid character is encountered
 /// and the next string of characters is confirmed to be the next literal.
+///
+// TODO remove the allowed captures parameter, because it is always NONE
 pub fn capture_unnamed<'a>(
     i: &'a str,
     iter: &mut Peekable<Iter<MatcherToken>>,
@@ -155,6 +157,7 @@ pub fn capture_unnamed<'a>(
     Ok(ii)
 }
 
+// TODO remove the allowed captures parameter, because it is always NONE
 fn capture_many_unnamed<'a>(
     i: &'a str,
     iter: &mut Peekable<Iter<MatcherToken>>,
@@ -180,6 +183,7 @@ fn capture_many_unnamed<'a>(
     Ok(ii)
 }
 
+// TODO remove the allowed captures parameter, because it is always NONE
 fn capture_named<'a, 'b: 'a, CAP: CaptureCollection<'b>>(
     i: &'a str,
     iter: &mut Peekable<Iter<MatcherToken>>,
@@ -206,6 +210,7 @@ fn capture_named<'a, 'b: 'a, CAP: CaptureCollection<'b>>(
     }
 }
 
+// TODO remove the allowed captures parameter, because it is always NONE
 fn capture_many_named<'a, 'b, CAP: CaptureCollection<'b>>(
     i: &'a str,
     iter: &mut Peekable<Iter<MatcherToken>>,
@@ -235,6 +240,7 @@ fn capture_many_named<'a, 'b, CAP: CaptureCollection<'b>>(
     }
 }
 
+// TODO remove the allowed captures parameter, because it is always NONE
 fn capture_numbered_named<'a, 'b, CAP: CaptureCollection<'b>>(
     mut i: &'a str,
     iter: &mut Peekable<Iter<MatcherToken>>,
@@ -538,7 +544,7 @@ mod integration_test {
             MatcherToken::Exact("/first".to_string()),
             MatcherToken::Optional(vec![
                 MatcherToken::Exact("/".to_string()),
-                MatcherToken::Capture(Capture::from(CaptureVariant::Unnamed)),
+                MatcherToken::Capture(CaptureVariant::Unnamed),
             ]),
             MatcherToken::Optional(vec![MatcherToken::Exact("/".to_string())]),
         ];
@@ -553,7 +559,7 @@ mod integration_test {
             .expect("Should parse");
         let expected = vec![
             MatcherToken::Exact("/".to_string()),
-            MatcherToken::Capture(Capture::from(CaptureVariant::ManyUnnamed)),
+            MatcherToken::Capture(CaptureVariant::ManyUnnamed),
             MatcherToken::Optional(vec![MatcherToken::Exact("/stuff".to_string())]),
             MatcherToken::Optional(vec![MatcherToken::Exact("/".to_string())]),
         ];

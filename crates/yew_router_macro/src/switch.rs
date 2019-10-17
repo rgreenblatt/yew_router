@@ -119,7 +119,7 @@ fn write_for_token(token: &ShadowMatcherToken, naming_scheme: FieldType) -> Toke
         }
         ShadowMatcherToken::Capture(capture) => {
             match naming_scheme {
-                FieldType::Named | FieldType::Unit => match &capture.capture_variant {
+                FieldType::Named | FieldType::Unit => match &capture {
                     ShadowCaptureVariant::Unnamed => {
                         panic!("Unnamed sections not supported for writing")
                     }
@@ -139,7 +139,7 @@ fn write_for_token(token: &ShadowMatcherToken, naming_scheme: FieldType) -> Toke
                     }
                 },
                 FieldType::Unnamed { index } => {
-                    match &capture.capture_variant {
+                    match &capture {
                         ShadowCaptureVariant::Unnamed => {
                             panic!("Unnamed sections not supported for writing")
                         }

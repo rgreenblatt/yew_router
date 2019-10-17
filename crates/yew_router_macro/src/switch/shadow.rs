@@ -22,7 +22,7 @@ impl ToTokens for ShadowMatcherToken {
 /// It should match it exactly so that this macro can expand to the original.
 pub enum ShadowMatcherToken {
     Exact(String),
-    Capture(ShadowCapture),
+    Capture(ShadowCaptureVariant),
 }
 
 pub enum ShadowCaptureVariant {
@@ -34,38 +34,8 @@ pub enum ShadowCaptureVariant {
     NumberedNamed { sections: usize, name: String }, // {2:name} - captures a fixed number of sections with a given name.
 }
 
-pub struct ShadowCapture {
-    pub capture_variant: ShadowCaptureVariant,
-    pub allowed_captures: Option<Vec<String>>,
-}
 
-impl ToTokens for ShadowCapture {
-    fn to_tokens(&self, tokens: &mut TokenStream2) {
-        let ShadowCapture {
-            capture_variant,
-            allowed_captures,
-        } = self;
-        let t = match allowed_captures {
-            Some(allowed_captures) => {
-                quote! {
-                    ::yew_router::matcher::Capture {
-                        capture_variant: #capture_variant,
-                        allowed_captures: vec![#(#allowed_captures),*]
-                    }
-                }
-            }
-            None => {
-                quote! {
-                    ::yew_router::matcher::Capture {
-                        capture_variant: #capture_variant,
-                        allowed_captures: None
-                    }
-                }
-            }
-        };
-        tokens.extend(t)
-    }
-}
+
 
 impl ToTokens for ShadowCaptureVariant {
     fn to_tokens(&self, ts: &mut TokenStream2) {
@@ -121,11 +91,3 @@ impl From<CaptureVariant> for ShadowCaptureVariant {
     }
 }
 
-impl From<Capture> for ShadowCapture {
-    fn from(c: Capture) -> Self {
-        ShadowCapture {
-            capture_variant: c.capture_variant.into(),
-            allowed_captures: c.allowed_captures,
-        }
-    }
-}

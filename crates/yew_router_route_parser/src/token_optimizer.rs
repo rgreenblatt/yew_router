@@ -9,6 +9,7 @@ use crate::parser::util::alternative;
 use crate::parser::YewRouterParseError;
 use nom::branch::alt;
 use nom::combinator::{cond, map_opt, rest, map};
+use crate::CaptureVariant;
 
 /// Tokens used to determine how to match and capture sections from a URL.
 #[derive(Debug, PartialEq, Clone)]
@@ -16,14 +17,14 @@ pub enum MatcherToken {
     /// Section-related tokens can be condensed into a match.
     Exact(String),
     /// Capture section.
-    Capture(Capture),
+    Capture(CaptureVariant),
 }
 
 impl From<CaptureOrExact> for MatcherToken {
     fn from(value: CaptureOrExact) -> Self {
         match value {
             CaptureOrExact::Exact(m) => MatcherToken::Exact(m),
-            CaptureOrExact::Capture(v) => MatcherToken::Capture(v),
+            CaptureOrExact::Capture(v) => MatcherToken::Capture(v.capture_variant),
         }
     }
 }
@@ -142,7 +143,7 @@ pub fn optimize_tokens(
                     optimized.push(MatcherToken::Exact(s));
                     run.clear()
                 }
-                optimized.push(MatcherToken::Capture(variant.clone()))
+                optimized.push(MatcherToken::Capture(variant.capture_variant.clone()))
             }
             RouteParserToken::QueryCapture {
                 ident,
@@ -156,7 +157,7 @@ pub fn optimize_tokens(
                         optimized.push(MatcherToken::Exact(s));
                         run.clear();
 
-                        optimized.push(MatcherToken::Capture(capture.clone()))
+                        optimized.push(MatcherToken::Capture(capture.capture_variant.clone()))
                     }
                 }
             }
@@ -195,7 +196,7 @@ mod test {
         )));
         assert_eq!(
             mt,
-            MatcherToken::Capture(Capture::from(CaptureVariant::Unnamed))
+            MatcherToken::Capture(aptureVariant::Unnamed)
         )
     }
 
