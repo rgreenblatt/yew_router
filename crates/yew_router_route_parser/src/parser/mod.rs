@@ -229,7 +229,7 @@ mod tests {
 
     #[test]
     fn can_match_in_first_section_1() {
-        parse("{*}").expect("Should validate");
+        parse("{*:lorem}").expect("Should validate");
     }
 
     #[test]
