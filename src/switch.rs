@@ -72,6 +72,7 @@ pub fn build_route_from_switch<T: Switch, U>(switch: T) -> Route<U> {
 
 /// Wrapper that allows any implementor of RouteItem to be treated as a switch.
 /// It stipulates that the first character must be a slash.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct LeadingSlash<T>(pub T);
 impl <U: Switch> Switch for LeadingSlash<U> {
     fn from_route_part<T: RouteState>(part: Route<T>) -> (Option<Self>, Option<T>) {
