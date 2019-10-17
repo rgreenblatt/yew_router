@@ -120,15 +120,6 @@ fn write_for_token(token: &ShadowMatcherToken, naming_scheme: FieldType) -> Toke
         ShadowMatcherToken::Capture(capture) => {
             match naming_scheme {
                 FieldType::Named | FieldType::Unit => match &capture {
-                    ShadowCaptureVariant::Unnamed => {
-                        panic!("Unnamed sections not supported for writing")
-                    }
-                    ShadowCaptureVariant::ManyUnnamed => {
-                        panic!("ManyUnnamed sections not supported for writing")
-                    }
-                    ShadowCaptureVariant::NumberedUnnamed { .. } => {
-                        panic!("NumberedUnnamed sections not supported for writing")
-                    }
                     ShadowCaptureVariant::Named(name)
                     | ShadowCaptureVariant::ManyNamed(name)
                     | ShadowCaptureVariant::NumberedNamed { name, .. } => {
@@ -140,15 +131,6 @@ fn write_for_token(token: &ShadowMatcherToken, naming_scheme: FieldType) -> Toke
                 },
                 FieldType::Unnamed { index } => {
                     match &capture {
-                        ShadowCaptureVariant::Unnamed => {
-                            panic!("Unnamed sections not supported for writing")
-                        }
-                        ShadowCaptureVariant::ManyUnnamed => {
-                            panic!("ManyUnnamed sections not supported for writing")
-                        }
-                        ShadowCaptureVariant::NumberedUnnamed { .. } => {
-                            panic!("NumberedUnnamed sections not supported for writing")
-                        }
                         ShadowCaptureVariant::Named(_)
                         | ShadowCaptureVariant::ManyNamed(_)
                         | ShadowCaptureVariant::NumberedNamed { .. } => {

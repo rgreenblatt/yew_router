@@ -305,9 +305,9 @@ mod test {
             CaptureVariant::ManyNamed("lorem".to_string()),
         ))];
         let optimized = optimize_tokens(tokens, true);
-        let expected = vec![MatcherToken::Capture(Capture::from(
+        let expected = vec![MatcherToken::Capture(
             CaptureVariant::ManyNamed("lorem".to_string()),
-        ))];
+        )];
         assert_eq!(expected, optimized);
     }
 
@@ -322,9 +322,9 @@ mod test {
         let optimized = optimize_tokens(tokens, true);
         let expected = vec![
             MatcherToken::Exact("/".to_string()),
-            MatcherToken::Capture(Capture::from(CaptureVariant::ManyNamed(
+            MatcherToken::Capture(CaptureVariant::ManyNamed(
                 "lorem".to_string(),
-            ))),
+            )),
         ];
         assert_eq!(expected, optimized);
     }
@@ -341,7 +341,7 @@ mod test {
         let optimized = optimize_tokens(tokens, true);
         let expected = vec![
             MatcherToken::Exact("?lorem=".to_string()),
-            MatcherToken::Capture(Capture::from(CaptureVariant::Unnamed)),
+            MatcherToken::Capture(CaptureVariant::Unnamed),
         ];
         assert_eq!(expected, optimized);
     }

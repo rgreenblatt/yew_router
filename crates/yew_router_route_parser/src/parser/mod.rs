@@ -53,15 +53,6 @@ pub enum RouteParserToken {
 /// It can capture and discard for unnamed variants, or capture and store in the `Matches` for the named variants.
 #[derive(Debug, Clone, PartialEq)]
 pub enum CaptureVariant {
-    /// {} - matches anything.
-    Unnamed,
-    /// {*} - matches over multiple sections.
-    ManyUnnamed,
-    /// {4} - matches 4 sections.
-    NumberedUnnamed {
-        /// Number of sections to match.
-        sections: usize,
-    },
     /// {name} - captures a section and adds it to the map with a given name.
     Named(String),
     /// {*:name} - captures over many sections and adds it to the map with a given name.

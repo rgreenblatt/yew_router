@@ -100,9 +100,9 @@ impl RouteMatcher {
                             | CaptureVariant::NumberedNamed { name, .. } => {
                                 acc.insert(&name);
                             }
-                            CaptureVariant::ManyUnnamed
-                            | CaptureVariant::Unnamed
-                            | CaptureVariant::NumberedUnnamed { .. } => {}
+//                            CaptureVariant::ManyUnnamed
+//                            | CaptureVariant::Unnamed
+//                            | CaptureVariant::NumberedUnnamed { .. } => {}
                         },
                     }
                     acc

@@ -68,13 +68,13 @@ pub fn capture(i: &str) -> IResult<&str, RouteParserToken, VerboseError<&str>> {
     // Capture the variant.
     let capture_variants = alt((
         // This can be terminated by either the end of the match section, or by the beginning of a allowed_matches section.
-        map(peek(alt((char('}'), char('(')))), |_| {
-            CaptureVariant::Unnamed
-        }),
+//        map(peek(alt((char('}'), char('(')))), |_| {
+//            CaptureVariant::Unnamed
+//        }),
         map(preceded(tag("*:"), valid_ident_characters), |s| {
             CaptureVariant::ManyNamed(s.to_string())
         }),
-        map(char('*'), |_| CaptureVariant::ManyUnnamed),
+//        map(char('*'), |_| CaptureVariant::ManyUnnamed),
         map(valid_ident_characters, |s| {
             CaptureVariant::Named(s.to_string())
         }),
@@ -85,9 +85,9 @@ pub fn capture(i: &str) -> IResult<&str, RouteParserToken, VerboseError<&str>> {
                 name: s.to_string(),
             },
         ),
-        map(digit1, |num: &str| CaptureVariant::NumberedUnnamed {
-            sections: num.parse().expect("should parse digits"),
-        }),
+//        map(digit1, |num: &str| CaptureVariant::NumberedUnnamed {
+//            sections: num.parse().expect("should parse digits"),
+//        }),
     ));
 
     let allowed_matches = map(

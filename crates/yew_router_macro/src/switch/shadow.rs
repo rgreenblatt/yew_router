@@ -26,9 +26,9 @@ pub enum ShadowMatcherToken {
 }
 
 pub enum ShadowCaptureVariant {
-    Unnamed,                                         // {} - matches anything
-    ManyUnnamed,                                     // {*} - matches over multiple sections
-    NumberedUnnamed { sections: usize },             // {4} - matches 4 sections
+//    Unnamed,                                         // {} - matches anything
+//    ManyUnnamed,                                     // {*} - matches over multiple sections
+//    NumberedUnnamed { sections: usize },             // {4} - matches 4 sections
     Named(String), // {name} - captures a section and adds it to the map with a given name
     ManyNamed(String), // {*:name} - captures over many sections and adds it to the map with a given name.
     NumberedNamed { sections: usize, name: String }, // {2:name} - captures a fixed number of sections with a given name.
@@ -40,15 +40,15 @@ pub enum ShadowCaptureVariant {
 impl ToTokens for ShadowCaptureVariant {
     fn to_tokens(&self, ts: &mut TokenStream2) {
         let t = match self {
-            ShadowCaptureVariant::Unnamed => {
-                quote! {::yew_router::matcher::CaptureVariant::Unnamed}
-            }
-            ShadowCaptureVariant::ManyUnnamed => {
-                quote! {::yew_router::matcher::CaptureVariant::ManyUnnamed}
-            }
-            ShadowCaptureVariant::NumberedUnnamed { sections } => {
-                quote! {::yew_router::matcher::CaptureVariant::NumberedUnnamed{#sections}}
-            }
+//            ShadowCaptureVariant::Unnamed => {
+//                quote! {::yew_router::matcher::CaptureVariant::Unnamed}
+//            }
+//            ShadowCaptureVariant::ManyUnnamed => {
+//                quote! {::yew_router::matcher::CaptureVariant::ManyUnnamed}
+//            }
+//            ShadowCaptureVariant::NumberedUnnamed { sections } => {
+//                quote! {::yew_router::matcher::CaptureVariant::NumberedUnnamed{#sections}}
+//            }
             ShadowCaptureVariant::Named(name) => {
                 quote! {::yew_router::matcher::CaptureVariant::Named(#name.to_string())}
             }
@@ -79,9 +79,9 @@ impl From<CaptureVariant> for ShadowCaptureVariant {
         use CaptureVariant as CV;
         use ShadowCaptureVariant as SCV;
         match cv {
-            CV::Unnamed => SCV::Unnamed,
-            CaptureVariant::ManyUnnamed => SCV::ManyUnnamed,
-            CaptureVariant::NumberedUnnamed { sections } => SCV::NumberedUnnamed { sections },
+//            CV::Unnamed => SCV::Unnamed,
+//            CaptureVariant::ManyUnnamed => SCV::ManyUnnamed,
+//            CaptureVariant::NumberedUnnamed { sections } => SCV::NumberedUnnamed { sections },
             CaptureVariant::Named(name) => SCV::Named(name),
             CaptureVariant::ManyNamed(name) => SCV::ManyNamed(name),
             CaptureVariant::NumberedNamed { sections, name } => {
