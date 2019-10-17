@@ -10,7 +10,7 @@ pub fn generate_struct_impl(item: SwitchItem) -> TokenStream {
         ident,
         fields,
     } = &item;
-    let build_from_captures = build_variant_from_captures(&ident, &fields);
+    let build_from_captures = build_struct_from_captures(&ident, &fields);
     let matcher = super::build_matcher_from_tokens(&matcher);
 
     let match_item = Ident::new("self", Span::call_site());
@@ -37,7 +37,7 @@ pub fn generate_struct_impl(item: SwitchItem) -> TokenStream {
     TokenStream::from(token_stream)
 }
 
-fn build_variant_from_captures(ident: &Ident, fields: &Fields) -> TokenStream2 {
+fn build_struct_from_captures(ident: &Ident, fields: &Fields) -> TokenStream2 {
     match fields {
         Fields::Named(named_fields) => {
             let fields: Vec<TokenStream2> = named_fields

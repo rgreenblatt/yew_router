@@ -4,7 +4,7 @@ use proc_macro::TokenStream;
 use syn::{parse_macro_input, Fields};
 //use syn::punctuated::IntoIter;
 use crate::switch::enum_impl::generate_enum_impl;
-use crate::switch::shadow::{ShadowCapture, ShadowCaptureVariant, ShadowMatcherToken};
+use crate::switch::shadow::{ShadowCaptureVariant, ShadowMatcherToken};
 use crate::switch::struct_impl::generate_struct_impl;
 use proc_macro2::Span;
 use quote::quote;
@@ -102,20 +102,7 @@ fn build_matcher_from_tokens(tokens: &[ShadowMatcherToken]) -> TokenStream2 {
     }
 }
 
-// TODO remove this
-fn test() {
-    enum TestEnum {
-        Var { s: String },
-    }
-    let te = TestEnum::Var {
-        s: "yeet".to_string(),
-    };
-    let mut buf = String::new();
-    //    if let TestEnum::Var {s} = te {
-    //        state = state.or(s.build_route_section*&mut buf)
-    //    }
-}
-
+/// Enum indicating which sort of writer is needed.
 pub(crate) enum FieldType {
     Named,
     Unnamed { index: usize },
@@ -251,6 +238,7 @@ pub fn build_serializer_for_enum(
     }
 }
 
+
 pub fn build_serializer_for_struct(switch_item: &SwitchItem, item: &Ident) -> TokenStream2 {
     let SwitchItem {
         matcher,
@@ -310,7 +298,9 @@ pub fn build_serializer_for_struct(switch_item: &SwitchItem, item: &Ident) -> To
     }
 }
 
-/// Creates an ident used for destructuring
+/// Creates an ident used for destructuring unnamed fields.
+///
+/// There needs to be a unified way to "mangle" the unnamed fields so they can be destructured,
 fn unnamed_field_index_item(index: usize) -> Ident {
     Ident::new(&format!("__field_{}", index), Span::call_site())
 }
