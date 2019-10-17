@@ -188,7 +188,7 @@ mod tests {
 
     #[test]
     fn parse_can_handle_multiple_matches_per_section() {
-        let parsed = parse("/lorem/{ipsum}dolor{}").expect("should parse");
+        let parsed = parse("/lorem/{ipsum}dolor{sit}").expect("should parse");
         assert_eq!(
             parsed,
             vec![
@@ -199,7 +199,7 @@ mod tests {
                     "ipsum".to_string()
                 ))),
                 RouteParserToken::Exact("dolor".to_string()),
-                RouteParserToken::Capture(Capture::from(CaptureVariant::Unnamed))
+                RouteParserToken::Capture(Capture::from(CaptureVariant::Named("sit".to_string())))
             ]
         )
     }

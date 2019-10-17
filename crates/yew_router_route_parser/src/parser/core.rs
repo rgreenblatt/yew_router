@@ -126,31 +126,6 @@ mod test {
         );
     }
 
-    #[test]
-    fn capture_unnamed_test() {
-        let cap = capture("{}").unwrap();
-        assert_eq!(
-            cap,
-            (
-                "",
-                RouteParserToken::Capture(Capture::from(CaptureVariant::Unnamed))
-            )
-        );
-    }
-
-    #[test]
-    fn capture_numbered_unnamed_test() {
-        let cap = capture("{5}").unwrap();
-        assert_eq!(
-            cap,
-            (
-                "",
-                RouteParserToken::Capture(Capture::from(CaptureVariant::NumberedUnnamed {
-                    sections: 5
-                }))
-            )
-        );
-    }
 
     #[test]
     fn capture_numbered_named_test() {

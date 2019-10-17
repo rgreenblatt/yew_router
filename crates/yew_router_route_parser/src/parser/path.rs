@@ -245,7 +245,7 @@ mod test {
             RouteParserToken::Exact("first".to_string()),
             RouteParserToken::Optional(vec![
                 RouteParserToken::Separator,
-                RouteParserToken::Capture(Capture::from(CaptureVariant::Unnamed)),
+                RouteParserToken::Capture(Capture::from(CaptureVariant::Named("Lorem".to_string()))),
             ]),
             RouteParserToken::Separator,
             RouteParserToken::Exact("third".to_string()),
@@ -264,7 +264,7 @@ mod test {
                 RouteParserToken::Exact("second".to_string()),
             ]),
             RouteParserToken::Separator,
-            RouteParserToken::Capture(Capture::from(CaptureVariant::Unnamed)),
+            RouteParserToken::Capture(Capture::from(CaptureVariant::Named("Lorem".to_string()))),
         ];
         assert_eq!(tokens, expected);
     }
