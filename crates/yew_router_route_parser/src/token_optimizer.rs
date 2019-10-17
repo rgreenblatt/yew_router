@@ -1,6 +1,6 @@
 use crate::parser::parse;
 use crate::parser::RouteParserToken;
-use crate::parser::{Capture, CaptureOrExact};
+use crate::parser::{CaptureOrExact};
 use nom::IResult;
 use std::iter::Peekable;
 use std::slice::Iter;
@@ -8,8 +8,7 @@ use std::slice::Iter;
 use crate::parser::util::alternative;
 use crate::parser::YewRouterParseError;
 use crate::CaptureVariant;
-use nom::branch::alt;
-use nom::combinator::{cond, map, map_opt, rest};
+use nom::combinator::{map, };
 
 /// Tokens used to determine how to match and capture sections from a URL.
 #[derive(Debug, PartialEq, Clone)]
@@ -43,12 +42,12 @@ pub fn next_delimiters<'a>(
     enum MatchOrOptSequence<'a> {
         Match(&'a str),
     }
-    fn search_for_inner_sequence(matcher_token: &MatcherToken) -> Option<&str> {
-        match matcher_token {
-            MatcherToken::Exact(sequence) => Some(&sequence),
-            MatcherToken::Capture(_) => None, // TODO still may want to handle this
-        }
-    }
+//    fn search_for_inner_sequence(matcher_token: &MatcherToken) -> Option<&str> {
+//        match matcher_token {
+//            MatcherToken::Exact(sequence) => Some(&sequence),
+//            MatcherToken::Capture(_) => None, // TODO still may want to handle this
+//        }
+//    }
 
     let mut sequences = vec![];
     for next in iter {
@@ -92,6 +91,7 @@ fn token_to_string(token: &RouteParserToken) -> &str {
     }
 }
 
+
 /// Parse the provided "matcher string" and then optimize the tokens.
 pub fn parse_str_and_optimize_tokens(i: &str) -> Result<Vec<MatcherToken>, YewRouterParseError> {
     let tokens = parse(i)?;
@@ -110,21 +110,19 @@ pub fn optimize_tokens(tokens: Vec<RouteParserToken>) -> Vec<MatcherToken> {
     // Stores consecutive Tokens that can be reduced down to a OptimizedToken::Match.
     let mut run: Vec<RouteParserToken> = vec![];
 
-    let mut fragment_or_query_encountered = false;
 
     let mut token_iterator = tokens.into_iter().peekable();
 
     while let Some(token) = token_iterator.next() {
         match &token {
             RouteParserToken::QueryBegin | RouteParserToken::FragmentBegin => {
-                fragment_or_query_encountered = true;
                 run.push(token)
             }
             RouteParserToken::Separator | RouteParserToken::QuerySeparator => run.push(token),
             RouteParserToken::Exact(_) => {
                 run.push(token);
             }
-            RouteParserToken::Optional(tokens) => panic!("Optionals being removed"),
+            RouteParserToken::Optional(_tokens) => panic!("Optionals being removed"),
             RouteParserToken::Capture(variant) => {
                 // Empty the run when a capture is encountered.
                 if !run.is_empty() {
@@ -160,12 +158,12 @@ pub fn optimize_tokens(tokens: Vec<RouteParserToken>) -> Vec<MatcherToken> {
     optimized
 }
 
-fn token_is_not_present_or_is_either_a_slash_or_question(token: Option<&RouteParserToken>) -> bool {
-    match token {
-        None | Some(RouteParserToken::QueryBegin) | Some(RouteParserToken::FragmentBegin) => true,
-        _ => false,
-    }
-}
+//fn token_is_not_present_or_is_either_a_slash_or_question(token: Option<&RouteParserToken>) -> bool {
+//    match token {
+//        None | Some(RouteParserToken::QueryBegin) | Some(RouteParserToken::FragmentBegin) => true,
+//        _ => false,
+//    }
+//}
 
 #[cfg(test)]
 mod test {
