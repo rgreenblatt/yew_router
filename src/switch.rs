@@ -24,8 +24,6 @@ use std::fmt::Write;
 ///     CaptureNumber{num: usize},
 ///     #[to = "/capture/unnamed/{doot}"]
 ///     CaptureUnnamed(String),
-///     #[to = "{*}/skip/"]
-///     Skip
 /// }
 ///
 /// assert_eq!(TestEnum::switch(Route::<()>::from("/test/route")), Some(TestEnum::TestRoute));
@@ -155,8 +153,8 @@ impl_switch_for_from_to_str! {
 #[test]
 fn isize_build_route() {
     let mut route = "/".to_string();
-    let mut state: Option<String> = None;
-    state.or((-432isize).build_route_section(&mut route));
+    let mut _state: Option<String> = None;
+    _state = _state.or((-432isize).build_route_section(&mut route));
     assert_eq!(route, "/-432".to_string());
 }
 
