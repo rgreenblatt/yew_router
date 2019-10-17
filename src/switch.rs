@@ -69,37 +69,29 @@ pub fn build_route_from_switch<T: Switch, U>(switch: T) -> Route<U> {
     Route { route: buf, state }
 }
 
-//impl <U: RouteItem> RouteItem for Option<U> {
-//    fn from_route_part<T: RouteState>(part: &mut Route<T>) -> Option<Self> {
-//        Some(Some(RouteItem::from_route_part(part)?)) // TODO not 100% sure about the semantics of this.
-//    }
-//
-//    fn build_route_section<T>(self, f: &mut String) -> Option<T> {
-//        if let Some(item) = self {
-//            item.build_route_section(f)
-//        } else {
-//            None
-//        }
-//    }
-//
-//    fn key_not_available() -> Option<Self> {
-//        Some(None)
-//    }
-//}
 
 /// Wrapper that allows any implementor of RouteItem to be treated as a switch.
 /// It stipulates that the first character must be a slash.
-//pub struct LeadingSlash<T>(pub T);
-//impl <U: RouteItem> Switch for LeadingSlash<U> {
-//    fn switch<T: RouteState>(route: Route<T>) -> (Option<Self>, Route<T>) {
-//        unimplemented!()
-//    }
-//
-//    fn build_route_section<T>(self, route: &mut String) -> Option<T> {
-//        write!(f, "/{}", self.0).ok()?;
-//        None
-//    }
-//}
+pub struct LeadingSlash<T>(pub T);
+impl <U: Switch> Switch for LeadingSlash<U> {
+    fn from_route_part<T: RouteState>(part: Route<T>) -> (Option<Self>, Option<T>) {
+        if part.route.starts_with('/') {
+            let route = Route {
+                route: part.route[1..].to_string(),
+                state: part.state
+            };
+            let (inner, state) = U::from_route_part(route);
+            (inner.map(LeadingSlash), state)
+        } else {
+            (None, None)
+        }
+    }
+
+    fn build_route_section<T>(self, route: &mut String) -> Option<T> {
+        write!(route, "/").ok()?;
+        self.0.build_route_section(route)
+    }
+}
 
 macro_rules! impl_switch_for_from_to_str {
     ($($SelfT: ty),*) => {
@@ -158,65 +150,4 @@ fn isize_build_route() {
     assert_eq!(route, "/-432".to_string());
 }
 
-//impl<U: Switch> Switch for Option<U> {
-//    fn switch<T: RouteState>(route: Route<T>) -> Option<Self> {
-//        Some(Some(Switch::switch(route)?))
-//    }
-//
-//    /// This will cause the derivation of `from_matches` to not fail if the key can't be located
-//    fn key_not_available() -> Option<Self> {
-//        Some(None)
-//    }
-//}
-
-//impl<U, E> Switch for Result<U, E>
-//where
-//    U: FromStr<Err = E>,
-//{
-//    fn switch<T: RouteState>(route: Route<T>) -> Option<Self> {
-//        Some(U::from_str(&route.route))
-//    }
-//}
-//
-//macro_rules! impl_switch_for_from_str {
-//    ($($SelfT: ty),*) => {
-//        $(
-//        impl Switch for $SelfT {
-//            fn switch<T>(route: Route<T>) -> Option<Self> {
-//                std::str::FromStr::from_str(&route.route).ok()
-//            }
-//        }
-//        )*
-//    };
-//}
-
 // TODO add implementations for Dates - with various formats, UUIDs
-//impl_switch_for_from_str! {
-//    String,
-//    PathBuf,
-//    bool,
-//    f64,
-//    f32,
-//    usize,
-//    u128,
-//    u64,
-//    u32,
-//    u16,
-//    u8,
-//    isize,
-//    i128,
-//    i64,
-//    i32,
-//    i16,
-//    i8,
-//    std::num::NonZeroU128,
-//    std::num::NonZeroU64,
-//    std::num::NonZeroU32,
-//    std::num::NonZeroU16,
-//    std::num::NonZeroU8,
-//    std::num::NonZeroI128,
-//    std::num::NonZeroI64,
-//    std::num::NonZeroI32,
-//    std::num::NonZeroI16,
-//    std::num::NonZeroI8
-//}
