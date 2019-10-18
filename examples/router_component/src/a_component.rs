@@ -53,7 +53,7 @@ impl Renderable<AModel> for AModel {
                 {
                     match self.props.route {
                         ARoute::C => html!{<CModel/>},
-                        ARoute::None => html!{}
+                        ARoute::None(_) => html!{}
                     }
                 }
                 </div>

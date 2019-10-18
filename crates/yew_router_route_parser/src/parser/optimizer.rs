@@ -46,7 +46,7 @@ pub fn parse_str_and_optimize_tokens(i: &str) -> Result<Vec<MatcherToken>, (&str
 }
 
 /// Converts a slice of `RouteParserToken` into a Vec of MatcherTokens.
-fn convert_tokens(tokens: &[RouteParserToken]) -> Vec<MatcherToken> {
+pub fn convert_tokens(tokens: &[RouteParserToken]) -> Vec<MatcherToken> {
     let mut new_tokens = vec![];
     let mut run: Vec<RouteParserToken> = vec![];
 

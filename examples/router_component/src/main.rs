@@ -9,7 +9,7 @@ use yew_router::prelude::*;
 use yew_router::Switch;
 
 use crate::a_component::AModel;
-use crate::b_component::BModel;
+use crate::b_component::{BModel, BRoute};
 use crate::c_component::CModel;
 
 #[global_allocator]
@@ -41,18 +41,15 @@ impl Component for Model {
 pub enum AppRoute {
     #[to = "/a{*:inner}"]
     A(ARoute),
-    #[to = "/b/[?sub_path={sub_path}][#{number}]"]
-    B {
-        sub_path: Option<String>,
-        number: Option<usize>,
-    },
+    #[to = "/b{*:inner}"]
+    B(BRoute),
     #[to = "/c"]
     C,
     #[to = "/e/{string}"]
     E(String),
 }
 
-#[derive(Debug, Switch, PartialEq, Clone, Copy)]
+#[derive(Debug, Switch, PartialEq, Clone)]
 pub enum ARoute {
     /// Match "/c" after "/a" ("/a/c")
     #[to = "/c"]
@@ -60,8 +57,8 @@ pub enum ARoute {
     // Because it is impossible to specify an Optional nested route:
     // Still accept the route, when matching, but consider it invalid.
     // This is effectively the same as wrapping the ARoute in Option, but doesn't run afoul of the current routing syntax.
-    #[to = "{*}"]
-    None,
+    #[to = "{*:rest}"]
+    None(String),
 }
 
 impl Renderable<Model> for Model {
@@ -82,7 +79,10 @@ impl Renderable<Model> for Model {
                         render = Router::render(|switch: Option<AppRoute>| {
                             match switch {
                                 Some(AppRoute::A(route)) => html!{<AModel route = route />},
-                                Some(AppRoute::B{sub_path, number}) => html!{<BModel sub_path=sub_path, number=number/>},
+                                Some(AppRoute::B(route)) => {
+                                    let route: b_component::Props = route.into();
+                                    html!{<BModel with route/>}
+                                },
                                 Some(AppRoute::C) => html!{<CModel />},
                                 Some(AppRoute::E(string)) => html!{format!("hello {}", string)},
                                 None => html!{"404"}

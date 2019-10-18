@@ -109,13 +109,13 @@ impl RouteMatcher {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use yew_router_route_parser::parser::RouteParserToken;
+    use yew_router_route_parser::parser::{RouteParserToken, RefCaptureVariant, convert_tokens};
 
-    impl From<Vec<RouteParserToken>> for RouteMatcher {
-        fn from(tokens: Vec<RouteParserToken>) -> Self {
+    impl <'a> From<Vec<RouteParserToken<'a>>> for RouteMatcher {
+        fn from(tokens: Vec<RouteParserToken<'a>>) -> Self {
             let settings = MatcherSettings::default();
             RouteMatcher {
-                tokens: optimize_tokens(tokens),
+                tokens: convert_tokens(&tokens),
                 settings,
             }
         }
@@ -148,7 +148,7 @@ mod tests {
     fn simple_capture() {
         let tokens = vec![
             RouteParserToken::Separator,
-            RouteParserToken::Capture(Capture::from(CaptureVariant::Named("lorem".to_string()))),
+            RouteParserToken::Capture(RefCaptureVariant::Named("lorem")),
             RouteParserToken::Separator,
         ];
         let path_matcher = RouteMatcher::from(tokens);
@@ -162,7 +162,7 @@ mod tests {
     fn simple_capture_with_no_trailing_separator() {
         let tokens = vec![
             RouteParserToken::Separator,
-            RouteParserToken::Capture(Capture::from(CaptureVariant::Named("lorem".to_string()))),
+            RouteParserToken::Capture(RefCaptureVariant::Named("lorem")),
         ];
         let path_matcher = RouteMatcher::from(tokens);
         let (_, matches) = path_matcher
@@ -177,7 +177,7 @@ mod tests {
             RouteParserToken::Separator,
             RouteParserToken::Exact("a"),
             RouteParserToken::Separator,
-            RouteParserToken::Capture(Capture::from(CaptureVariant::ManyNamed("lorem".to_string()))),
+            RouteParserToken::Capture(RefCaptureVariant::ManyNamed("lorem")),
         ];
         let path_matcher = RouteMatcher::from(tokens);
         let (_, _matches) = path_matcher
@@ -191,7 +191,7 @@ mod tests {
             RouteParserToken::Separator,
             RouteParserToken::Exact("a"),
             RouteParserToken::Separator,
-            RouteParserToken::Capture(Capture::from(CaptureVariant::Named("lorem".to_string()))),
+            RouteParserToken::Capture(RefCaptureVariant::Named("lorem")),
         ];
         let path_matcher = RouteMatcher::from(tokens);
         path_matcher
@@ -205,10 +205,10 @@ mod tests {
     fn match_n() {
         let tokens = vec![
             RouteParserToken::Separator,
-            RouteParserToken::Capture(Capture::from(CaptureVariant::NumberedNamed {
+            RouteParserToken::Capture(RefCaptureVariant::NumberedNamed {
                 sections: 3,
-                name: "lorem".to_string(),
-            })),
+                name: "lorem",
+            }),
             RouteParserToken::Separator,
             RouteParserToken::Exact("a"),
         ];
@@ -222,10 +222,10 @@ mod tests {
     fn match_n_no_overrun() {
         let tokens = vec![
             RouteParserToken::Separator,
-            RouteParserToken::Capture(Capture::from(CaptureVariant::NumberedNamed {
+            RouteParserToken::Capture(RefCaptureVariant::NumberedNamed {
                 sections: 3,
-                name: "lorem".to_string(),
-            })),
+                name: "lorem",
+            }),
         ];
         let path_matcher = RouteMatcher::from(tokens);
         let (s, _matches) = path_matcher
@@ -238,10 +238,10 @@ mod tests {
     fn match_n_named() {
         let tokens = vec![
             RouteParserToken::Separator,
-            RouteParserToken::Capture(Capture::from(CaptureVariant::NumberedNamed {
+            RouteParserToken::Capture(RefCaptureVariant::NumberedNamed {
                 sections: 3,
-                name: "captured".to_string(),
-            })),
+                name: "captured",
+            }),
             RouteParserToken::Separator,
             RouteParserToken::Exact("a"),
         ];
@@ -259,7 +259,7 @@ mod tests {
     fn match_many() {
         let tokens = vec![
             RouteParserToken::Separator,
-            RouteParserToken::Capture(Capture::from(CaptureVariant::ManyNamed("lorem".to_string()))),
+            RouteParserToken::Capture(RefCaptureVariant::ManyNamed("lorem")),
             RouteParserToken::Separator,
             RouteParserToken::Exact("a"),
         ];
@@ -273,9 +273,9 @@ mod tests {
     fn match_many_named() {
         let tokens = vec![
             RouteParserToken::Separator,
-            RouteParserToken::Capture(Capture::from(CaptureVariant::ManyNamed(
-                "captured".to_string(),
-            ))),
+            RouteParserToken::Capture(RefCaptureVariant::ManyNamed(
+                "captured",
+            )),
             RouteParserToken::Separator,
             RouteParserToken::Exact("a"),
         ];

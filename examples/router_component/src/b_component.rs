@@ -18,6 +18,32 @@ pub struct Props {
     pub sub_path: Option<String>,
 }
 
+#[derive(Debug, Switch)]
+pub enum BRoute {
+    #[to = "/{num}?sup_path={sub_path}"]
+    Both(usize, String),
+    #[to = "/{num}"]
+    NumOnly(usize),
+    #[to = "?sup_path={sub_path}"]
+    SubPathOnly(String),
+    #[to = "/"]
+    None,
+}
+
+impl Into<Props> for BRoute {
+    fn into(self) -> Props {
+        match self {
+            BRoute::None => Props {
+                number: None,
+                sub_path: None
+            },
+            BRoute::NumOnly(number) => Props{ number: Some(number), sub_path: None },
+            BRoute::Both(number, sub_path) => Props{ number: Some(number), sub_path: Some(sub_path)},
+            BRoute::SubPathOnly(sub_path) => Props{ number: None, sub_path: Some(sub_path)}
+        }
+    }
+}
+
 pub enum Msg {
     Navigate(Vec<Msg>), // Navigate after performing other actions
     Increment,
@@ -118,25 +144,25 @@ impl Renderable<BModel> for BModel {
     }
 }
 
-impl FromCaptures for Props {
-    fn from_captures(captures: &Captures) -> Result<Self, FromCapturesError> {
-        let number = captures
-            .get("number")
-            .map(|n: &String| {
-                usize::from_str(&n).map_err(|_| FromCapturesError::FailedParse {
-                    field_name: "number".to_string(),
-                    source_string: n.to_string(),
-                })
-            })
-            .transpose()?;
-
-        let props = Props {
-            number,
-            sub_path: captures.get("sub_path").cloned(),
-        };
-        Ok(props)
-    }
-}
+//impl FromCaptures for Props {
+//    fn from_captures(captures: &Captures) -> Result<Self, FromCapturesError> {
+//        let number = captures
+//            .get("number")
+//            .map(|n: &String| {
+//                usize::from_str(&n).map_err(|_| FromCapturesError::FailedParse {
+//                    field_name: "number".to_string(),
+//                    source_string: n.to_string(),
+//                })
+//            })
+//            .transpose()?;
+//
+//        let props = Props {
+//            number,
+//            sub_path: captures.get("sub_path").cloned(),
+//        };
+//        Ok(props)
+//    }
+//}
 
 impl BModel {
     fn display_number(&self) -> String {

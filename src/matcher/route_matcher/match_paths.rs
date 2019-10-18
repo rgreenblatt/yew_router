@@ -268,7 +268,6 @@ mod integration_test {
     use super::*;
 
     use yew_router_route_parser;
-    use yew_router_route_parser::Capture;
 
     use super::super::Captures;
     //    use nom::combinator::all_consuming;
