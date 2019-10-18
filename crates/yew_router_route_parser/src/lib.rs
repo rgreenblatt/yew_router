@@ -12,6 +12,7 @@
 )]
 
 pub mod parser;
+mod parser2;
 mod token_optimizer;
 
 pub use parser::{Capture, CaptureVariant};
