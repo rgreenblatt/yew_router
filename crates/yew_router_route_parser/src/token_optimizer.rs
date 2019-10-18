@@ -6,9 +6,9 @@ use std::iter::Peekable;
 use std::slice::Iter;
 //use nom::bytes::complete::take_till1;
 use crate::parser::util::alternative;
-use crate::parser::YewRouterParseError;
-use crate::CaptureVariant;
-use nom::combinator::{map, };
+//use crate::parser::YewRouterParseError;
+//use crate::CaptureVariant;
+use nom::combinator::{map};
 
 /// Tokens used to determine how to match and capture sections from a URL.
 #[derive(Debug, PartialEq, Clone)]
@@ -19,13 +19,20 @@ pub enum MatcherToken {
     Capture(CaptureVariant),
 }
 
-impl From<CaptureOrExact> for MatcherToken {
-    fn from(value: CaptureOrExact) -> Self {
-        match value {
-            CaptureOrExact::Exact(m) => MatcherToken::Exact(m),
-            CaptureOrExact::Capture(v) => MatcherToken::Capture(v.capture_variant),
-        }
-    }
+/// Variants that indicate how part of a string should be captured.
+#[derive(Debug, PartialEq, Clone)]
+pub enum CaptureVariant {
+    /// {name} - captures a section and adds it to the map with a given name.
+    Named(String),
+    /// {*:name} - captures over many sections and adds it to the map with a given name.
+    ManyNamed(String),
+    /// {2:name} - captures a fixed number of sections with a given name.
+    NumberedNamed {
+        /// Number of sections to match.
+        sections: usize,
+        /// The key to be entered in the `Matches` map.
+        name: String,
+    },
 }
 
 /// Produces a parser combinator that searches for the next possible set of strings of
@@ -71,15 +78,7 @@ pub fn next_delimiters<'a>(
     map(alternative(delimiters), |x| x)
 }
 
-
-
-/// Parse the provided "matcher string" and then optimize the tokens.
-//pub fn parse_str_and_optimize_tokens(i: &str) -> Result<Vec<MatcherToken>, YewRouterParseError> {
-//    let tokens = parse(i)?;
-//    Ok(optimize_tokens(tokens))
-//}
-
-pub use crate::parser2::parse_str_and_optimize_tokens;
+pub use crate::parser::parse_str_and_optimize_tokens;
 
 
 //#[cfg(test)]

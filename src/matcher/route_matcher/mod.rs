@@ -1,13 +1,13 @@
 //! Module for matching route strings based on tokens generated from the yew_router_route_parser crate.
 
-pub use yew_router_route_parser::{Capture, CaptureVariant, MatcherToken};
+pub use yew_router_route_parser::{CaptureVariant, MatcherToken};
 
 mod match_paths;
 mod util;
 
 use super::Captures;
 //use super::Matcher;
-use crate::matcher::YewRouterParseError; // TODO, implement proper error reporting again.
+//use crate::matcher::YewRouterParseError; // TODO, implement proper error reporting again.
 use nom::combinator::all_consuming;
 use nom::IResult;
 use std::collections::HashSet;
@@ -110,7 +110,6 @@ impl RouteMatcher {
 mod tests {
     use super::*;
     use yew_router_route_parser::parser::RouteParserToken;
-    use yew_router_route_parser::Capture;
 
     impl From<Vec<RouteParserToken>> for RouteMatcher {
         fn from(tokens: Vec<RouteParserToken>) -> Self {
@@ -135,7 +134,7 @@ mod tests {
     fn multiple_tokens() {
         let tokens = vec![
             RouteParserToken::Separator,
-            RouteParserToken::Exact("lorem".to_string()),
+            RouteParserToken::Exact("lorem"),
             RouteParserToken::Separator,
         ];
 
@@ -176,7 +175,7 @@ mod tests {
     fn match_with_trailing_match_many() {
         let tokens = vec![
             RouteParserToken::Separator,
-            RouteParserToken::Exact("a".to_string()),
+            RouteParserToken::Exact("a"),
             RouteParserToken::Separator,
             RouteParserToken::Capture(Capture::from(CaptureVariant::ManyNamed("lorem".to_string()))),
         ];
@@ -190,7 +189,7 @@ mod tests {
     fn fail_match_with_trailing_match_single() {
         let tokens = vec![
             RouteParserToken::Separator,
-            RouteParserToken::Exact("a".to_string()),
+            RouteParserToken::Exact("a"),
             RouteParserToken::Separator,
             RouteParserToken::Capture(Capture::from(CaptureVariant::Named("lorem".to_string()))),
         ];
@@ -211,7 +210,7 @@ mod tests {
                 name: "lorem".to_string(),
             })),
             RouteParserToken::Separator,
-            RouteParserToken::Exact("a".to_string()),
+            RouteParserToken::Exact("a"),
         ];
         let path_matcher = RouteMatcher::from(tokens);
         let (_, _matches) = path_matcher
@@ -244,7 +243,7 @@ mod tests {
                 name: "captured".to_string(),
             })),
             RouteParserToken::Separator,
-            RouteParserToken::Exact("a".to_string()),
+            RouteParserToken::Exact("a"),
         ];
         let path_matcher = RouteMatcher::from(tokens);
         let (_, matches) = path_matcher
@@ -262,7 +261,7 @@ mod tests {
             RouteParserToken::Separator,
             RouteParserToken::Capture(Capture::from(CaptureVariant::ManyNamed("lorem".to_string()))),
             RouteParserToken::Separator,
-            RouteParserToken::Exact("a".to_string()),
+            RouteParserToken::Exact("a"),
         ];
         let path_matcher = RouteMatcher::from(tokens);
         let (_, _matches) = path_matcher
@@ -278,7 +277,7 @@ mod tests {
                 "captured".to_string(),
             ))),
             RouteParserToken::Separator,
-            RouteParserToken::Exact("a".to_string()),
+            RouteParserToken::Exact("a"),
         ];
         let path_matcher = RouteMatcher::from(tokens);
         let (_, matches) = path_matcher

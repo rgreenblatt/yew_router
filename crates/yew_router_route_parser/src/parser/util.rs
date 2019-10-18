@@ -18,43 +18,6 @@ pub fn vectorize<'a>(
     move |i: &str| (f)(i).map(|(i, t)| (i, vec![t]))
 }
 
-/// Given a function that returns a vector of Tokens, optionally return a token encompassing them, should they match
-pub fn optional_matches<'a, F>(
-    f: F,
-) -> impl Fn(&'a str) -> IResult<&'a str, RouteParserToken, VerboseError<&'a str>>
-where
-    F: Fn(&'a str) -> IResult<&'a str, Vec<RouteParserToken>, VerboseError<&'a str>>,
-{
-    move |i: &str| -> IResult<&str, RouteParserToken, VerboseError<&str>> {
-        let f = &f;
-        context("optional matches", delimited(char('['), f, char(']')))(i)
-            .map(|(i, t)| (i, RouteParserToken::Optional(t)))
-    }
-}
-/// Optionally match a string, returning a vector of tokens.
-pub fn optional_matches_v<'a, F>(
-    f: F,
-) -> impl Fn(&'a str) -> IResult<&'a str, Vec<RouteParserToken>, VerboseError<&'a str>>
-where
-    F: Fn(&'a str) -> IResult<&'a str, Vec<RouteParserToken>, VerboseError<&'a str>>,
-{
-    vectorize(optional_matches(f))
-}
-
-/// Optionally match a string
-pub fn optional_match<'a, F>(
-    f: F,
-) -> impl Fn(&'a str) -> IResult<&'a str, RouteParserToken, VerboseError<&'a str>>
-where
-    F: Fn(&'a str) -> IResult<&'a str, RouteParserToken, VerboseError<&'a str>>,
-{
-    move |i: &str| -> IResult<&str, RouteParserToken, VerboseError<&str>> {
-        let f = &f;
-        context("optional match", delimited(char('['), f, char(']')))(i)
-            .map(|(i, t)| (i, RouteParserToken::Optional(vec![t])))
-    }
-}
-
 /// Similar to alt, but works on a vector of tags.
 pub fn alternative(alternatives: Vec<String>) -> impl Fn(&str) -> IResult<&str, &str> {
     move |i: &str| {

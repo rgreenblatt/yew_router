@@ -11,16 +11,16 @@
     unused_qualifications
 )]
 
+//pub mod parser_old;
 pub mod parser;
-mod parser2;
 mod token_optimizer;
 
-pub use parser::{Capture, CaptureVariant};
+//pub use parser_old::{Capture, CaptureVariant};
 use std::collections::HashMap;
 pub use token_optimizer::{
-    next_delimiters, parse_str_and_optimize_tokens, MatcherToken,
+    next_delimiters, parse_str_and_optimize_tokens, MatcherToken, CaptureVariant
 };
-pub use parser2::ParserError;
+pub use parser::ParserError;
 
 /// Captures contain keys corresponding to named match sections,
 /// and values containing the content captured by those sections.

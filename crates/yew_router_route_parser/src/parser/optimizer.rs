@@ -1,13 +1,14 @@
-use crate::parser2::{RouteParserToken, CaptureVariant, CaptureOrExact, parse, ParserError};
+use crate::parser::{RouteParserToken, RefCaptureVariant, CaptureOrExact, parse, ParserError};
 
-use crate::token_optimizer::MatcherToken;
+use crate::token_optimizer::{MatcherToken, CaptureVariant};
 
-impl <'a> From<CaptureVariant<'a>> for crate::parser::CaptureVariant {
-    fn from(v: CaptureVariant<'a>) -> Self {
+
+impl <'a> From<RefCaptureVariant<'a>> for CaptureVariant {
+    fn from(v: RefCaptureVariant<'a>) -> Self {
         match v {
-            CaptureVariant::Named(s) => crate::parser::CaptureVariant::Named(s.to_string()),
-            CaptureVariant::ManyNamed(s) => crate::parser::CaptureVariant::ManyNamed(s.to_string()),
-            CaptureVariant::NumberedNamed { sections, name } => crate::parser::CaptureVariant::NumberedNamed {sections, name: name.to_string()}
+            RefCaptureVariant::Named(s) => CaptureVariant::Named(s.to_string()),
+            RefCaptureVariant::ManyNamed(s) => CaptureVariant::ManyNamed(s.to_string()),
+            RefCaptureVariant::NumberedNamed { sections, name } => CaptureVariant::NumberedNamed {sections, name: name.to_string()}
         }
     }
 }
@@ -64,7 +65,7 @@ fn convert_tokens(tokens: &[RouteParserToken]) -> Vec<MatcherToken> {
             RouteParserToken::Capture(cap) => {
                 new_tokens.push(MatcherToken::Exact(run.iter().map(RouteParserToken::as_str).collect()));
                 run = vec![];
-                new_tokens.push(MatcherToken::Capture(crate::parser::CaptureVariant::from(*cap)))
+                new_tokens.push(MatcherToken::Capture(CaptureVariant::from(*cap)))
             }
             RouteParserToken::QueryCapture { ident, capture_or_match } => {
                 match capture_or_match {
@@ -81,7 +82,7 @@ fn convert_tokens(tokens: &[RouteParserToken]) -> Vec<MatcherToken> {
                             .collect();
                         new_tokens.push(MatcherToken::Exact(sequence));
                         run = vec![];
-                        new_tokens.push(MatcherToken::Capture(crate::parser::CaptureVariant::from(*cap)))
+                        new_tokens.push(MatcherToken::Capture(CaptureVariant::from(*cap)))
                     }
                 }
 
