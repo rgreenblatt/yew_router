@@ -87,10 +87,12 @@ fn token_to_string(token: &RouteParserToken) -> &str {
 
 
 /// Parse the provided "matcher string" and then optimize the tokens.
-pub fn parse_str_and_optimize_tokens(i: &str) -> Result<Vec<MatcherToken>, YewRouterParseError> {
-    let tokens = parse(i)?;
-    Ok(optimize_tokens(tokens))
-}
+//pub fn parse_str_and_optimize_tokens(i: &str) -> Result<Vec<MatcherToken>, YewRouterParseError> {
+//    let tokens = parse(i)?;
+//    Ok(optimize_tokens(tokens))
+//}
+
+pub use crate::parser2::parse_str_and_optimize_tokens;
 
 /// Optimize `RouteParserToken`s to `MatcherToken`s.
 ///

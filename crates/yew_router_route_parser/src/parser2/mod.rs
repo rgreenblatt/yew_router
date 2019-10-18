@@ -6,6 +6,7 @@ use nom::bytes::complete::{take_until, take_till1};
 use nom::sequence::{delimited, separated_pair};
 
 mod optimizer;
+pub use optimizer::parse_str_and_optimize_tokens;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum RouteParserToken<'a> {
@@ -82,11 +83,7 @@ impl <'a> ParserState<'a> {
             ParserState::None => match token {
                 RouteParserToken::Separator => Ok(ParserState::Path{prev_token: token}),
                 RouteParserToken::Exact(_) => Err(ParserError::NotAllowedStateTransition),
-                RouteParserToken::Capture(ref cap) => match cap {
-                    CaptureVariant::Named(_) => Err(ParserError::NotAllowedStateTransition),
-                    CaptureVariant::ManyNamed(_) => Ok(ParserState::Path {prev_token: token}),
-                    CaptureVariant::NumberedNamed {..} => Ok(ParserState::Path {prev_token: token})
-                }
+                RouteParserToken::Capture(_) => Ok(ParserState::Path {prev_token: token}),
                 RouteParserToken::QueryBegin => Ok(ParserState::FirstQuery {prev_token: token}),
                 RouteParserToken::QuerySeparator => Err(ParserError::NotAllowedStateTransition),
                 RouteParserToken::QueryCapture { ident: _, capture_or_match: _ } => Err(ParserError::NotAllowedStateTransition),
@@ -180,8 +177,8 @@ pub enum ParserError {
 pub fn parse(mut i: &str) -> Result<Vec<RouteParserToken>, (&str, ParserError)> {
     let mut tokens: Vec<RouteParserToken> = vec![];
     let mut state = ParserState::None;
-    // TODO, make this a loop
-    while state != ParserState::End {
+
+    loop {
         let (ii, token) = parse_impl(i, &state)
             .map_err(|e| {
                 match e {
@@ -211,7 +208,7 @@ fn parse_impl<'a>(i: &'a str, state: &ParserState) -> IResult<&'a str, RoutePars
                 get_slash,
                 get_question,
                 get_hash,
-                capture_many
+                capture
             ))(i)
                 .map_err(|_| {nom::Err::Error(ParserError::ExpectedOneOf(vec![
                     RouteParserToken::Separator,
