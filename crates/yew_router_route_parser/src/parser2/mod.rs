@@ -83,7 +83,7 @@ impl <'a> ParserState<'a> {
             ParserState::None => match token {
                 RouteParserToken::Separator => Ok(ParserState::Path{prev_token: token}),
                 RouteParserToken::Exact(_) => Err(ParserError::NotAllowedStateTransition),
-                RouteParserToken::Capture(_) => Ok(ParserState::Path {prev_token: token}),
+                RouteParserToken::Capture(_) => Ok(ParserState::Path {prev_token: token}), // TODO revise decision to allow this state transform for _all_ capture variants.
                 RouteParserToken::QueryBegin => Ok(ParserState::FirstQuery {prev_token: token}),
                 RouteParserToken::QuerySeparator => Err(ParserError::NotAllowedStateTransition),
                 RouteParserToken::QueryCapture { ident: _, capture_or_match: _ } => Err(ParserError::NotAllowedStateTransition),
@@ -162,14 +162,22 @@ impl <'a> ParserState<'a> {
     }
 }
 
+/// Something went wrong with parsing
 #[derive(Debug, Clone, PartialEq)]
 pub enum ParserError {
+    /// The parser should not be able to be in this state with this token
     InvalidState,
+    /// The state cannot transition from a prior state into another one based on the input token.
     NotAllowedStateTransition, // TODO replace this with more exact explanations
+    /// Some token encountered after the end token.
     TokensAfterEndToken,
+    /// Two slashes are able to ocurr next to eachother.
     DoubleSlash,
+    /// A & appears before a ?
     AndBeforeQuestion,
+    /// Expected a /
     ExpectedSlash,
+    /// The parser expected one of the following sequences.
     ExpectedOneOf(Vec<RouteParserToken<'static>>)
 }
 

@@ -7,11 +7,11 @@ mod util;
 
 use super::Captures;
 //use super::Matcher;
-use crate::matcher::YewRouterParseError;
+use crate::matcher::YewRouterParseError; // TODO, implement proper error reporting again.
 use nom::combinator::all_consuming;
 use nom::IResult;
 use std::collections::HashSet;
-use yew_router_route_parser::{optimize_tokens, parser};
+use yew_router_route_parser::{parse_str_and_optimize_tokens, ParserError};
 
 /// Attempts to match routes, transform the route to Component props and render that Component.
 ///
@@ -44,16 +44,16 @@ impl Default for MatcherSettings {
 
 impl RouteMatcher {
     /// Attempt to create a RouteMatcher from a "matcher string".
-    pub fn try_from(i: &str) -> Result<Self, YewRouterParseError> {
+    pub fn try_from(i: &str) -> Result<Self, (&str, ParserError)> {
         let settings = MatcherSettings::default();
         Self::new(i, settings)
     }
 
     /// Creates a new Matcher with settings.
-    pub fn new(i: &str, settings: MatcherSettings) -> Result<Self, YewRouterParseError> {
-        let tokens = parser::parse(i)?;
+    pub fn new(i: &str, settings: MatcherSettings) -> Result<Self, (&str, ParserError)> {
+//        let tokens = parser::parse(i)?;
         Ok(RouteMatcher {
-            tokens: optimize_tokens(tokens),
+            tokens: parse_str_and_optimize_tokens(i)?,
             settings,
         })
     }
