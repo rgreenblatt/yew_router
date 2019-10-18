@@ -173,7 +173,21 @@ mod tests {
     }
 
     #[test]
-    fn match_with_trailing_match_any() {
+    fn match_with_trailing_match_many() {
+        let tokens = vec![
+            RouteParserToken::Separator,
+            RouteParserToken::Exact("a".to_string()),
+            RouteParserToken::Separator,
+            RouteParserToken::Capture(Capture::from(CaptureVariant::ManyNamed("lorem".to_string()))),
+        ];
+        let path_matcher = RouteMatcher::from(tokens);
+        let (_, _matches) = path_matcher
+            .capture_route_into_map("/a/")
+            .expect("should parse");
+    }
+
+    #[test]
+    fn fail_match_with_trailing_match_single() {
         let tokens = vec![
             RouteParserToken::Separator,
             RouteParserToken::Exact("a".to_string()),
@@ -181,10 +195,11 @@ mod tests {
             RouteParserToken::Capture(Capture::from(CaptureVariant::Named("lorem".to_string()))),
         ];
         let path_matcher = RouteMatcher::from(tokens);
-        let (_, _matches) = path_matcher
+        path_matcher
             .capture_route_into_map("/a/")
-            .expect("should parse");
+            .expect_err("should not parse");
     }
+
 
     // TODO fix this test
     #[test]
