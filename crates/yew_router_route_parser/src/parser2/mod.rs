@@ -5,6 +5,8 @@ use nom::character::complete::{char, digit1};
 use nom::bytes::complete::{take_until, take_till1};
 use nom::sequence::{delimited, separated_pair};
 
+mod optimizer;
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum RouteParserToken<'a> {
     /// Match /
