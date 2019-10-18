@@ -314,20 +314,6 @@ mod integration_test {
         assert_eq!(matches["ipsum"], "ipsum".to_string())
     }
 
-    #[test]
-    fn match_n_paths_1() {
-        let x = yew_router_route_parser::parse_str_and_optimize_tokens("/{*}" )
-            .expect("Should parse");
-        match_path_impl::<Captures>(&x, MatcherSettings::default(), "/anything").expect("should match");
-    }
-
-    #[test]
-    fn match_n_paths_2() {
-        let x = yew_router_route_parser::parse_str_and_optimize_tokens("/{*}")
-            .expect("Should parse");
-        match_path_impl::<Captures>(&x, MatcherSettings::default(), "/anything/other/thing")
-            .expect("should match");
-    }
 
     #[test]
     fn match_n_paths_3() {
@@ -398,30 +384,6 @@ mod integration_test {
         .expect("Should parse");
         match_path_impl::<Captures>(&x, MatcherSettings::default(), "/a/path?query=thing#test")
             .expect("should match");
-    }
-
-    #[test]
-    fn match_fragment_optional() {
-        let x = yew_router_route_parser::parse_str_and_optimize_tokens("[#test]")
-            .expect("Should parse");
-        match_path_impl::<Captures>(&x, MatcherSettings::default(), "#test").expect("should match");
-        match_path_impl::<Captures>(&x, MatcherSettings::default(), "").expect("should match");
-    }
-    #[test]
-    fn match_fragment_pound_optional() {
-        let x = yew_router_route_parser::parse_str_and_optimize_tokens("#[test]")
-            .expect("Should parse");
-        match_path_impl::<Captures>(&x, MatcherSettings::default(), "#test").expect("should match");
-        match_path_impl::<Captures>(&x, MatcherSettings::default(), "#").expect("should match");
-    }
-
-    #[test]
-    fn match_fragment_optional_with_inner_optional_item() {
-        let x = yew_router_route_parser::parse_str_and_optimize_tokens("[#[test]]")
-            .expect("Should parse");
-        match_path_impl::<Captures>(&x, MatcherSettings::default(), "#test").expect("should match");
-        match_path_impl::<Captures>(&x, MatcherSettings::default(), "").expect("should match");
-        match_path_impl::<Captures>(&x, MatcherSettings::default(), "#").expect("should match");
     }
 
     #[test]
