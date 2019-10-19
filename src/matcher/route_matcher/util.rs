@@ -1,7 +1,15 @@
 use nom::bytes::complete::{tag, tag_no_case};
+use nom::character::complete::anychar;
 use nom::combinator::cond;
+use nom::combinator::{map, peek};
+use nom::error::{ErrorKind, ParseError};
+use nom::multi::many_till;
 use nom::sequence::pair;
 use nom::IResult;
+use std::iter::Peekable;
+use std::rc::Rc;
+use std::slice::Iter;
+use yew_router_route_parser::MatcherToken;
 
 /// Allows a configurable tag that can optionally be case insensitive.
 pub fn tag_possibly_case_sensitive<'a, 'b: 'a>(
@@ -16,15 +24,6 @@ pub fn tag_possibly_case_sensitive<'a, 'b: 'a>(
         |(x, y): (Option<&str>, Option<&str>)| x.xor(y).unwrap(),
     )
 }
-
-use nom::character::complete::anychar;
-use nom::combinator::{map, peek};
-use nom::error::{ErrorKind, ParseError};
-use nom::multi::many_till;
-use std::rc::Rc;
-use std::iter::Peekable;
-use std::slice::Iter;
-use yew_router_route_parser::MatcherToken;
 
 /// Given a function that returns a single token, wrap the token in a Vec.
 //pub fn vectorize<'a>(
@@ -50,9 +49,9 @@ pub fn alternative(alternatives: Vec<String>) -> impl Fn(&str) -> IResult<&str, 
 /// # Note
 /// `stop_parser` only peeks its input.
 pub fn consume_until<'a, F, E>(stop_parser: F) -> impl Fn(&'a str) -> IResult<&'a str, String, E>
-    where
-        E: ParseError<&'a str>,
-        F: Fn(&'a str) -> IResult<&'a str, &'a str, E>,
+where
+    E: ParseError<&'a str>,
+    F: Fn(&'a str) -> IResult<&'a str, &'a str, E>,
 {
     // In order for the returned fn to be Fn instead of FnOnce, wrap the inner fn in an RC.
     let f = Rc::new(many_till(
@@ -157,12 +156,7 @@ mod tests {
             skip_until::<_, _, (), _>(tag("done"))("useless_stuff_done").expect("should parse");
         assert_eq!(parsed, ("", "done"))
     }
-}
 
-
-#[cfg(test)]
-mod test {
-    use super::*;
     #[test]
     fn case_sensitive() {
         let parser = tag_possibly_case_sensitive("lorem", true);

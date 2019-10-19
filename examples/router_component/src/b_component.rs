@@ -35,11 +35,20 @@ impl Into<Props> for BRoute {
         match self {
             BRoute::None => Props {
                 number: None,
-                sub_path: None
+                sub_path: None,
             },
-            BRoute::NumOnly(number) => Props{ number: Some(number), sub_path: None },
-            BRoute::Both(number, sub_path) => Props{ number: Some(number), sub_path: Some(sub_path)},
-            BRoute::SubPathOnly(sub_path) => Props{ number: None, sub_path: Some(sub_path)}
+            BRoute::NumOnly(number) => Props {
+                number: Some(number),
+                sub_path: None,
+            },
+            BRoute::Both(number, sub_path) => Props {
+                number: Some(number),
+                sub_path: Some(sub_path),
+            },
+            BRoute::SubPathOnly(sub_path) => Props {
+                number: None,
+                sub_path: Some(sub_path),
+            },
         }
     }
 }

@@ -51,7 +51,7 @@ impl RouteMatcher {
 
     /// Creates a new Matcher with settings.
     pub fn new(i: &str, settings: MatcherSettings) -> Result<Self, (&str, ParserError)> {
-//        let tokens = parser::parse(i)?;
+        //        let tokens = parser::parse(i)?;
         Ok(RouteMatcher {
             tokens: parse_str_and_optimize_tokens(i)?,
             settings,
@@ -109,9 +109,9 @@ impl RouteMatcher {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use yew_router_route_parser::parser::{RouteParserToken, RefCaptureVariant, convert_tokens};
+    use yew_router_route_parser::parser::{convert_tokens, RefCaptureVariant, RouteParserToken};
 
-    impl <'a> From<Vec<RouteParserToken<'a>>> for RouteMatcher {
+    impl<'a> From<Vec<RouteParserToken<'a>>> for RouteMatcher {
         fn from(tokens: Vec<RouteParserToken<'a>>) -> Self {
             let settings = MatcherSettings::default();
             RouteMatcher {
@@ -199,7 +199,6 @@ mod tests {
             .expect_err("should not parse");
     }
 
-
     // TODO fix this test
     #[test]
     fn match_n() {
@@ -273,9 +272,7 @@ mod tests {
     fn match_many_named() {
         let tokens = vec![
             RouteParserToken::Separator,
-            RouteParserToken::Capture(RefCaptureVariant::ManyNamed(
-                "captured",
-            )),
+            RouteParserToken::Capture(RefCaptureVariant::ManyNamed("captured")),
             RouteParserToken::Separator,
             RouteParserToken::Exact("a"),
         ];

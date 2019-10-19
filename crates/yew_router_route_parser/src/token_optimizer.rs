@@ -1,10 +1,10 @@
 //use crate::parser::parse;
 //use crate::parser::RouteParserToken;
 //use crate::parser::{CaptureOrExact};
+use nom::combinator::map;
 use nom::IResult;
 use std::iter::Peekable;
 use std::slice::Iter;
-use nom::combinator::{map};
 
 /// Tokens used to determine how to match and capture sections from a URL.
 #[derive(Debug, PartialEq, Clone)]
@@ -31,9 +31,7 @@ pub enum CaptureVariant {
     },
 }
 
-
 pub use crate::parser::parse_str_and_optimize_tokens;
-
 
 //#[cfg(test)]
 //mod test {
