@@ -10,7 +10,6 @@ use nom::{
 
 mod optimizer;
 pub use optimizer::{convert_tokens, parse_str_and_optimize_tokens};
-// pub mod util;
 
 /// Tokens generated from parsing a route matcher string.
 /// They will be optimized to another token type that is used to match URLs.
@@ -67,6 +66,9 @@ pub enum CaptureOrExact<'a> {
     Capture(RefCaptureVariant<'a>),
 }
 
+
+
+/// Represents the states the parser can be in.
 #[derive(Clone, PartialEq)]
 enum ParserState<'a> {
     None,
@@ -91,10 +93,7 @@ impl<'a> ParserState<'a> {
                 RouteParserToken::Capture(_) => Ok(ParserState::Path { prev_token: token }), /* TODO revise decision to allow this state transform for _all_ capture variants. */
                 RouteParserToken::QueryBegin => Ok(ParserState::FirstQuery { prev_token: token }),
                 RouteParserToken::QuerySeparator => Err(ParserError::NotAllowedStateTransition),
-                RouteParserToken::QueryCapture {
-                    ident: _,
-                    capture_or_match: _,
-                } => Err(ParserError::NotAllowedStateTransition),
+                RouteParserToken::QueryCapture { .. } => Err(ParserError::NotAllowedStateTransition),
                 RouteParserToken::FragmentBegin => Ok(ParserState::Fragment { prev_token: token }),
                 RouteParserToken::End => Err(ParserError::NotAllowedStateTransition),
             },
@@ -403,13 +402,6 @@ fn capture(i: &str) -> IResult<&str, RouteParserToken> {
     })(i)
 }
 
-// fn capture_many(i: &str) -> IResult<&str, RouteParserToken> {
-//    map(
-//        delimited(char('{'), many_capture_impl, char('}')),
-//        |cv: RefCaptureVariant| RouteParserToken::Capture(cv)
-//    )(i)
-//}
-
 fn capture_single(i: &str) -> IResult<&str, RouteParserToken> {
     map(
         delimited(char('{'), single_capture_impl, char('}')),
@@ -476,72 +468,67 @@ mod test {
     }
 
     #[test]
-    fn basic() {
+    fn slash() {
         parse("/").expect("should parse");
     }
 
     #[test]
-    fn basic1() {
+    fn slash_exact() {
         parse("/hello").expect("should parse");
     }
 
     #[test]
-    fn basic2() {
+    fn multiple_exact() {
         parse("/lorem/ipsum").expect("should parse");
     }
 
     #[test]
-    fn basic3() {
+    fn capture_in_path() {
         parse("/lorem/{ipsum}").expect("should parse");
     }
 
     #[test]
-    fn basic4() {
+    fn capture_rest_in_path() {
         parse("/lorem/{*:ipsum}").expect("should parse");
     }
 
     #[test]
-    fn basic5() {
+    fn capture_numbered_in_path() {
         parse("/lorem/{5:ipsum}").expect("should parse");
     }
 
     #[test]
-    fn basic6() {
+    fn exact_query_after_path() {
         parse("/lorem?ipsum=dolor").expect("should parse");
     }
 
     #[test]
-    fn basic7() {
-        parse("/lorem/?ipsum=dolor").expect("should parse");
-    }
-
-    #[test]
-    fn basic8() {
+    fn exact_query() {
         parse("?lorem=ipsum").expect("should parse");
     }
 
     #[test]
-    fn basic9() {
+    fn capture_query() {
         parse("?lorem={ipsum}").expect("should parse");
     }
 
     #[test]
-    fn basic10() {
+    fn multiple_queries() {
         parse("?lorem=ipsum&dolor=sit").expect("should parse");
     }
 
     #[test]
-    fn basic11() {
+    fn query_and_exact_fragment() {
         parse("?lorem=ipsum#dolor").expect("should parse");
     }
 
     #[test]
-    fn basic12() {
+    fn query_with_exact_and_capture_fragment() {
         parse("?lorem=ipsum#dolor{sit}").expect("should parse");
     }
 
     #[test]
-    fn basic13() {
+    fn query_with_capture_fragment() {
         parse("?lorem=ipsum#{dolor}").expect("should parse");
     }
 }
