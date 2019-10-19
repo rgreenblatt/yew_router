@@ -1,5 +1,4 @@
-use yew::prelude::*;
-use yew::Properties;
+use yew::{prelude::*, Properties};
 
 pub struct CModel;
 

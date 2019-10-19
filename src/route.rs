@@ -1,10 +1,7 @@
 //! Wrapper around route url string, and associated history state.
 use crate::service::RouteService;
-use serde::Deserialize;
-use serde::Serialize;
-use stdweb::unstable::TryFrom;
-use stdweb::JsSerialize;
-use stdweb::Value;
+use serde::{Deserialize, Serialize};
+use stdweb::{unstable::TryFrom, JsSerialize, Value};
 
 //use std::ops::Deref;
 use std::ops::Deref;

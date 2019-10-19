@@ -1,10 +1,11 @@
 //! A component wrapping a `<button>` tag that changes the route.
-use crate::agent::{RouteAgentDispatcher, RouteRequest};
-use crate::route::Route;
+use crate::{
+    agent::{RouteAgentDispatcher, RouteRequest},
+    route::Route,
+};
 use yew::prelude::*;
 
-use super::Msg;
-use super::Props;
+use super::{Msg, Props};
 use crate::RouterState;
 
 /// Changes the route when clicked.

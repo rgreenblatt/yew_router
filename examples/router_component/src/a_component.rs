@@ -1,7 +1,5 @@
-use crate::c_component::CModel;
-use crate::ARoute;
-use yew::prelude::*;
-use yew::Properties;
+use crate::{c_component::CModel, ARoute};
+use yew::{prelude::*, Properties};
 use yew_router::prelude::*;
 
 pub struct AModel {

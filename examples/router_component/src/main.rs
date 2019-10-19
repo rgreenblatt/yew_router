@@ -5,12 +5,13 @@ mod c_component;
 
 use yew::prelude::*;
 
-use yew_router::prelude::*;
-use yew_router::Switch;
+use yew_router::{prelude::*, Switch};
 
-use crate::a_component::AModel;
-use crate::b_component::{BModel, BRoute};
-use crate::c_component::CModel;
+use crate::{
+    a_component::AModel,
+    b_component::{BModel, BRoute},
+    c_component::CModel,
+};
 
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;

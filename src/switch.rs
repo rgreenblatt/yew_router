@@ -1,6 +1,5 @@
 //! Route based on enums.
-use crate::route::Route;
-use crate::RouteState;
+use crate::{route::Route, RouteState};
 use std::fmt::Write;
 
 /// Routing trait for enums.

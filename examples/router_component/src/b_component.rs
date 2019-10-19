@@ -1,9 +1,6 @@
-use std::str::FromStr;
-use std::usize;
-use yew::prelude::*;
-use yew::Properties;
-use yew_router::agent::RouteRequest;
-use yew_router::prelude::*;
+use std::{str::FromStr, usize};
+use yew::{prelude::*, Properties};
+use yew_router::{agent::RouteRequest, prelude::*};
 
 pub struct BModel {
     props: Props,

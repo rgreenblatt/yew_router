@@ -1,14 +1,13 @@
-use nom::bytes::complete::{tag, tag_no_case};
-use nom::character::complete::anychar;
-use nom::combinator::cond;
-use nom::combinator::{map, peek};
-use nom::error::{ErrorKind, ParseError};
-use nom::multi::many_till;
-use nom::sequence::pair;
-use nom::IResult;
-use std::iter::Peekable;
-use std::rc::Rc;
-use std::slice::Iter;
+use nom::{
+    bytes::complete::{tag, tag_no_case},
+    character::complete::anychar,
+    combinator::{cond, map, peek},
+    error::{ErrorKind, ParseError},
+    multi::many_till,
+    sequence::pair,
+    IResult,
+};
+use std::{iter::Peekable, rc::Rc, slice::Iter};
 use yew_router_route_parser::MatcherToken;
 
 /// Allows a configurable tag that can optionally be case insensitive.

@@ -1,7 +1,9 @@
 //! Bridge to RouteAgent.
 use crate::agent::{AgentState, RouteAgent};
-use std::fmt::{Debug, Error as FmtError, Formatter};
-use std::ops::{Deref, DerefMut};
+use std::{
+    fmt::{Debug, Error as FmtError, Formatter},
+    ops::{Deref, DerefMut},
+};
 use yew::agent::{Dispatched, Dispatcher};
 
 /// A simplified interface to the router agent.

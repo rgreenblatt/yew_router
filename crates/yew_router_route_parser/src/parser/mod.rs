@@ -1,10 +1,12 @@
 //! Parser that consumes a string and produces the first representation of the matcher.
-use nom::branch::alt;
-use nom::bytes::complete::take_till1;
-use nom::character::complete::{char, digit1};
-use nom::combinator::map;
-use nom::sequence::{delimited, separated_pair};
-use nom::IResult;
+use nom::{
+    branch::alt,
+    bytes::complete::take_till1,
+    character::complete::{char, digit1},
+    combinator::map,
+    sequence::{delimited, separated_pair},
+    IResult,
+};
 
 mod optimizer;
 pub use optimizer::{convert_tokens, parse_str_and_optimize_tokens};

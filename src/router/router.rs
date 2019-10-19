@@ -1,11 +1,15 @@
 //! Router Component.
 
-use crate::agent::{RouteAgentBridge, RouteRequest};
-use crate::route::Route;
-use crate::router::RouterState;
-use crate::Switch;
-use std::fmt::{self, Debug, Error as FmtError, Formatter};
-use std::rc::Rc;
+use crate::{
+    agent::{RouteAgentBridge, RouteRequest},
+    route::Route,
+    router::RouterState,
+    Switch,
+};
+use std::{
+    fmt::{self, Debug, Error as FmtError, Formatter},
+    rc::Rc,
+};
 use yew::{
     virtual_dom::VNode, Callback, Component, ComponentLink, Html, Properties, Renderable,
     ShouldRender,

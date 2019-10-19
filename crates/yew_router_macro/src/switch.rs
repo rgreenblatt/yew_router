@@ -3,13 +3,14 @@ use proc_macro::TokenStream;
 //use quote::quote;
 use syn::{parse_macro_input, Fields};
 //use syn::punctuated::IntoIter;
-use crate::switch::enum_impl::generate_enum_impl;
-use crate::switch::shadow::{ShadowCaptureVariant, ShadowMatcherToken};
-use crate::switch::struct_impl::generate_struct_impl;
+use crate::switch::{
+    enum_impl::generate_enum_impl,
+    shadow::{ShadowCaptureVariant, ShadowMatcherToken},
+    struct_impl::generate_struct_impl,
+};
 use proc_macro2::Span;
 use quote::quote;
-use syn::export::TokenStream2;
-use syn::{Data, DeriveInput, Ident, Variant};
+use syn::{export::TokenStream2, Data, DeriveInput, Ident, Variant};
 
 mod attribute;
 mod enum_impl;

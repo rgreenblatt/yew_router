@@ -8,12 +8,10 @@ use yew::prelude::worker::*;
 
 use std::collections::HashSet;
 
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Error as FmtError, Formatter};
 
-use crate::route::Route;
-use crate::route::RouteState;
+use crate::route::{Route, RouteState};
 use log::trace;
 
 mod bridge;

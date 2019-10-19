@@ -1,15 +1,19 @@
-use crate::matcher::route_matcher::util::tag_possibly_case_sensitive;
-use crate::matcher::route_matcher::util::{consume_until, next_delimiters};
-use crate::matcher::route_matcher::MatcherSettings;
-use crate::matcher::Captures;
+use crate::matcher::{
+    route_matcher::{
+        util::{consume_until, next_delimiters, tag_possibly_case_sensitive},
+        MatcherSettings,
+    },
+    Captures,
+};
 use log::{debug, trace};
-use nom::bytes::complete::{is_not, tag};
-use nom::combinator::{map, verify};
-use nom::error::ErrorKind;
-use nom::sequence::terminated;
-use nom::IResult;
-use std::iter::Peekable;
-use std::slice::Iter;
+use nom::{
+    bytes::complete::{is_not, tag},
+    combinator::{map, verify},
+    error::ErrorKind,
+    sequence::terminated,
+    IResult,
+};
+use std::{iter::Peekable, slice::Iter};
 use yew_router_route_parser::{CaptureVariant, MatcherToken};
 
 /// Allows abstracting over capturing into a HashMap (Captures) or a Vec.

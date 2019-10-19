@@ -1,12 +1,9 @@
 //! Service to handle routing.
 
-use stdweb::web::event::PopStateEvent;
-use stdweb::web::window;
-use stdweb::web::EventListenerHandle;
-use stdweb::web::History;
-use stdweb::web::IEventTarget;
-use stdweb::web::Location;
-use stdweb::Value;
+use stdweb::{
+    web::{event::PopStateEvent, window, EventListenerHandle, History, IEventTarget, Location},
+    Value,
+};
 use yew::callback::Callback;
 
 use crate::route::RouteState;

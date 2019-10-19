@@ -1,5 +1,4 @@
-use quote::quote;
-use quote::ToTokens;
+use quote::{quote, ToTokens};
 use syn::export::TokenStream2;
 use yew_router_route_parser::{CaptureVariant, MatcherToken};
 
