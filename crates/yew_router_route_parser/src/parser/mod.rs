@@ -1,16 +1,14 @@
 //! Parser that consumes a string and produces the first representation of the matcher.
 use nom::branch::alt;
 use nom::IResult;
-use nom::combinator::{map, map_res};
+use nom::combinator::{map};
 use nom::character::complete::{char, digit1};
-use nom::bytes::complete::{take_until, take_till1};
+use nom::bytes::complete::{take_till1};
 use nom::sequence::{delimited, separated_pair};
 
 mod optimizer;
 pub use optimizer::{parse_str_and_optimize_tokens, convert_tokens};
-// TODO move util to the main crate - it isn't used in this one.
-pub mod util;
-//mod error;
+//pub mod util;
 
 /// Tokens generated from parsing a route matcher string.
 /// They will be optimized to another token type that is used to match URLs.

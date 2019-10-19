@@ -18,7 +18,7 @@ mod token_optimizer;
 //pub use parser_old::{Capture, CaptureVariant};
 use std::collections::HashMap;
 pub use token_optimizer::{
-    next_delimiters, parse_str_and_optimize_tokens, MatcherToken, CaptureVariant
+    parse_str_and_optimize_tokens, MatcherToken, CaptureVariant
 };
 pub use parser::ParserError;
 

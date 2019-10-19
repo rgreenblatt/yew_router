@@ -9,7 +9,7 @@ use nom::sequence::terminated;
 use nom::IResult;
 use std::iter::Peekable;
 use std::slice::Iter;
-use yew_router_route_parser::parser::util::consume_until;
+use crate::matcher::route_matcher::util::{consume_until, next_delimiters};
 use yew_router_route_parser::{CaptureVariant, MatcherToken};
 
 /// Allows abstracting over capturing into a HashMap (Captures) or a Vec.
@@ -114,7 +114,7 @@ fn capture_named<'a, 'b: 'a, CAP: CaptureCollection<'b>>(
 ) -> Result<&'a str, nom::Err<(&'a str, ErrorKind)>> {
     log::trace!("Matching Named ({})", capture_key);
     if let Some(_peaked_next_token) = iter.peek() {
-        let delimiter = yew_router_route_parser::next_delimiters(iter.clone());
+        let delimiter = next_delimiters(iter.clone());
         let (ii, captured) = optionally_check_if_parsed_is_allowed_capture(
             consume_until(delimiter),
             allowed_captures,
@@ -141,7 +141,7 @@ fn capture_many_named<'a, 'b, CAP: CaptureCollection<'b>>(
 ) -> Result<&'a str, nom::Err<(&'a str, ErrorKind)>> {
     log::trace!("Matching NumberedUnnamed ({})", capture_key);
     if let Some(_peaked_next_token) = iter.peek() {
-        let delimiter = yew_router_route_parser::next_delimiters(iter.clone());
+        let delimiter = next_delimiters(iter.clone());
         let (ii, captured) = optionally_check_if_parsed_is_allowed_capture(
             consume_until(delimiter),
             allowed_captures,
@@ -180,7 +180,7 @@ fn capture_numbered_named<'a, 'b, CAP: CaptureCollection<'b>>(
                 captured += c;
                 captured += "/";
             } else {
-                let delimiter = yew_router_route_parser::next_delimiters(iter.clone());
+                let delimiter = next_delimiters(iter.clone());
                 let (ii, c) = consume_until(delimiter)(i)?;
                 i = ii;
                 captured += &c;

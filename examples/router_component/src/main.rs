@@ -58,7 +58,7 @@ pub enum ARoute {
     // Still accept the route, when matching, but consider it invalid.
     // This is effectively the same as wrapping the ARoute in Option, but doesn't run afoul of the current routing syntax.
     #[to = "{*:rest}"]
-    None(String),
+    None(String), // TODO, make this work on empty variants
 }
 
 impl Renderable<Model> for Model {

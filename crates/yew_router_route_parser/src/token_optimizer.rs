@@ -4,10 +4,6 @@
 use nom::IResult;
 use std::iter::Peekable;
 use std::slice::Iter;
-//use nom::bytes::complete::take_till1;
-use crate::parser::util::alternative;
-//use crate::parser::YewRouterParseError;
-//use crate::CaptureVariant;
 use nom::combinator::{map};
 
 /// Tokens used to determine how to match and capture sections from a URL.
@@ -35,48 +31,6 @@ pub enum CaptureVariant {
     },
 }
 
-/// Produces a parser combinator that searches for the next possible set of strings of
-/// characters used to terminate a forward search.
-///
-/// Take a peekable iterator.
-/// Until a top level Match is encountered, peek through optional sections.
-/// If a match is found, then move the list of delimiters into a take_till seeing if the current input slice is found in the list of decimeters.
-/// If a match is not found, then do the same, or accept as part of an alt() a take the rest of the input (as long as it is valid).
-/// return this take_till configuration and use that to terminate / capture the given string for the capture token.
-pub fn next_delimiters<'a>(
-    iter: Peekable<Iter<MatcherToken>>,
-) -> impl Fn(&'a str) -> IResult<&'a str, &'a str> {
-    enum MatchOrOptSequence<'a> {
-        Match(&'a str),
-    }
-
-    let mut sequences = vec![];
-    for next in iter {
-        match next {
-            MatcherToken::Exact(sequence) => {
-                sequences.push(MatchOrOptSequence::Match(&sequence));
-                break;
-            }
-            _ => panic!("underlying parser should not allow token order not of match or optional"),
-        }
-    }
-
-    let delimiters: Vec<String> = sequences
-        .into_iter()
-        .map(|s| match s {
-            MatchOrOptSequence::Match(s) => s,
-        })
-        .map(String::from)
-        .collect();
-
-    log::trace!(
-        "delimiters in read_until_next_known_delimiter: {:?}",
-        delimiters
-    );
-
-    // if the sequence contains an optional section, it can attempt to match until the end.
-    map(alternative(delimiters), |x| x)
-}
 
 pub use crate::parser::parse_str_and_optimize_tokens;
 
