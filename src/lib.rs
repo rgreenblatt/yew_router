@@ -169,16 +169,20 @@ pub use yew_router_macro::Switch;
 ///
 /// #### Exact match
 /// ```
-///# use yew_router::route;
+/// # use yew_router::route;
 /// let matcher = route!("/lorem/ipsum/dolor/sit?amet=consectetur&adipiscing=elit#sed");
-/// assert!(matcher.match_route_string("/lorem/ipsum/dolor/sit?amet=consectetur&adipiscing=elit#sed").is_some());
+/// assert!(matcher
+///     .match_route_string("/lorem/ipsum/dolor/sit?amet=consectetur&adipiscing=elit#sed")
+///     .is_some());
 /// ```
 ///
 /// #### Capture
 /// ```
-///# use yew_router::route;
+/// # use yew_router::route;
 /// let matcher = route!("/lorem/ipsum/{value1}/{value2}");
-/// let captures = matcher.match_route_string("/lorem/ipsum/dolor/sit").unwrap();
+/// let captures = matcher
+///     .match_route_string("/lorem/ipsum/dolor/sit")
+///     .unwrap();
 /// assert_eq!(captures["value1"], "dolor".to_string());
 /// assert_eq!(captures["value2"], "sit".to_string());
 /// ```
@@ -187,22 +191,25 @@ pub use yew_router_macro::Switch;
 /// ```
 /// # use yew_router::route;
 /// let matcher = route!("/lorem/ipsum/{*}");
-/// assert!(matcher.match_route_string("/lorem/ipsum/dolor/sit").is_some());
+/// assert!(matcher
+///     .match_route_string("/lorem/ipsum/dolor/sit")
+///     .is_some());
 /// assert!(matcher.match_route_string("/lorem/ipsum/").is_some());
 ///
 /// let matcher = route!("/{*}/dolor/sit");
-/// assert!(matcher.match_route_string("/lorem/ipsum/dolor/sit").is_some());
+/// assert!(matcher
+///     .match_route_string("/lorem/ipsum/dolor/sit")
+///     .is_some());
 /// assert!(matcher.match_route_string("/lorem/dolor/sit").is_some());
 /// assert!(matcher.match_route_string("/dolor/sit").is_none());
 /// ```
 ///
 /// #### Match Optional
 /// ```
-///# use yew_router::route;
+/// # use yew_router::route;
 /// let matcher = route!("/lorem[/ipsum]");
 /// assert!(matcher.match_route_string("/lorem/ipsum").is_some());
 /// assert!(matcher.match_route_string("/lorem").is_some());
-///
 ///
 /// let matcher = route!("/lorem[/ipsum{any}]");
 /// let captures = matcher.match_route_string("/lorem/ipsumdolorsit").unwrap();
@@ -211,7 +218,7 @@ pub use yew_router_macro::Switch;
 ///
 /// #### Trailing Auto-Optional Slash
 /// ```
-///# use yew_router::route;
+/// # use yew_router::route;
 /// let matcher = route!("/lorem");
 /// assert!(matcher.match_route_string("/lorem").is_some());
 /// assert!(matcher.match_route_string("/lorem/").is_some());
@@ -223,18 +230,17 @@ pub use yew_router_macro::Switch;
 ///
 /// #### Case Insensitivity
 /// ```
-///# use yew_router::route;
+/// # use yew_router::route;
 /// let matcher = route!("/lorem/ipsum" CaseInsensitive);
 /// assert!(matcher.match_route_string("/loReM/IpSuM").is_some());
 /// ```
 ///
 /// #### Incomplete
 /// ```
-///# use yew_router::route;
+/// # use yew_router::route;
 /// let matcher = route!("/lorem" Incomplete);
 /// assert!(matcher.match_route_string("/lorem/ipsum").is_some());
 /// ```
-///
 #[cfg(feature = "matchers")]
 #[proc_macro_hack]
 pub use yew_router_macro::route;

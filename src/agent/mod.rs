@@ -65,7 +65,6 @@ impl<T> Transferable for RouteRequest<T> where for<'de> T: Serialize + Deseriali
 ///
 /// If you don't, then multiple RouteAgents will be spawned, and will not communicate messages to
 /// routing components of different types.
-///
 pub struct RouteAgent<T>
 where
     for<'de> T: AgentState<'de>,

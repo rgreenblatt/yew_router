@@ -1,4 +1,3 @@
-
 /// Tokens used to determine how to match and capture sections from a URL.
 #[derive(Debug, PartialEq, Clone)]
 pub enum MatcherToken {

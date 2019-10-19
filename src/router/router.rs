@@ -24,8 +24,7 @@ use yew::{
 /// # Example
 /// ```
 /// use yew::prelude::*;
-/// use yew_router::router::Router;
-/// use yew_router::Switch;
+/// use yew_router::{router::Router, Switch};
 ///
 /// pub enum Msg {}
 ///
@@ -45,7 +44,7 @@ use yew::{
 /// #[derive(Switch)]
 /// enum S {
 ///     #[to = "/v"]
-///     Variant
+///     Variant,
 /// }
 ///
 /// impl Renderable<Model> for Model {
@@ -80,24 +79,24 @@ where
     /// Wrap a render closure so that it can be used by the Router.
     /// # Example
     /// ```
-    ///# use yew_router::Switch;
-    ///# use yew_router::router::Router;
-    ///# use yew::{html, Html};
-    ///# #[derive(Switch)]
-    ///# enum S {
-    ///#     #[to = "/route"]
-    ///#     Variant
-    ///# }
-    ///# pub enum Msg {}
+    /// # use yew_router::Switch;
+    /// # use yew_router::router::Router;
+    /// # use yew::{html, Html};
+    /// # #[derive(Switch)]
+    /// # enum S {
+    /// #     #[to = "/route"]
+    /// #     Variant
+    /// # }
+    /// # pub enum Msg {}
     ///
-    ///# fn dont_execute() {
+    /// # fn dont_execute() {
     /// let render = Router::render(|switch: Option<S>| -> Html<Router<(), S, Msg>> {
-    ///    match switch {
-    ///        Some(S::Variant) => html!{"Variant"},
-    ///        None => html!{"404"}
-    ///    }
+    ///     match switch {
+    ///         Some(S::Variant) => html! {"Variant"},
+    ///         None => html! {"404"},
+    ///     }
     /// });
-    ///# }
+    /// # }
     /// ```
     pub fn render<F: RenderFn<Router<T, SW, M>, SW> + 'static>(f: F) -> Render<T, SW, M> {
         Render::new(f)
@@ -169,7 +168,7 @@ where
         let router_agent = RouteAgentBridge::new(callback);
 
         Router {
-            route: Default::default(), // This must be updated by immediately requesting a route update from the service bridge.
+            route: Default::default(), /* This must be updated by immediately requesting a route update from the service bridge. */
             props,
             router_agent,
         }

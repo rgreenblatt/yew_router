@@ -87,7 +87,7 @@ impl<'a> ParserState<'a> {
             ParserState::None => match token {
                 RouteParserToken::Separator => Ok(ParserState::Path { prev_token: token }),
                 RouteParserToken::Exact(_) => Err(ParserError::NotAllowedStateTransition),
-                RouteParserToken::Capture(_) => Ok(ParserState::Path { prev_token: token }), // TODO revise decision to allow this state transform for _all_ capture variants.
+                RouteParserToken::Capture(_) => Ok(ParserState::Path { prev_token: token }), /* TODO revise decision to allow this state transform for _all_ capture variants. */
                 RouteParserToken::QueryBegin => Ok(ParserState::FirstQuery { prev_token: token }),
                 RouteParserToken::QuerySeparator => Err(ParserError::NotAllowedStateTransition),
                 RouteParserToken::QueryCapture {
@@ -138,7 +138,7 @@ impl<'a> ParserState<'a> {
                         RouteParserToken::End => Ok(ParserState::End),
                         _ => Err(ParserError::NotAllowedStateTransition),
                     },
-                    _ => Err(ParserError::InvalidState), // Other previous token types are invalid within a Path state.
+                    _ => Err(ParserError::InvalidState), /* Other previous token types are invalid within a Path state. */
                 }
             }
             ParserState::FirstQuery { prev_token } => match prev_token {

@@ -26,8 +26,8 @@ pub enum ShadowMatcherToken {
 
 pub enum ShadowCaptureVariant {
     Named(String), // {name} - captures a section and adds it to the map with a given name
-    ManyNamed(String), // {*:name} - captures over many sections and adds it to the map with a given name.
-    NumberedNamed { sections: usize, name: String }, // {2:name} - captures a fixed number of sections with a given name.
+    ManyNamed(String), /* {*:name} - captures over many sections and adds it to the map with a given name. */
+    NumberedNamed { sections: usize, name: String }, /* {2:name} - captures a fixed number of sections with a given name. */
 }
 
 impl ToTokens for ShadowCaptureVariant {

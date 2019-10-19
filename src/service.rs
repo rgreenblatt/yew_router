@@ -17,7 +17,7 @@ use std::marker::PhantomData;
 pub struct RouteService<T> {
     history: History,
     location: Location,
-    event_listener: Option<EventListenerHandle>, // maybe this should not be stored in the service itself, and instead returned by register_callback()
+    event_listener: Option<EventListenerHandle>, /* maybe this should not be stored in the service itself, and instead returned by register_callback() */
     phantom_data: PhantomData<T>,
 }
 
