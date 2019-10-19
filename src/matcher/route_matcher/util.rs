@@ -24,13 +24,6 @@ pub fn tag_possibly_case_sensitive<'a, 'b: 'a>(
     )
 }
 
-/// Given a function that returns a single token, wrap the token in a Vec.
-// pub fn vectorize<'a>(
-//    f: impl Fn(&'a str) -> IResult<&'a str, RouteParserToken, VerboseError<&'a str>>,
-//) -> impl Fn(&'a str) -> IResult<&'a str, Vec<RouteParserToken>, VerboseError<&'a str>> {
-//    move |i: &str| (f)(i).map(|(i, t)| (i, vec![t]))
-//}
-
 /// Similar to alt, but works on a vector of tags.
 pub fn alternative(alternatives: Vec<String>) -> impl Fn(&str) -> IResult<&str, &str> {
     move |i: &str| {

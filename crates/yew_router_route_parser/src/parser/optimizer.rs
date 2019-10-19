@@ -1,6 +1,6 @@
 use crate::parser::{parse, CaptureOrExact, ParserError, RefCaptureVariant, RouteParserToken};
 
-use crate::token_optimizer::{CaptureVariant, MatcherToken};
+use crate::{CaptureVariant, MatcherToken};
 
 impl<'a> From<RefCaptureVariant<'a>> for CaptureVariant {
     fn from(v: RefCaptureVariant<'a>) -> Self {
