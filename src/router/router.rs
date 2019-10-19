@@ -118,7 +118,8 @@ impl<T, M> From<M> for Msg<T, M> {
     }
 }
 
-// TODO consider removing the Option, and creating two different render functions - one for rendering the switch, and one for a 404 case.
+// TODO consider removing the Option, and creating two different render functions - one for
+// rendering the switch, and one for a 404 case.
 /// Render function definition
 pub trait RenderFn<CTX: Component, SW>: Fn(Option<SW>) -> Html<CTX> {}
 impl<T, CTX: Component, SW> RenderFn<CTX, SW> for T where T: Fn(Option<SW>) -> Html<CTX> {}
@@ -168,7 +169,8 @@ where
         let router_agent = RouteAgentBridge::new(callback);
 
         Router {
-            route: Default::default(), /* This must be updated by immediately requesting a route update from the service bridge. */
+            route: Default::default(), /* This must be updated by immediately requesting a route
+                                        * update from the service bridge. */
             props,
             router_agent,
         }

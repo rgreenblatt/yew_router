@@ -237,15 +237,15 @@ fn valid_many_capture_characters(i: &str) -> IResult<&str, &str> {
     is_not(INVALID_CHARACTERS)(i)
 }
 
-/// If the allowed matches is Some, then check to see if any of the elements in it are what was captured.
-/// It will fail if the captured value was not in the provided list.
+/// If the allowed matches is Some, then check to see if any of the elements in it are what was
+/// captured. It will fail if the captured value was not in the provided list.
 ///
 /// If none, it will allow the capture as intended.
 fn optionally_check_if_parsed_is_allowed_capture<'a, F: 'a>(
     f: F,
     allowed_captures: &Option<Vec<String>>,
 ) -> impl Fn(&'a str) -> IResult<&'a str, String, (&'a str, ErrorKind)>
-//Result<&'a str, nom::Err<(&'a str, ErrorKind)>>
+// Result<&'a str, nom::Err<(&'a str, ErrorKind)>>
 where
     F: Fn(&'a str) -> IResult<&'a str, String, (&'a str, ErrorKind)>,
 {
@@ -262,7 +262,7 @@ where
     )
 }
 
-//fn valid_capture_characters_in_query(i: &str) -> IResult<&str, &str> {
+// fn valid_capture_characters_in_query(i: &str) -> IResult<&str, &str> {
 //    const INVALID_CHARACTERS: &str = " *#&?|{}=";
 //    is_not(INVALID_CHARACTERS)(i)
 //}
@@ -292,12 +292,14 @@ mod integration_test {
             .expect("should match");
     }
 
-    // TODO this should be able to be less strict. A trailing slash before a # or ? should be ignored
+    // TODO this should be able to be less strict. A trailing slash before a # or ? should be
+    // ignored
 
     //    #[test]
     //    fn match_query_after_path_slash_ignored() {
-    //        let x = yew_router_route_parser::parse_str_and_optimize_tokens("/a/path/?hello=there").expect("Should parse");
-    //        match_paths(&x, "/a/path?hello=there").expect("should match");
+    //        let x =
+    // yew_router_route_parser::parse_str_and_optimize_tokens("/a/path/?hello=there").expect("Should
+    // parse");        match_paths(&x, "/a/path?hello=there").expect("should match");
     //    }
 
     #[test]

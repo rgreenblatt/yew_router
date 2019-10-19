@@ -10,7 +10,7 @@ use nom::{
 
 mod optimizer;
 pub use optimizer::{convert_tokens, parse_str_and_optimize_tokens};
-//pub mod util;
+// pub mod util;
 
 /// Tokens generated from parsing a route matcher string.
 /// They will be optimized to another token type that is used to match URLs.
@@ -41,7 +41,8 @@ pub enum RouteParserToken<'a> {
 
 /// Token representing various types of captures.
 ///
-/// It can capture and discard for unnamed variants, or capture and store in the `Matches` for the named variants.
+/// It can capture and discard for unnamed variants, or capture and store in the `Matches` for the
+/// named variants.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum RefCaptureVariant<'a> {
     /// {name} - captures a section and adds it to the map with a given name.
@@ -138,7 +139,8 @@ impl<'a> ParserState<'a> {
                         RouteParserToken::End => Ok(ParserState::End),
                         _ => Err(ParserError::NotAllowedStateTransition),
                     },
-                    _ => Err(ParserError::InvalidState), /* Other previous token types are invalid within a Path state. */
+                    _ => Err(ParserError::InvalidState), /* Other previous token types are
+                                                          * invalid within a Path state. */
                 }
             }
             ParserState::FirstQuery { prev_token } => match prev_token {
@@ -401,8 +403,7 @@ fn capture(i: &str) -> IResult<&str, RouteParserToken> {
     })(i)
 }
 
-//
-//fn capture_many(i: &str) -> IResult<&str, RouteParserToken> {
+// fn capture_many(i: &str) -> IResult<&str, RouteParserToken> {
 //    map(
 //        delimited(char('{'), many_capture_impl, char('}')),
 //        |cv: RefCaptureVariant| RouteParserToken::Capture(cv)

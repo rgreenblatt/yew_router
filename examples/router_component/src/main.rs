@@ -57,7 +57,8 @@ pub enum ARoute {
     C,
     // Because it is impossible to specify an Optional nested route:
     // Still accept the route, when matching, but consider it invalid.
-    // This is effectively the same as wrapping the ARoute in Option, but doesn't run afoul of the current routing syntax.
+    // This is effectively the same as wrapping the ARoute in Option, but doesn't run afoul of the
+    // current routing syntax.
     #[to = "{*:rest}"]
     None(String), // TODO, make this work on empty variants
 }

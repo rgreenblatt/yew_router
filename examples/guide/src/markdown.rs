@@ -111,9 +111,9 @@ where
         Tag::CodeBlock(lang) => {
             let mut el = VTag::new("code");
             // Different color schemes may be used for different code blocks,
-            // but a different library (likely js based at the moment) would be necessary to actually provide the
-            // highlighting support by locating the language classes and applying dom transforms
-            // on their contents.
+            // but a different library (likely js based at the moment) would be necessary to
+            // actually provide the highlighting support by locating the language
+            // classes and applying dom transforms on their contents.
             match lang.as_ref() {
                 "html" => el.add_class("html-language"),
                 "rust" => el.add_class("rust-language"),
@@ -165,7 +165,9 @@ where
             }
             el
         }
-        Tag::FootnoteDefinition(ref _footnote_id) => VTag::new("span"), /* Footnotes are not rendered as anything special */
+        Tag::FootnoteDefinition(ref _footnote_id) => VTag::new("span"), // Footnotes are not
+        // rendered as anything
+        // special
         Tag::HtmlBlock => VTag::new("yeet"), // TODO, what happens here??
         Tag::Strikethrough => VTag::new("strike"),
     }

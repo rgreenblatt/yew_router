@@ -74,7 +74,8 @@ impl AttrToken {
             .collect()
     }
 
-    /// The id is an unique identifier that allows otherwise unnamed captures to still be captured with unique names.
+    /// The id is an unique identifier that allows otherwise unnamed captures to still be captured
+    /// with unique names.
     pub fn into_shadow_matcher_tokens(
         self,
         id: usize,

@@ -26,7 +26,7 @@ pub enum CaptureVariant {
 pub use crate::parser::parse_str_and_optimize_tokens;
 
 //#[cfg(test)]
-//mod test {
+// mod test {
 //    use super::*;
 //    use crate::parser::CaptureVariant;
 //
@@ -82,8 +82,8 @@ pub use crate::parser::parse_str_and_optimize_tokens;
 //            RouteParserToken::QueryBegin,
 //            RouteParserToken::QueryCapture {
 //                ident: "lorem".to_string(),
-//                capture_or_match: CaptureOrExact::Capture(Capture::from(CaptureVariant::Named("lorem".to_string()))),
-//            },
+//                capture_or_match:
+// CaptureOrExact::Capture(Capture::from(CaptureVariant::Named("lorem".to_string()))),            },
 //        ];
 //        let optimized = optimize_tokens(tokens);
 //        let expected = vec![

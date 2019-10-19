@@ -1,4 +1,5 @@
-//! Module for matching route strings based on tokens generated from the yew_router_route_parser crate.
+//! Module for matching route strings based on tokens generated from the yew_router_route_parser
+//! crate.
 
 pub use yew_router_route_parser::{CaptureVariant, MatcherToken};
 
@@ -6,8 +7,8 @@ mod match_paths;
 mod util;
 
 use super::Captures;
-//use super::Matcher;
-//use crate::matcher::YewRouterParseError; // TODO, implement proper error reporting again.
+// use super::Matcher;
+// use crate::matcher::YewRouterParseError; // TODO, implement proper error reporting again.
 use nom::{combinator::all_consuming, IResult};
 use std::collections::HashSet;
 use yew_router_route_parser::{parse_str_and_optimize_tokens, ParserError};
@@ -82,7 +83,8 @@ impl RouteMatcher {
     }
 
     /// Gets a set of all names that will be captured.
-    /// This is useful in determining if a given struct will be able to be populated by a given path matcher before being given a concrete path to match.
+    /// This is useful in determining if a given struct will be able to be populated by a given path
+    /// matcher before being given a concrete path to match.
     pub fn capture_names(&self) -> HashSet<&str> {
         fn capture_names_impl(tokens: &[MatcherToken]) -> HashSet<&str> {
             tokens

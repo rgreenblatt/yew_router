@@ -150,7 +150,7 @@ impl Renderable<BModel> for BModel {
     }
 }
 
-//impl FromCaptures for Props {
+// impl FromCaptures for Props {
 //    fn from_captures(captures: &Captures) -> Result<Self, FromCapturesError> {
 //        let number = captures
 //            .get("number")
@@ -178,6 +178,7 @@ impl BModel {
             "Number: None".to_string()
         }
     }
+
     fn display_subpath_input(&self) -> Html<BModel> {
         let sub_path = self.props.sub_path.clone();
         html! {

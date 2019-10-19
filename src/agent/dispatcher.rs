@@ -23,7 +23,8 @@ where
 }
 
 /// A wrapper around the bridge
-//pub (crate) struct RouteAgentBridge<T: for<'de> YewRouterState<'de>>(pub Box<dyn Bridge<RouteAgent<T>>>);
+// pub (crate) struct RouteAgentBridge<T: for<'de> YewRouterState<'de>>(pub Box<dyn
+// Bridge<RouteAgent<T>>>);
 
 impl<T: for<'de> AgentState<'de>> Debug for RouteAgentDispatcher<T> {
     fn fmt(&self, f: &mut Formatter) -> Result<(), FmtError> {

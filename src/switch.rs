@@ -53,11 +53,14 @@ pub trait Switch: Sized {
     /// Build part of a route from itself.
     fn build_route_section<T>(self, route: &mut String) -> Option<T>;
 
-    /// Called when the key (the named capture group) can't be located. Instead of failing outright, a default item can be provided instead.
+    /// Called when the key (the named capture group) can't be located. Instead of failing outright,
+    /// a default item can be provided instead.
     ///
     /// Its primary motivation for existing is to allow implementing Switch for Option.
-    /// This doesn't make sense at the moment because this only works for the individual key section - any surrounding literals are pretty much guaranteed to make the parse step fail.
-    /// because of this, this functionality might be removed in favor of using a nested Switch enum, or multiple variants.
+    /// This doesn't make sense at the moment because this only works for the individual key section
+    /// - any surrounding literals are pretty much guaranteed to make the parse step fail.
+    /// because of this, this functionality might be removed in favor of using a nested Switch enum,
+    /// or multiple variants.
     fn key_not_available() -> Option<Self> {
         None
     }

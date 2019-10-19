@@ -1,4 +1,5 @@
-//! Parser for a "matcher string". The tokens produced by this parser are used to construct a matcher.
+//! Parser for a "matcher string". The tokens produced by this parser are used to construct a
+//! matcher.
 
 #![deny(
     missing_docs,
@@ -11,11 +12,11 @@
     unused_qualifications
 )]
 
-//pub mod parser_old;
+// pub mod parser_old;
 pub mod parser;
 mod token_optimizer;
 
-//pub use parser_old::{Capture, CaptureVariant};
+// pub use parser_old::{Capture, CaptureVariant};
 pub use parser::ParserError;
 use std::collections::HashMap;
 pub use token_optimizer::{parse_str_and_optimize_tokens, CaptureVariant, MatcherToken};

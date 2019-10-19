@@ -25,7 +25,7 @@ pub fn tag_possibly_case_sensitive<'a, 'b: 'a>(
 }
 
 /// Given a function that returns a single token, wrap the token in a Vec.
-//pub fn vectorize<'a>(
+// pub fn vectorize<'a>(
 //    f: impl Fn(&'a str) -> IResult<&'a str, RouteParserToken, VerboseError<&'a str>>,
 //) -> impl Fn(&'a str) -> IResult<&'a str, Vec<RouteParserToken>, VerboseError<&'a str>> {
 //    move |i: &str| (f)(i).map(|(i, t)| (i, vec![t]))
@@ -69,9 +69,11 @@ where
 ///
 /// Take a peekable iterator.
 /// Until a top level Match is encountered, peek through optional sections.
-/// If a match is found, then move the list of delimiters into a take_till seeing if the current input slice is found in the list of decimeters.
-/// If a match is not found, then do the same, or accept as part of an alt() a take the rest of the input (as long as it is valid).
-/// return this take_till configuration and use that to terminate / capture the given string for the capture token.
+/// If a match is found, then move the list of delimiters into a take_till seeing if the current
+/// input slice is found in the list of decimeters. If a match is not found, then do the same, or
+/// accept as part of an alt() a take the rest of the input (as long as it is valid). return this
+/// take_till configuration and use that to terminate / capture the given string for the capture
+/// token.
 pub fn next_delimiters<'a>(
     iter: Peekable<Iter<MatcherToken>>,
 ) -> impl Fn(&'a str) -> IResult<&'a str, &'a str> {
