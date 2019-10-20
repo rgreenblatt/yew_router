@@ -10,10 +10,7 @@ use std::{
     fmt::{self, Debug, Error as FmtError, Formatter},
     rc::Rc,
 };
-use yew::{
-    virtual_dom::VNode, Callback, Component, ComponentLink, Html, Properties, Renderable,
-    ShouldRender,
-};
+use yew::{virtual_dom::VNode, Callback, Component, ComponentLink, Html, Properties, ShouldRender};
 
 /// Rendering control flow component.
 ///
@@ -201,11 +198,7 @@ where
         self.props = props;
         true // TODO, this can probably be better now.
     }
-}
 
-impl<T: for<'de> RouterState<'de>, SW: Switch + 'static, M: 'static> Renderable<Router<T, SW, M>>
-    for Router<T, SW, M>
-{
     fn view(&self) -> VNode<Self> {
         let switch: Option<SW> = SW::switch(self.route.clone());
         (&self.props.render.0)(switch)

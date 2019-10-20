@@ -41,9 +41,7 @@ impl<T: for<'de> RouterState<'de>> Component for RouterLink<T> {
         self.props = props;
         true
     }
-}
 
-impl<T: for<'de> RouterState<'de>> Renderable<RouterLink<T>> for RouterLink<T> {
     fn view(&self) -> Html<Self> {
         use stdweb::web::event::IEvent;
         let target: &str = &self.props.link;

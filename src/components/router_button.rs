@@ -41,9 +41,7 @@ impl<T: for<'de> RouterState<'de>> Component for RouterButton<T> {
         self.props = props;
         true
     }
-}
-
-impl<T: for<'de> RouterState<'de>> Renderable<RouterButton<T>> for RouterButton<T> {
+    
     fn view(&self) -> Html<RouterButton<T>> {
         html! {
             <button
